@@ -36,6 +36,7 @@
 		F00000000000000000000002 /* NetworkSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000012 /* NetworkSamplerTests.swift */; };
 		G00000000000000000000001 /* MetricsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = G00000000000000000000011 /* MetricsCoordinator.swift */; };
 		G00000000000000000000002 /* MetricsCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = G00000000000000000000012 /* MetricsCoordinatorTests.swift */; };
+		G00000000000000000000003 /* ThermalMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = G00000000000000000000013 /* ThermalMetricsTests.swift */; };
 		H00000000000000000000001 /* PreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H00000000000000000000011 /* PreferencesStore.swift */; };
 		H00000000000000000000002 /* PreferencesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H00000000000000000000012 /* PreferencesStoreTests.swift */; };
 		H00000000000000000000003 /* MenuBarAppearanceSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = H00000000000000000000013 /* MenuBarAppearanceSettings.swift */; };
@@ -107,6 +108,7 @@
 		F00000000000000000000012 /* NetworkSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSamplerTests.swift; sourceTree = "<group>"; };
 		G00000000000000000000011 /* MetricsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsCoordinator.swift; sourceTree = "<group>"; };
 		G00000000000000000000012 /* MetricsCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsCoordinatorTests.swift; sourceTree = "<group>"; };
+		G00000000000000000000013 /* ThermalMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalMetricsTests.swift; sourceTree = "<group>"; };
 		H00000000000000000000011 /* PreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStore.swift; sourceTree = "<group>"; };
 		H00000000000000000000012 /* PreferencesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStoreTests.swift; sourceTree = "<group>"; };
 		H00000000000000000000013 /* MenuBarAppearanceSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarAppearanceSettings.swift; sourceTree = "<group>"; };
@@ -355,6 +357,7 @@
 			isa = PBXGroup;
 			children = (
 				G00000000000000000000012 /* MetricsCoordinatorTests.swift */,
+				G00000000000000000000013 /* ThermalMetricsTests.swift */,
 			);
 			path = DomainTests;
 			sourceTree = "<group>";
@@ -581,6 +584,7 @@
 				E00000000000000000000002 /* DiskSamplerTests.swift in Sources */,
 				F00000000000000000000002 /* NetworkSamplerTests.swift in Sources */,
 				G00000000000000000000002 /* MetricsCoordinatorTests.swift in Sources */,
+				G00000000000000000000003 /* ThermalMetricsTests.swift in Sources */,
 				H00000000000000000000002 /* PreferencesStoreTests.swift in Sources */,
 				I00000000000000000000003 /* MenuBarRendererTests.swift in Sources */,
 				N00000000000000000000001 /* ByteFormatterTests.swift in Sources */,
@@ -606,7 +610,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
 				EXCLUDED_ARCHS = x86_64;
@@ -617,7 +621,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.1;
+				MARKETING_VERSION = 0.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hirofumi.pulse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -635,7 +639,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = NO;
 				EXCLUDED_ARCHS = x86_64;
@@ -646,7 +650,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.2.1;
+				MARKETING_VERSION = 0.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hirofumi.pulse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -662,7 +666,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -682,7 +686,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;

@@ -32,4 +32,13 @@ struct ThermalMetrics: Sendable, Equatable {
 
         return "未取得"
     }
+
+    /// CPU 温度の取得状態を説明する文言。
+    var cpuTemperatureStatusMessage: String {
+        if cpuTemperatureCelsius != nil {
+            return "CPUセンサー"
+        }
+
+        return "このMacではCPU温度を取得できません"
+    }
 }

@@ -21,10 +21,13 @@
 		B00000000000000000000004 /* DiskMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000014 /* DiskMetrics.swift */; };
 		B00000000000000000000005 /* NetworkMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* NetworkMetrics.swift */; };
 		B00000000000000000000006 /* DisplayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000016 /* DisplayItem.swift */; };
+		B00000000000000000000007 /* ThermalMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000017 /* ThermalMetrics.swift */; };
 		C00000000000000000000001 /* Sampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000011 /* Sampler.swift */; };
 		C00000000000000000000002 /* SamplerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000012 /* SamplerError.swift */; };
 		C00000000000000000000003 /* CPUSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000013 /* CPUSampler.swift */; };
 		C00000000000000000000004 /* CPUSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000014 /* CPUSamplerTests.swift */; };
+		C00000000000000000000005 /* ThermalSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000015 /* ThermalSampler.swift */; };
+		C00000000000000000000006 /* ThermalSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000016 /* ThermalSamplerTests.swift */; };
 		D00000000000000000000001 /* MemorySampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000011 /* MemorySampler.swift */; };
 		D00000000000000000000002 /* MemorySamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000012 /* MemorySamplerTests.swift */; };
 		E00000000000000000000001 /* DiskSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00000000000000000000011 /* DiskSampler.swift */; };
@@ -50,6 +53,7 @@
 		J00000000000000000000008 /* SparklineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000018 /* SparklineChart.swift */; };
 		J00000000000000000000009 /* GaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000019 /* GaugeView.swift */; };
 		J00000000000000000000010 /* GlassStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = J0000000000000000000001A /* GlassStyle.swift */; };
+		O00000000000000000000001 /* OverviewMeters.swift in Sources */ = {isa = PBXBuildFile; fileRef = J0000000000000000000001B /* OverviewMeters.swift */; };
 		K00000000000000000000001 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000011 /* GeneralSettingsView.swift */; };
 		K00000000000000000000002 /* DisplaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000012 /* DisplaySettingsView.swift */; };
 		K00000000000000000000003 /* UpdateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000013 /* UpdateSettingsView.swift */; };
@@ -88,10 +92,13 @@
 		B00000000000000000000014 /* DiskMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskMetrics.swift; sourceTree = "<group>"; };
 		B00000000000000000000015 /* NetworkMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMetrics.swift; sourceTree = "<group>"; };
 		B00000000000000000000016 /* DisplayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayItem.swift; sourceTree = "<group>"; };
+		B00000000000000000000017 /* ThermalMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalMetrics.swift; sourceTree = "<group>"; };
 		C00000000000000000000011 /* Sampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sampler.swift; sourceTree = "<group>"; };
 		C00000000000000000000012 /* SamplerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SamplerError.swift; sourceTree = "<group>"; };
 		C00000000000000000000013 /* CPUSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUSampler.swift; sourceTree = "<group>"; };
 		C00000000000000000000014 /* CPUSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUSamplerTests.swift; sourceTree = "<group>"; };
+		C00000000000000000000015 /* ThermalSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalSampler.swift; sourceTree = "<group>"; };
+		C00000000000000000000016 /* ThermalSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalSamplerTests.swift; sourceTree = "<group>"; };
 		D00000000000000000000011 /* MemorySampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySampler.swift; sourceTree = "<group>"; };
 		D00000000000000000000012 /* MemorySamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySamplerTests.swift; sourceTree = "<group>"; };
 		E00000000000000000000011 /* DiskSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskSampler.swift; sourceTree = "<group>"; };
@@ -117,6 +124,7 @@
 		J00000000000000000000018 /* SparklineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparklineChart.swift; sourceTree = "<group>"; };
 		J00000000000000000000019 /* GaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaugeView.swift; sourceTree = "<group>"; };
 		J0000000000000000000001A /* GlassStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassStyle.swift; sourceTree = "<group>"; };
+		J0000000000000000000001B /* OverviewMeters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewMeters.swift; sourceTree = "<group>"; };
 		K00000000000000000000011 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		K00000000000000000000012 /* DisplaySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettingsView.swift; sourceTree = "<group>"; };
 		K00000000000000000000013 /* UpdateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsView.swift; sourceTree = "<group>"; };
@@ -269,6 +277,7 @@
 				B00000000000000000000013 /* MemoryMetrics.swift */,
 				B00000000000000000000014 /* DiskMetrics.swift */,
 				B00000000000000000000015 /* NetworkMetrics.swift */,
+				B00000000000000000000017 /* ThermalMetrics.swift */,
 				B00000000000000000000016 /* DisplayItem.swift */,
 				C00000000000000000000012 /* SamplerError.swift */,
 			);
@@ -308,6 +317,7 @@
 				D00000000000000000000011 /* MemorySampler.swift */,
 				E00000000000000000000011 /* DiskSampler.swift */,
 				F00000000000000000000011 /* NetworkSampler.swift */,
+				C00000000000000000000015 /* ThermalSampler.swift */,
 			);
 			path = Samplers;
 			sourceTree = "<group>";
@@ -336,6 +346,7 @@
 				D00000000000000000000012 /* MemorySamplerTests.swift */,
 				E00000000000000000000012 /* DiskSamplerTests.swift */,
 				F00000000000000000000012 /* NetworkSamplerTests.swift */,
+				C00000000000000000000016 /* ThermalSamplerTests.swift */,
 			);
 			path = SamplerTests;
 			sourceTree = "<group>";
@@ -379,6 +390,7 @@
 			children = (
 				J00000000000000000000011 /* PopoverHostView.swift */,
 				J00000000000000000000012 /* OverviewTab.swift */,
+				J0000000000000000000001B /* OverviewMeters.swift */,
 				J00000000000000000000013 /* CPUTab.swift */,
 				J00000000000000000000014 /* MemoryTab.swift */,
 				J00000000000000000000015 /* StorageTab.swift */,
@@ -523,9 +535,11 @@
 				B00000000000000000000004 /* DiskMetrics.swift in Sources */,
 				B00000000000000000000005 /* NetworkMetrics.swift in Sources */,
 				B00000000000000000000006 /* DisplayItem.swift in Sources */,
+				B00000000000000000000007 /* ThermalMetrics.swift in Sources */,
 				C00000000000000000000001 /* Sampler.swift in Sources */,
 				C00000000000000000000002 /* SamplerError.swift in Sources */,
 				C00000000000000000000003 /* CPUSampler.swift in Sources */,
+				C00000000000000000000005 /* ThermalSampler.swift in Sources */,
 				D00000000000000000000001 /* MemorySampler.swift in Sources */,
 				E00000000000000000000001 /* DiskSampler.swift in Sources */,
 				F00000000000000000000001 /* NetworkSampler.swift in Sources */,
@@ -545,6 +559,7 @@
 				J00000000000000000000008 /* SparklineChart.swift in Sources */,
 				J00000000000000000000009 /* GaugeView.swift in Sources */,
 				J00000000000000000000010 /* GlassStyle.swift in Sources */,
+				O00000000000000000000001 /* OverviewMeters.swift in Sources */,
 				K00000000000000000000001 /* GeneralSettingsView.swift in Sources */,
 				K00000000000000000000002 /* DisplaySettingsView.swift in Sources */,
 				K00000000000000000000003 /* UpdateSettingsView.swift in Sources */,
@@ -561,6 +576,7 @@
 			files = (
 				A00000000000000000000008 /* PulseTests.swift in Sources */,
 				C00000000000000000000004 /* CPUSamplerTests.swift in Sources */,
+				C00000000000000000000006 /* ThermalSamplerTests.swift in Sources */,
 				D00000000000000000000002 /* MemorySamplerTests.swift in Sources */,
 				E00000000000000000000002 /* DiskSamplerTests.swift in Sources */,
 				F00000000000000000000002 /* NetworkSamplerTests.swift in Sources */,

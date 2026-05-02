@@ -116,33 +116,25 @@ extension MenuBarRenderer {
         in rect: NSRect,
         options: MenuBarRenderOptions
     ) {
-        let labelHeight: CGFloat = options.showIcon ? 7 : 0
-        if options.showIcon {
-            let labelRect = NSRect(x: rect.minX, y: rect.maxY - 8, width: rect.width, height: 8)
-            drawLabel(shortLabel(for: item), in: labelRect)
-        }
-
         let barRect = NSRect(
             x: rect.minX,
-            y: rect.minY + 1,
+            y: rect.minY + 2,
             width: rect.width,
-            height: max(5, rect.height - labelHeight - 3)
+            height: max(8, rect.height - 4)
         )
-        let ratios = barRatios(for: item, snapshot: snapshot)
-        let colors = accentColors(for: item)
-
         drawRoundedRect(barRect, color: NSColor.labelColor.withAlphaComponent(0.10), radius: 2.5)
 
-        let segmentHeight = max(2, (barRect.height - CGFloat(ratios.count - 1)) / CGFloat(max(ratios.count, 1)))
-        for (index, ratio) in ratios.enumerated() {
-            let yPosition = barRect.minY + CGFloat(index) * (segmentHeight + 1)
-            let fillRect = NSRect(
-                x: barRect.minX,
-                y: yPosition,
-                width: max(2, barRect.width * ratio),
-                height: segmentHeight
-            )
-            drawRoundedRect(fillRect, color: colors[index % colors.count], radius: 2.5)
+        let ratio = CGFloat(primaryRatio(for: item, snapshot: snapshot))
+        let fillRect = NSRect(
+            x: barRect.minX,
+            y: barRect.minY,
+            width: max(4, barRect.width * ratio),
+            height: barRect.height
+        )
+        drawRoundedRect(fillRect, color: color(for: item), radius: 2.5)
+
+        if options.showIcon {
+            drawInlineLabel(wideLabel(for: item), in: barRect)
         }
     }
 
@@ -243,6 +235,28 @@ extension MenuBarRenderer {
         NSAttributedString(string: label, attributes: attributes).draw(in: rect)
     }
 
+    private static func drawInlineLabel(_ label: String, in rect: NSRect) {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 9, weight: .bold),
+            .foregroundColor: NSColor.labelColor,
+        ]
+        let text = NSAttributedString(string: label, attributes: attributes)
+        let textSize = text.size()
+        let labelRect = NSRect(
+            x: rect.midX - textSize.width / 2,
+            y: rect.midY - textSize.height / 2,
+            width: textSize.width,
+            height: textSize.height
+        )
+        let backgroundRect = labelRect.insetBy(dx: -4, dy: -1)
+        drawRoundedRect(
+            backgroundRect,
+            color: NSColor.windowBackgroundColor.withAlphaComponent(0.42),
+            radius: 4
+        )
+        text.draw(in: labelRect)
+    }
+
     private static func drawRoundedRect(_ rect: NSRect, color: NSColor, radius: CGFloat) {
         color.setFill()
         NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
@@ -290,7 +304,9 @@ extension MenuBarRenderer {
                 throughputRatio(snapshot.disk.readBytesPerSecond, scale: 20_000_000),
                 throughputRatio(snapshot.disk.writeBytesPerSecond, scale: 20_000_000),
             ]
-        case .cpuTemperature, .gpuUsage:
+        case .cpuTemperature:
+            return [CGFloat(temperatureRatio(snapshot.thermal.primaryTemperatureCelsius))]
+        case .gpuUsage:
             return [0.18]
         }
     }
@@ -330,7 +346,9 @@ extension MenuBarRenderer {
             primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0
         case .diskIO:
             Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond)
-        case .cpuTemperature, .gpuUsage:
+        case .cpuTemperature:
+            temperatureRatio(snapshot.thermal.primaryTemperatureCelsius)
+        case .gpuUsage:
             0
         }
     }
@@ -354,13 +372,23 @@ extension MenuBarRenderer {
         case .diskIO:
             (Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond) / 40_000_000)
                 .clamped(to: 0...1)
-        case .cpuTemperature, .gpuUsage:
+        case .cpuTemperature:
+            temperatureRatio(snapshot.thermal.primaryTemperatureCelsius)
+        case .gpuUsage:
             0
         }
     }
 
     private static func throughputRatio(_ value: UInt64, scale: Double) -> CGFloat {
         CGFloat((Double(value) / scale).clamped(to: 0.05...1))
+    }
+
+    private static func temperatureRatio(_ value: Double?) -> Double {
+        guard let value else {
+            return 0.05
+        }
+
+        return ((value - 20) / 70).clamped(to: 0.05...1)
     }
 
     private static func primaryVolume(from volumes: [VolumeInfo]) -> VolumeInfo? {
@@ -388,6 +416,25 @@ extension MenuBarRenderer {
         }
     }
 
+    private static func wideLabel(for item: DisplayItem) -> String {
+        switch item {
+        case .cpuUsage:
+            "CPU負荷"
+        case .memoryUsage:
+            "メモリ"
+        case .networkSpeed:
+            "通信"
+        case .diskUsage:
+            "容量"
+        case .diskIO:
+            "I/O"
+        case .cpuTemperature:
+            "温度"
+        case .gpuUsage:
+            "GPU"
+        }
+    }
+
     private static func color(for item: DisplayItem) -> NSColor {
         accentColors(for: item).first ?? NSColor.controlAccentColor
     }
@@ -405,7 +452,7 @@ extension MenuBarRenderer {
         case .diskIO:
             [NSColor.systemCyan, NSColor.systemOrange]
         case .cpuTemperature:
-            [NSColor.systemRed]
+            [NSColor.systemOrange]
         case .gpuUsage:
             [NSColor.systemGreen]
         }

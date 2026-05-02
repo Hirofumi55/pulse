@@ -29,6 +29,7 @@ struct MenuBarRendererTests {
         #expect(title(for: .diskUsage, snapshot: snapshot, dataUnit: .iec) == "DSK 75%")
         #expect(title(for: .networkSpeed, snapshot: snapshot, dataUnit: .si) == "↓ 2.5M ↑ 154K")
         #expect(title(for: .diskIO, snapshot: snapshot, dataUnit: .iec) == "↓ 1.0M ↑ 512K")
+        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 31℃")
     }
 
     @Test("Renderer creates combined title")
@@ -198,6 +199,10 @@ struct MenuBarRendererTests {
                         isActive: true
                     )
                 ]
+            ),
+            thermal: ThermalMetrics(
+                cpuTemperatureCelsius: nil,
+                batteryTemperatureCelsius: 30.6
             )
         )
     }

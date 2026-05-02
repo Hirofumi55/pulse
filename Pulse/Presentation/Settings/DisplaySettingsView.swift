@@ -56,7 +56,8 @@ struct DisplaySettingsView: View {
                     }
                     .pickerStyle(.segmented)
 
-                    Toggle("バー内にパーセントを表示", isOn: barPercentageBinding)
+                    Toggle("縦バー内にパーセントを表示", isOn: barPercentageBinding)
+                        .disabled(preferences.menuBarBarLayout == .horizontal)
                 }
 
                 Picker("更新頻度", selection: samplingIntervalBinding) {
@@ -67,7 +68,7 @@ struct DisplaySettingsView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Toggle("アイコンを表示", isOn: iconBinding)
+                Toggle("ラベルを表示", isOn: iconBinding)
             }
 
             Section("詳細ポップオーバー") {

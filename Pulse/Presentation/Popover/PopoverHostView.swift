@@ -14,7 +14,7 @@ struct PopoverHostView: View {
 
     var body: some View {
         OverviewTab(coordinator: coordinator, preferences: preferences)
-            .frame(width: 380, height: 480)
+            .frame(width: 420, height: 540)
             .background {
                 PulseGlassBackdrop(opacity: preferences.popoverBackgroundOpacity)
             }

@@ -58,7 +58,7 @@ enum MenuBarRenderer {
                 case .vertical:
                     options.showBarPercentage ? 34 : 24
                 case .horizontal:
-                    options.showIcon ? 35 : 24
+                    options.showIcon ? 54 : 28
                 }
             return max(28, ceil(CGFloat(items.count) * widthPerItem + 8))
         case .graph:
@@ -159,7 +159,12 @@ enum MenuBarRenderer {
                 unitStyle: .compact
             )
             return "↓ \(read) ↑ \(write)"
-        case .cpuTemperature, .gpuUsage:
+        case .cpuTemperature:
+            return temperatureTitle(
+                prefix: showIcon ? "温度 " : "",
+                value: snapshot.thermal.primaryTemperatureCelsius
+            )
+        case .gpuUsage:
             return placeholderTitle(for: item, showIcon: showIcon)
         }
     }
@@ -177,7 +182,7 @@ enum MenuBarRenderer {
         case .diskIO:
             "↓ -- ↑ --"
         case .cpuTemperature:
-            showIcon ? "TMP --" : "--"
+            showIcon ? "温度 --℃" : "--℃"
         case .gpuUsage:
             showIcon ? "GPU --%" : "--%"
         }
@@ -186,6 +191,14 @@ enum MenuBarRenderer {
     private static func percentageTitle(prefix: String, value: Double) -> String {
         let percent = Int((value * 100).rounded()).clamped(to: 0...100)
         return "\(prefix)\(percent)%"
+    }
+
+    private static func temperatureTitle(prefix: String, value: Double?) -> String {
+        guard let value else {
+            return "\(prefix)--℃"
+        }
+
+        return "\(prefix)\(Int(value.rounded()))℃"
     }
 
     private static func primaryVolume(from volumes: [VolumeInfo]) -> VolumeInfo? {
@@ -207,7 +220,7 @@ enum MenuBarRenderer {
         case .diskIO:
             "↓ 999M ↑ 999M"
         case .cpuTemperature:
-            showIcon ? "TMP 100C" : "100C"
+            showIcon ? "温度 42℃" : "42℃"
         case .gpuUsage:
             showIcon ? "GPU 100%" : "100%"
         }

@@ -20,7 +20,7 @@ struct PulseTests {
     func phaseOneDisplayItems() {
         #expect(DisplayItem.cpuUsage.isAvailableInPhase1)
         #expect(DisplayItem.memoryUsage.displayName == "メモリ使用率")
-        #expect(!DisplayItem.cpuTemperature.isAvailableInPhase1)
+        #expect(DisplayItem.cpuTemperature.isAvailableInPhase1)
         #expect(!DisplayItem.gpuUsage.isAvailableInPhase1)
     }
 }

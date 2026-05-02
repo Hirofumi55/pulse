@@ -31,8 +31,10 @@ struct OverviewTab: View {
                 LazyVGrid(columns: columns, spacing: 8) {
                     cpuCard
                     memoryCard
+                    thermalCard
                     storageCard
                     networkCard
+                    diskIOCard
                 }
             }
             .padding(12)
@@ -53,6 +55,23 @@ struct OverviewTab: View {
         } footer: {
             WidgetPill(text: "User \(MetricFormatter.percentage(cpu?.userUsage ?? 0))", systemImage: "person")
             WidgetPill(text: "Sys \(MetricFormatter.percentage(cpu?.systemUsage ?? 0))", systemImage: "gearshape")
+        }
+    }
+
+    private var thermalCard: some View {
+        let thermal = latestSnapshot?.thermal
+        return MetricWidgetCard(
+            title: "温度",
+            systemImage: "thermometer.medium",
+            value: temperatureText(thermal?.primaryTemperatureCelsius),
+            subtitle: thermal?.primarySourceName ?? "取得待ち",
+            tint: .orange
+        ) {
+            TemperatureGaugeView(temperature: thermal?.primaryTemperatureCelsius)
+        } footer: {
+            WidgetPill(
+                text: "電池 \(temperatureText(thermal?.batteryTemperatureCelsius))", systemImage: "battery.100percent")
+            WidgetPill(text: thermalStatusText(thermal), systemImage: "waveform.path.ecg")
         }
     }
 
@@ -100,6 +119,26 @@ struct OverviewTab: View {
             )
         } footer: {
             WidgetPill(text: volume?.name ?? "ボリューム待機中", systemImage: "externaldrive")
+        }
+    }
+
+    private var diskIOCard: some View {
+        let disk = latestSnapshot?.disk
+        return MetricWidgetCard(
+            title: "ディスクI/O",
+            systemImage: "arrow.up.arrow.down.square",
+            value: ByteFormatter.rateString(
+                from: (disk?.readBytesPerSecond ?? 0) + (disk?.writeBytesPerSecond ?? 0),
+                dataUnit: preferences.dataUnit,
+                unitStyle: .compact
+            ),
+            subtitle: "読み書き合計",
+            tint: .purple
+        ) {
+            IOMeterView(read: disk?.readBytesPerSecond ?? 0, write: disk?.writeBytesPerSecond ?? 0)
+        } footer: {
+            WidgetPill(text: "読 \(bytes(disk?.readBytesPerSecond ?? 0))/s", systemImage: "arrow.down")
+            WidgetPill(text: "書 \(bytes(disk?.writeBytesPerSecond ?? 0))/s", systemImage: "arrow.up")
         }
     }
 
@@ -162,6 +201,33 @@ struct OverviewTab: View {
 
     private func bytes(_ value: UInt64) -> String {
         ByteFormatter.string(from: value, dataUnit: preferences.dataUnit, unitStyle: .compact)
+    }
+
+    private func temperatureText(_ celsius: Double?) -> String {
+        guard let celsius else {
+            return "--"
+        }
+
+        switch preferences.temperatureUnit {
+        case .celsius:
+            return "\(Int(celsius.rounded()))℃"
+        case .fahrenheit:
+            return "\(Int((celsius * 9 / 5 + 32).rounded()))℉"
+        }
+    }
+
+    private func thermalStatusText(_ thermal: ThermalMetrics?) -> String {
+        guard let temperature = thermal?.primaryTemperatureCelsius else {
+            return "温度待機中"
+        }
+
+        if temperature >= 80 {
+            return "高温"
+        }
+        if temperature >= 60 {
+            return "注意"
+        }
+        return "安定"
     }
 }
 

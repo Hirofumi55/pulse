@@ -23,6 +23,7 @@ final class MetricsCoordinator {
     private let memorySampler = MemorySampler()
     private let diskSampler = DiskSampler()
     private let networkSampler = NetworkSampler()
+    private let thermalSampler = ThermalSampler()
 
     private var samplingTask: Task<Void, Never>?
     private var samplingInterval: Duration
@@ -88,13 +89,15 @@ final class MetricsCoordinator {
         async let memory = memorySampler.sample()
         async let disk = diskSampler.sample()
         async let network = networkSampler.sample()
+        async let thermal = thermalSampler.sample()
 
         return MetricsSnapshot(
             timestamp: .now,
             cpu: try await cpu,
             memory: try await memory,
             disk: try await disk,
-            network: try await network
+            network: try await network,
+            thermal: try await thermal
         )
     }
 

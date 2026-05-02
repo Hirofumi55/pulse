@@ -305,12 +305,12 @@ final class PreferencesStore {
             MenuBarBarLayout.self,
             forKey: Key.menuBarBarLayout,
             from: userDefaults,
-            fallback: .vertical
+            fallback: .horizontal
         )
         self.showMenuBarBarPercentageStorage = Self.loadBool(
             forKey: Key.showMenuBarBarPercentage,
             from: userDefaults,
-            fallback: true
+            fallback: false
         )
         self.temperatureUnitStorage = Self.loadEnum(
             TemperatureUnit.self,
@@ -350,8 +350,8 @@ final class PreferencesStore {
         displayedItems = Self.defaultDisplayedItems
         samplingIntervalSeconds = 3.0
         menuBarDisplayStyle = .bar
-        menuBarBarLayout = .vertical
-        showMenuBarBarPercentage = true
+        menuBarBarLayout = .horizontal
+        showMenuBarBarPercentage = false
         temperatureUnit = .celsius
         dataUnit = .iec
         showMenuBarIcons = true

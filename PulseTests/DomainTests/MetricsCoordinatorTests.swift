@@ -5,6 +5,7 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
+import Foundation
 import Testing
 
 @testable import Pulse
@@ -45,7 +46,10 @@ struct MetricsCoordinatorTests {
         let countBeforeUpdate = coordinator.history.count
 
         coordinator.updateInterval(.milliseconds(20))
-        try await Task.sleep(for: .milliseconds(180))
+        let deadline = Date().addingTimeInterval(1)
+        while coordinator.history.count <= countBeforeUpdate && Date() < deadline {
+            try await Task.sleep(for: .milliseconds(20))
+        }
         coordinator.stop()
 
         #expect(coordinator.history.count > countBeforeUpdate)

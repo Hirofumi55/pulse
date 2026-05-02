@@ -122,20 +122,20 @@ extension MenuBarRenderer {
             width: rect.width,
             height: max(8, rect.height - 4)
         )
-        drawRoundedRect(barRect, color: accessibleTrackColor, radius: 3.5)
-        strokeRoundedRect(barRect, color: accessibleBorderColor, radius: 3.5, lineWidth: 0.6)
+        drawRoundedRect(barRect, color: menuBarTrackColor(for: item), radius: 2.5)
+        strokeRoundedRect(barRect, color: menuBarBorderColor, radius: 2.5, lineWidth: 0.6)
 
         let ratio = CGFloat(primaryRatio(for: item, snapshot: snapshot))
         let fillRect = NSRect(
-            x: barRect.minX + 1,
-            y: barRect.minY + 1,
-            width: max(5, (barRect.width - 2) * ratio),
-            height: 4
+            x: barRect.minX,
+            y: barRect.minY,
+            width: max(4, barRect.width * ratio),
+            height: barRect.height
         )
-        drawRoundedRect(fillRect, color: color(for: item), radius: 2)
+        drawRoundedRect(fillRect, color: menuBarFillColor(for: item), radius: 2.5)
 
         if options.showIcon {
-            drawInlineLabel(wideLabel(for: item), in: barRect)
+            drawInlineLabel(shortLabel(for: item), in: barRect)
         }
     }
 
@@ -243,8 +243,8 @@ extension MenuBarRenderer {
         shadow.shadowOffset = .zero
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .heavy),
-            .foregroundColor: NSColor.white,
+            .font: NSFont.monospacedSystemFont(ofSize: 10, weight: .bold),
+            .foregroundColor: menuBarLabelColor,
             .shadow: shadow,
         ]
         let text = NSAttributedString(string: label, attributes: attributes)
@@ -430,49 +430,53 @@ extension MenuBarRenderer {
         }
     }
 
-    private static func wideLabel(for item: DisplayItem) -> String {
-        switch item {
-        case .cpuUsage:
-            "CPU"
-        case .memoryUsage:
-            "MEM"
-        case .networkSpeed:
-            "NET"
-        case .diskUsage:
-            "DSK"
-        case .diskIO:
-            "I/O"
-        case .cpuTemperature:
-            "TMP"
-        case .gpuUsage:
-            "GPU"
-        }
-    }
-
     private static func color(for item: DisplayItem) -> NSColor {
         accentColors(for: item).first ?? NSColor.controlAccentColor
     }
 
-    private static var accessibleTrackColor: NSColor {
-        NSColor(calibratedWhite: 0.02, alpha: 0.82)
+    private static var menuBarLabelColor: NSColor {
+        NSColor.secondaryLabelColor
     }
 
-    private static var accessibleBorderColor: NSColor {
+    private static var menuBarBorderColor: NSColor {
         NSColor.white.withAlphaComponent(0.18)
+    }
+
+    private static func menuBarTrackColor(for item: DisplayItem) -> NSColor {
+        menuBarFillColor(for: item).withAlphaComponent(0.22)
+    }
+
+    private static func menuBarFillColor(for item: DisplayItem) -> NSColor {
+        switch item {
+        case .cpuUsage:
+            NSColor(calibratedRed: 0.30, green: 0.24, blue: 0.72, alpha: 0.96)
+        case .memoryUsage:
+            NSColor(calibratedRed: 0.48, green: 0.24, blue: 0.62, alpha: 0.96)
+        case .networkSpeed:
+            NSColor(calibratedRed: 0.58, green: 0.32, blue: 0.10, alpha: 0.96)
+        case .diskUsage:
+            NSColor(calibratedRed: 0.27, green: 0.32, blue: 0.68, alpha: 0.96)
+        case .diskIO:
+            NSColor(calibratedRed: 0.56, green: 0.24, blue: 0.40, alpha: 0.96)
+        case .cpuTemperature:
+            NSColor(calibratedRed: 0.68, green: 0.32, blue: 0.08, alpha: 0.96)
+        case .gpuUsage:
+            NSColor(calibratedRed: 0.24, green: 0.48, blue: 0.28, alpha: 0.96)
+        }
     }
 
     private static func accentColors(for item: DisplayItem) -> [NSColor] {
         switch item {
         case .cpuUsage:
-            [NSColor.systemBlue]
+            [NSColor.systemIndigo]
         case .memoryUsage:
-            [NSColor.systemTeal]
-        case .networkSpeed:
-            [NSColor.systemMint, NSColor.systemIndigo]
-        case .diskUsage:
             [NSColor.systemPurple]
+        case .networkSpeed:
+            [NSColor.systemOrange, NSColor.systemPink]
+        case .diskUsage:
+            [NSColor.systemIndigo]
         case .diskIO:
-            [NSColor.systemCyan, NSColor.systemOrange]
+            [NSColor.systemPurple, NSColor.systemOrange]
         case .cpuTemperature:
             [NSColor.systemOrange]
         case .gpuUsage:

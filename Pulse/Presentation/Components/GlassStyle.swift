@@ -5,6 +5,7 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
+import AppKit
 import SwiftUI
 
 /// Pulse 全体で使うクリアなすりガラス背景。
@@ -17,8 +18,11 @@ struct PulseGlassBackdrop: View {
                 .fill(.clear)
 
             Rectangle()
+                .fill(Color(nsColor: .windowBackgroundColor).opacity(opacity))
+
+            Rectangle()
                 .fill(.ultraThinMaterial)
-                .opacity(opacity)
+                .opacity(Swift.min(Swift.max(opacity * 0.85, 0.05), 0.75))
 
             LinearGradient(
                 colors: [

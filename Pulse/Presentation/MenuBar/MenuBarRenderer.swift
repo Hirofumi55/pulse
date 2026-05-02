@@ -58,7 +58,7 @@ enum MenuBarRenderer {
                 case .vertical:
                     options.showBarPercentage ? 34 : 24
                 case .horizontal:
-                    options.showIcon ? 48 : 34
+                    options.showIcon ? 44 : 28
                 }
             return max(28, ceil(CGFloat(items.count) * widthPerItem + 8))
         case .graph:

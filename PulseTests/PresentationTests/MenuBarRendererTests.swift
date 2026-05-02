@@ -126,18 +126,33 @@ struct MenuBarRendererTests {
         let bandHeight = max(1, bitmap.pixelsHigh / 4)
         let topBand = 0..<bandHeight
         let bottomBand = (bitmap.pixelsHigh - bandHeight)..<bitmap.pixelsHigh
-        let topColored = bluePixelCount(in: bitmap, rows: topBand)
-        let bottomColored = bluePixelCount(in: bitmap, rows: bottomBand)
+        let topColored = coloredPixelCount(in: bitmap, rows: topBand)
+        let bottomColored = coloredPixelCount(in: bitmap, rows: bottomBand)
 
         #expect(Swift.abs(topColored - bottomColored) > 20)
     }
 
-    @Test("Horizontal bars keep a dark readable label area")
+    @Test("Horizontal bars keep their original compact width")
     @MainActor
-    func horizontalBarsKeepDarkReadableLabelArea() {
+    func horizontalBarsKeepOriginalCompactWidth() {
+        let items: [DisplayItem] = [.cpuUsage, .memoryUsage, .networkSpeed]
+        let horizontalOptions = MenuBarRenderOptions(
+            showIcon: true,
+            barLayout: .horizontal,
+            showBarPercentage: false
+        )
+
+        let length = MenuBarRenderer.preferredLength(for: items, style: .bar, options: horizontalOptions)
+
+        #expect(length == 140)
+    }
+
+    @Test("Horizontal bars avoid cyan dominant fills")
+    @MainActor
+    func horizontalBarsAvoidCyanDominantFills() {
         let snapshot = makeSnapshot()
         let image = MenuBarRenderer.image(
-            for: [.memoryUsage],
+            for: [.memoryUsage, .networkSpeed],
             snapshot: snapshot,
             history: [snapshot],
             style: .bar,
@@ -156,26 +171,24 @@ struct MenuBarRendererTests {
         }
 
         let bitmap = NSBitmapImageRep(cgImage: cgImage)
-        let centerRows = (bitmap.pixelsHigh / 3)..<(bitmap.pixelsHigh * 2 / 3)
-        let darkPixels = darkPixelCount(in: bitmap, rows: centerRows)
-        let minimumReadableArea = bitmap.pixelsWide * centerRows.count / 3
+        let cyanPixels = cyanDominantPixelCount(in: bitmap, rows: 0..<bitmap.pixelsHigh)
+        let maximumCyanPixels = bitmap.pixelsWide * bitmap.pixelsHigh / 20
 
-        #expect(darkPixels > minimumReadableArea)
+        #expect(cyanPixels < maximumCyanPixels)
     }
 
     private var barOptions: MenuBarRenderOptions {
         MenuBarRenderOptions(showIcon: true, barLayout: .vertical, showBarPercentage: true)
     }
 
-    private func bluePixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
+    private func coloredPixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
         var count = 0
         for yPosition in rows {
             for xPosition in 0..<bitmap.pixelsWide {
                 guard
                     let color = bitmap.colorAt(x: xPosition, y: yPosition)?.usingColorSpace(.sRGB),
                     color.alphaComponent > 0.2,
-                    color.blueComponent > 0.35,
-                    color.redComponent < 0.4
+                    componentSpread(color) > 0.12
                 else {
                     continue
                 }
@@ -185,16 +198,22 @@ struct MenuBarRendererTests {
         return count
     }
 
-    private func darkPixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
+    private func componentSpread(_ color: NSColor) -> CGFloat {
+        let maximum = Swift.max(color.redComponent, color.greenComponent, color.blueComponent)
+        let minimum = Swift.min(color.redComponent, color.greenComponent, color.blueComponent)
+        return maximum - minimum
+    }
+
+    private func cyanDominantPixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
         var count = 0
         for yPosition in rows {
             for xPosition in 0..<bitmap.pixelsWide {
                 guard
                     let color = bitmap.colorAt(x: xPosition, y: yPosition)?.usingColorSpace(.sRGB),
-                    color.alphaComponent > 0.45,
-                    color.redComponent < 0.18,
-                    color.greenComponent < 0.18,
-                    color.blueComponent < 0.18
+                    color.alphaComponent > 0.25,
+                    color.greenComponent > 0.45,
+                    color.blueComponent > 0.45,
+                    color.redComponent < 0.30
                 else {
                     continue
                 }

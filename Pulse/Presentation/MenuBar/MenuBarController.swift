@@ -65,6 +65,7 @@ final class MenuBarController: NSObject {
             _ = preferences.menuBarDisplayStyle
             _ = preferences.menuBarBarLayout
             _ = preferences.showMenuBarBarPercentage
+            _ = preferences.popoverBackgroundOpacity
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
                 self?.handlePreferencesChanged()
@@ -242,14 +243,30 @@ final class MenuBarController: NSObject {
         popover.behavior = .transient
         popover.delegate = self
         popover.contentSize = NSSize(width: 420, height: 650)
-        popover.contentViewController = NSHostingController(
-            rootView: PopoverHostView(coordinator: coordinator, preferences: preferences)
+        let hostingController = NSHostingController(
+            rootView: PopoverHostView(coordinator: coordinator)
+                .environment(preferences)
         )
+        hostingController.view.wantsLayer = true
+        hostingController.view.layer?.backgroundColor = NSColor.clear.cgColor
+        popover.contentViewController = hostingController
         self.popover = popover
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
+        configurePopoverWindow(for: popover)
         installPopoverDismissObservers()
         applyActiveSamplingInterval()
         logger.debug("Popover opened")
+    }
+
+    private func configurePopoverWindow(for popover: NSPopover) {
+        guard let window = popover.contentViewController?.view.window else {
+            return
+        }
+
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.contentView?.wantsLayer = true
+        window.contentView?.layer?.backgroundColor = NSColor.clear.cgColor
     }
 
     private func installPopoverDismissObservers() {

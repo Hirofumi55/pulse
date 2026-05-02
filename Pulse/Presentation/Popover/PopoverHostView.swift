@@ -10,7 +10,8 @@ import SwiftUI
 /// メニューバーポップオーバー全体をホストするビュー。
 struct PopoverHostView: View {
     let coordinator: MetricsCoordinator
-    let preferences: PreferencesStore
+
+    @Environment(PreferencesStore.self) private var preferences
 
     var body: some View {
         OverviewTab(coordinator: coordinator, preferences: preferences)

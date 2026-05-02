@@ -10,7 +10,7 @@ import Foundation
 
 extension MenuBarRenderer {
     private static var imageHeight: CGFloat {
-        18
+        20
     }
 
     /// メニューバー用のグラフィカルな画像を生成する。
@@ -90,8 +90,9 @@ extension MenuBarRenderer {
     ) {
         let ratios = barRatios(for: item, snapshot: snapshot)
         let colors = accentColors(for: item)
-        let labelHeight: CGFloat = options.showIcon ? 6 : 0
-        if options.showIcon {
+        let showsTextInsideBar = options.showBarPercentage
+        let labelHeight: CGFloat = options.showIcon && !showsTextInsideBar ? 6 : 0
+        if options.showIcon && !showsTextInsideBar {
             let labelRect = NSRect(x: rect.minX, y: rect.maxY - 6, width: rect.width, height: 6)
             drawLabel(shortLabel(for: item), in: labelRect, size: 6)
         }
@@ -100,7 +101,7 @@ extension MenuBarRenderer {
             x: rect.minX + 1,
             y: rect.minY + 1,
             width: rect.width - 2,
-            height: max(8, rect.height - labelHeight - 1)
+            height: max(12, rect.height - labelHeight - 2)
         )
         drawVerticalLanes(ratios: ratios, colors: colors, in: barRect)
 

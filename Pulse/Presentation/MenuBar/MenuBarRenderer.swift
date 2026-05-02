@@ -56,7 +56,7 @@ enum MenuBarRenderer {
             let widthPerItem: CGFloat =
                 switch options.barLayout {
                 case .vertical:
-                    options.showBarPercentage ? 31 : 22
+                    options.showBarPercentage ? 34 : 24
                 case .horizontal:
                     options.showIcon ? 35 : 24
                 }

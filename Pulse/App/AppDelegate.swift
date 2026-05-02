@@ -7,6 +7,7 @@
 
 import AppKit
 import Observation
+import SwiftUI
 import os
 
 private let logger = Logger(category: .app)
@@ -17,6 +18,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let preferences = PreferencesStore.shared
     private let updateManager = UpdateManager(preferences: PreferencesStore.shared)
     private var menuBarController: MenuBarController?
+    private var settingsWindowController: NSWindowController?
 
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -34,7 +36,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         coordinator.start(interval: preferences.samplingDuration)
 
-        let menuBarController = MenuBarController(coordinator: coordinator, preferences: preferences)
+        let menuBarController = MenuBarController(
+            coordinator: coordinator,
+            preferences: preferences,
+            openSettingsHandler: { [weak self] in
+                self?.showSettingsWindow()
+            }
+        )
         menuBarController.setup()
         self.menuBarController = menuBarController
         logger.debug("Pulse launched")
@@ -59,5 +67,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func checkForUpdates() {
         logger.debug("Manual update check requested")
         updateManager.checkForUpdates()
+    }
+
+    private func showSettingsWindow() {
+        let windowController: NSWindowController
+        if let settingsWindowController {
+            windowController = settingsWindowController
+        } else {
+            let newWindowController = makeSettingsWindowController()
+            settingsWindowController = newWindowController
+            windowController = newWindowController
+        }
+
+        NSApp.activate(ignoringOtherApps: true)
+        windowController.showWindow(nil)
+        windowController.window?.makeKeyAndOrderFront(nil)
+        logger.debug("Settings window opened")
+    }
+
+    private func makeSettingsWindowController() -> NSWindowController {
+        let hostingController = NSHostingController(
+            rootView: SettingsView()
+                .environment(preferences)
+        )
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 420),
+            styleMask: [.titled, .closable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Pulse 設定"
+        window.contentViewController = hostingController
+        window.center()
+        window.isReleasedWhenClosed = false
+
+        return NSWindowController(window: window)
     }
 }

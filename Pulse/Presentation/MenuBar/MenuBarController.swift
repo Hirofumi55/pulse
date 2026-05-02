@@ -23,10 +23,16 @@ final class MenuBarController: NSObject {
 
     private let coordinator: MetricsCoordinator
     private let preferences: PreferencesStore
+    private let openSettingsHandler: @MainActor () -> Void
 
-    init(coordinator: MetricsCoordinator, preferences: PreferencesStore) {
+    init(
+        coordinator: MetricsCoordinator,
+        preferences: PreferencesStore,
+        openSettingsHandler: @escaping @MainActor () -> Void = {}
+    ) {
         self.coordinator = coordinator
         self.preferences = preferences
+        self.openSettingsHandler = openSettingsHandler
     }
 
     /// メニューバー項目を構築し、設定とメトリクスの監視を開始する。
@@ -230,8 +236,7 @@ final class MenuBarController: NSObject {
     }
 
     @objc private func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        openSettingsHandler()
     }
 
     @objc private func togglePause() {

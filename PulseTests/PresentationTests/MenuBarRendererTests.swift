@@ -57,7 +57,7 @@ struct MenuBarRendererTests {
         )
 
         #expect(image.size.width > 0)
-        #expect(image.size.height == 18)
+        #expect(image.size.height == 20)
     }
 
     @Test("Renderer uses compact length for graphic styles")
@@ -70,8 +70,87 @@ struct MenuBarRendererTests {
         #expect(barLength < textLength)
     }
 
+    @Test("Renderer keeps vertical bars compact")
+    @MainActor
+    func keepsVerticalBarsCompact() {
+        let items: [DisplayItem] = [.cpuUsage]
+        let verticalOptions = MenuBarRenderOptions(
+            showIcon: true,
+            barLayout: .vertical,
+            showBarPercentage: true
+        )
+        let horizontalOptions = MenuBarRenderOptions(
+            showIcon: true,
+            barLayout: .horizontal,
+            showBarPercentage: true
+        )
+        let verticalLength = MenuBarRenderer.preferredLength(
+            for: items,
+            style: .bar,
+            options: verticalOptions
+        )
+        let horizontalLength = MenuBarRenderer.preferredLength(
+            for: items,
+            style: .bar,
+            options: horizontalOptions
+        )
+
+        #expect(verticalLength < horizontalLength)
+    }
+
+    @Test("Renderer fills vertical bars along the vertical axis")
+    @MainActor
+    func fillsVerticalBarsAlongVerticalAxis() {
+        let snapshot = makeSnapshot()
+        let image = MenuBarRenderer.image(
+            for: [.cpuUsage],
+            snapshot: snapshot,
+            history: [snapshot],
+            style: .bar,
+            options: MenuBarRenderOptions(
+                showIcon: false,
+                barLayout: .vertical,
+                showBarPercentage: false
+            )
+        )
+        var rect = NSRect(origin: .zero, size: image.size)
+        let cgImage = image.cgImage(forProposedRect: &rect, context: nil, hints: nil)
+
+        #expect(cgImage != nil)
+        guard let cgImage else {
+            return
+        }
+
+        let bitmap = NSBitmapImageRep(cgImage: cgImage)
+        let bandHeight = max(1, bitmap.pixelsHigh / 4)
+        let topBand = 0..<bandHeight
+        let bottomBand = (bitmap.pixelsHigh - bandHeight)..<bitmap.pixelsHigh
+        let topColored = bluePixelCount(in: bitmap, rows: topBand)
+        let bottomColored = bluePixelCount(in: bitmap, rows: bottomBand)
+
+        #expect(Swift.abs(topColored - bottomColored) > 20)
+    }
+
     private var barOptions: MenuBarRenderOptions {
         MenuBarRenderOptions(showIcon: true, barLayout: .vertical, showBarPercentage: true)
+    }
+
+    private func bluePixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
+        var count = 0
+        for yPosition in rows {
+            for xPosition in 0..<bitmap.pixelsWide {
+                guard
+                    let color = bitmap.colorAt(x: xPosition, y: yPosition)?.usingColorSpace(.sRGB),
+                    color.alphaComponent > 0.2,
+                    color.blueComponent > 0.35,
+                    color.redComponent < 0.4
+                else {
+                    continue
+                }
+                count += 1
+            }
+        }
+        return count
     }
 
     private func makeSnapshot() -> MetricsSnapshot {

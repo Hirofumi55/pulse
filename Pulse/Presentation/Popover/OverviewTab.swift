@@ -27,9 +27,7 @@ struct OverviewTab: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                header
-
+            VStack(alignment: .leading, spacing: 8) {
                 LazyVGrid(columns: columns, spacing: 8) {
                     cpuCard
                     memoryCard
@@ -40,32 +38,6 @@ struct OverviewTab: View {
             .padding(12)
         }
         .scrollContentBackground(.hidden)
-    }
-
-    private var header: some View {
-        HStack(alignment: .center) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Pulse")
-                    .font(.system(size: 20, weight: .semibold, design: .rounded))
-                Text("Apple Silicon の現在地")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            HStack(spacing: 5) {
-                Circle()
-                    .fill(latestSnapshot == nil ? Color.secondary.opacity(0.55) : Color.green)
-                    .frame(width: 7, height: 7)
-                Text(latestSnapshot == nil ? "待機中" : "ライブ")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 9)
-            .padding(.vertical, 5)
-            .pulseGlassPanel(cornerRadius: 12, tint: latestSnapshot == nil ? .secondary : .green, materialOpacity: 0.62)
-        }
     }
 
     private var cpuCard: some View {

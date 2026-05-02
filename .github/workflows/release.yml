@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: macos-15
+    env:
+      SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: maxim-lobanov/setup-xcode@v1
@@ -23,22 +26,18 @@ jobs:
           xcodebuild \
             -scheme Pulse \
             -configuration Release \
-            -archivePath build/Pulse.xcarchive \
-            archive
-          xcodebuild \
-            -exportArchive \
-            -archivePath build/Pulse.xcarchive \
-            -exportPath build/export \
-            -exportOptionsPlist ExportOptions.plist
+            -derivedDataPath build/DerivedData \
+            build
 
       - name: Create ZIP
         run: |
-          cd build/export
-          ditto -c -k --keepParent Pulse.app Pulse-${{ steps.version.outputs.VERSION }}.zip
+          mkdir -p build/export
+          ditto -c -k --keepParent \
+            build/DerivedData/Build/Products/Release/Pulse.app \
+            build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip
 
       - name: Sign with Sparkle EdDSA
-        env:
-          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        if: env.SPARKLE_PRIVATE_KEY != ''
         run: |
           echo "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_key
           sign_update -f /tmp/sparkle_key build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip > signature.txt
@@ -60,6 +59,7 @@ jobs:
           keep_files: true
 
       - name: Update Homebrew Cask
+        if: env.TAP_REPO_TOKEN != ''
         run: ./scripts/update-cask.sh ${{ steps.version.outputs.VERSION }}
         env:
-          GH_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
+          GH_TOKEN: ${{ env.TAP_REPO_TOKEN }}

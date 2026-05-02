@@ -5,7 +5,7 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
-import Darwin
+@preconcurrency import Darwin
 import Foundation
 
 /// Mach API から CPU 使用率を取得する Sampler。

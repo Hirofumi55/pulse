@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Pulse 更新情報</title>
+    <link>https://github.com/Hirofumi55/pulse/releases</link>
+    <description>Pulse のリリース情報</description>
+    <language>ja</language>
+    <item>
+      <title>Pulse 0.1.0</title>
+      <link>https://github.com/Hirofumi55/pulse/releases/tag/v0.1.0</link>
+      <sparkle:version>1</sparkle:version>
+      <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+      <pubDate>Sat, 02 May 2026 12:56:38 +0000</pubDate>
+      <enclosure
+        url="https://github.com/Hirofumi55/pulse/releases/download/v0.1.0/Pulse-0.1.0.zip"
+        length="1683210"
+        type="application/zip" />
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+    </item>
+  </channel>
+</rss>

@@ -7,7 +7,75 @@ if [[ $# -ne 1 ]]; then
 fi
 
 VERSION="$1"
+APP_REPO="${APP_REPO:-Hirofumi55/pulse}"
+TAP_REPO="${TAP_REPO:-Hirofumi55/homebrew-tap}"
+TAP_BRANCH="${TAP_BRANCH:-main}"
+CASK_NAME="${CASK_NAME:-pulse}"
+ZIP_NAME="Pulse-${VERSION}.zip"
+DOWNLOAD_URL="https://github.com/${APP_REPO}/releases/download/v${VERSION}/${ZIP_NAME}"
 
-echo "Homebrew Cask update for Pulse ${VERSION} is not implemented yet." >&2
-echo "Implement this script once hirofumi/homebrew-tap is ready." >&2
-exit 1
+if [[ -z "${GH_TOKEN:-}" ]]; then
+  echo "GH_TOKEN environment variable is required to update ${TAP_REPO}." >&2
+  exit 1
+fi
+
+for command in curl git shasum awk; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "${command} command was not found." >&2
+    exit 1
+  fi
+done
+
+TMP_DIR="$(mktemp -d)"
+
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
+
+echo "Downloading ${DOWNLOAD_URL}"
+curl -fsSL "$DOWNLOAD_URL" -o "${TMP_DIR}/${ZIP_NAME}"
+SHA256="$(shasum -a 256 "${TMP_DIR}/${ZIP_NAME}" | awk '{print $1}')"
+
+git -c "http.extraHeader=AUTHORIZATION: bearer ${GH_TOKEN}" \
+  clone "https://github.com/${TAP_REPO}.git" "${TMP_DIR}/tap"
+
+cd "${TMP_DIR}/tap"
+mkdir -p Casks
+CASK_PATH="Casks/${CASK_NAME}.rb"
+
+cat >"$CASK_PATH" <<CASK
+cask "${CASK_NAME}" do
+  version "${VERSION}"
+  sha256 "${SHA256}"
+
+  url "${DOWNLOAD_URL}",
+      verified: "github.com/${APP_REPO}/"
+  name "Pulse"
+  desc "Modern menu bar system monitor for Apple Silicon"
+  homepage "https://github.com/${APP_REPO}"
+
+  depends_on macos: ">= :sonoma"
+
+  app "Pulse.app"
+
+  zap trash: [
+    "~/Library/Application Support/Pulse",
+    "~/Library/Logs/Pulse",
+    "~/Library/Preferences/com.hirofumi.pulse.plist",
+  ]
+end
+CASK
+
+if [[ -z "$(git status --short -- "$CASK_PATH")" ]]; then
+  echo "Homebrew Cask is already up to date for Pulse ${VERSION}."
+  exit 0
+fi
+
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+git add "$CASK_PATH"
+git commit -m "Update Pulse cask to ${VERSION}"
+git push origin "HEAD:${TAP_BRANCH}"
+
+echo "Homebrew Cask updated for Pulse ${VERSION}."

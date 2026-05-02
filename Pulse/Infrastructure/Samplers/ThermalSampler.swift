@@ -10,14 +10,49 @@ import Foundation
 
 /// 公開 IOKit API から温度情報を取得する Sampler。
 actor ThermalSampler: Sampler {
+    private let minimumSampleInterval: TimeInterval
+    private let thermalMetricsProvider: @Sendable () -> ThermalMetrics
+
+    private var cachedMetrics: ThermalMetrics?
+    private var lastSampleDate: Date?
+
+    /// ThermalSampler を作成する。
+    init(
+        minimumSampleInterval: TimeInterval = 10,
+        thermalMetricsProvider: @escaping @Sendable () -> ThermalMetrics = ThermalSampler.readThermalMetrics
+    ) {
+        self.minimumSampleInterval = max(0, minimumSampleInterval)
+        self.thermalMetricsProvider = thermalMetricsProvider
+    }
+
     func sample() async throws -> ThermalMetrics {
+        sample(now: .now)
+    }
+
+    func sample(now: Date) -> ThermalMetrics {
+        if let cachedMetrics, let lastSampleDate, shouldUseCache(now: now, lastSampleDate: lastSampleDate) {
+            return cachedMetrics
+        }
+
+        let metrics = thermalMetricsProvider()
+        cachedMetrics = metrics
+        lastSampleDate = now
+        return metrics
+    }
+
+    private func shouldUseCache(now: Date, lastSampleDate: Date) -> Bool {
+        let elapsedSeconds = now.timeIntervalSince(lastSampleDate)
+        return elapsedSeconds >= 0 && elapsedSeconds < minimumSampleInterval
+    }
+
+    private static func readThermalMetrics() -> ThermalMetrics {
         ThermalMetrics(
             cpuTemperatureCelsius: nil,
             batteryTemperatureCelsius: sampleAppleSmartBatteryTemperature()
         )
     }
 
-    private func sampleAppleSmartBatteryTemperature() -> Double? {
+    private static func sampleAppleSmartBatteryTemperature() -> Double? {
         guard let matching = IOServiceMatching("AppleSmartBattery") else {
             return nil
         }
@@ -44,7 +79,7 @@ actor ThermalSampler: Sampler {
         return normalizedBatteryTemperature(from: rawTemperature)
     }
 
-    private func normalizedBatteryTemperature(from rawValue: Double) -> Double? {
+    private static func normalizedBatteryTemperature(from rawValue: Double) -> Double? {
         let candidates = [
             rawValue / 100,
             rawValue / 10 - 273.15,
@@ -55,7 +90,7 @@ actor ThermalSampler: Sampler {
         }
     }
 
-    private func doubleValue(from value: Any?) -> Double? {
+    private static func doubleValue(from value: Any?) -> Double? {
         switch value {
         case let value as Double:
             value

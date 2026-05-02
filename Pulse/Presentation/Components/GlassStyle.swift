@@ -8,6 +8,19 @@
 import AppKit
 import SwiftUI
 
+/// ガラス表現の不透明度を一元的に調整するヘルパー。
+enum PulseGlassStyle {
+    /// ウィジェットカード用のマテリアル不透明度。
+    static func panelMaterialOpacity(for opacity: Double) -> Double {
+        Swift.min(Swift.max(0.08 + opacity * 0.48, 0.12), 0.58)
+    }
+
+    /// 小さなピル要素用のマテリアル不透明度。
+    static func pillMaterialOpacity(for opacity: Double) -> Double {
+        Swift.min(Swift.max(0.06 + opacity * 0.36, 0.10), 0.42)
+    }
+}
+
 /// Pulse 全体で使うクリアなすりガラス背景。
 struct PulseGlassBackdrop: View {
     let opacity: Double
@@ -76,17 +89,25 @@ private struct PulseGlassPanelModifier: ViewModifier {
 
         content
             .background {
-                shape
-                    .fill(.ultraThinMaterial)
-                    .opacity(materialOpacity)
+                ZStack {
+                    shape
+                        .fill(Color(nsColor: .windowBackgroundColor).opacity(materialOpacity * 0.22))
+
+                    shape
+                        .fill(.ultraThinMaterial)
+                        .opacity(materialOpacity)
+
+                    shape
+                        .fill(tint.opacity(materialOpacity * 0.08))
+                }
             }
             .overlay(alignment: .topLeading) {
                 shape
                     .fill(
                         LinearGradient(
                             colors: [
-                                .white.opacity(0.22),
-                                .white.opacity(0.04),
+                                .white.opacity(materialOpacity * 0.34),
+                                .white.opacity(materialOpacity * 0.08),
                                 .clear,
                             ],
                             startPoint: .topLeading,
@@ -98,9 +119,13 @@ private struct PulseGlassPanelModifier: ViewModifier {
             }
             .overlay {
                 shape
-                    .strokeBorder(tint.opacity(0.22), lineWidth: 1)
+                    .strokeBorder(.white.opacity(0.20), lineWidth: 0.8)
+            }
+            .overlay {
+                shape
+                    .strokeBorder(tint.opacity(materialOpacity * 0.35), lineWidth: 1)
             }
             .clipShape(shape)
-            .shadow(color: .black.opacity(0.10), radius: 12, x: 0, y: 6)
+            .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 5)
     }
 }

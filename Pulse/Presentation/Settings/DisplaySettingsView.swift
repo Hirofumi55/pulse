@@ -161,7 +161,10 @@ struct DisplaySettingsView: View {
                 .padding(8)
         }
         .frame(height: 54)
-        .pulseGlassPanel(tint: .cyan, materialOpacity: 0.48)
+        .pulseGlassPanel(
+            tint: .cyan,
+            materialOpacity: PulseGlassStyle.panelMaterialOpacity(for: preferences.popoverBackgroundOpacity)
+        )
     }
 
     private func intervalTitle(_ interval: Double) -> String {

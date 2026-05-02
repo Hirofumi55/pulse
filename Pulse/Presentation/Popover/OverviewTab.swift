@@ -229,6 +229,8 @@ struct OverviewTab: View {
 }
 
 private struct MetricWidgetCard<Visual: View, Footer: View>: View {
+    @Environment(PreferencesStore.self) private var preferences
+
     let title: String
     let systemImage: String
     let value: String
@@ -291,7 +293,10 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
         }
         .padding(9)
         .frame(height: 190, alignment: .topLeading)
-        .pulseGlassPanel(tint: tint, materialOpacity: 0.78)
+        .pulseGlassPanel(
+            tint: tint,
+            materialOpacity: PulseGlassStyle.panelMaterialOpacity(for: preferences.popoverBackgroundOpacity)
+        )
     }
 }
 
@@ -449,6 +454,8 @@ private struct FlowPills<Content: View>: View {
 }
 
 private struct WidgetPill: View {
+    @Environment(PreferencesStore.self) private var preferences
+
     let text: String
     let systemImage: String
 
@@ -464,6 +471,10 @@ private struct WidgetPill: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
-        .pulseGlassPanel(cornerRadius: 5, tint: .secondary, materialOpacity: 0.45)
+        .pulseGlassPanel(
+            cornerRadius: 5,
+            tint: .secondary,
+            materialOpacity: PulseGlassStyle.pillMaterialOpacity(for: preferences.popoverBackgroundOpacity)
+        )
     }
 }

@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-15
@@ -36,11 +40,21 @@ jobs:
             build/DerivedData/Build/Products/Release/Pulse.app \
             build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip
 
+      - name: Locate Sparkle tools
+        id: sparkle
+        run: |
+          SPARKLE_BIN="$(find build/DerivedData/SourcePackages/artifacts -path '*/Sparkle/bin' -type d -print -quit)"
+          if [[ -z "$SPARKLE_BIN" ]]; then
+            echo "Sparkle tools were not found." >&2
+            exit 1
+          fi
+          echo "bin=$SPARKLE_BIN" >> "$GITHUB_OUTPUT"
+
       - name: Sign with Sparkle EdDSA
         if: env.SPARKLE_PRIVATE_KEY != ''
         run: |
           echo "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_key
-          sign_update -f /tmp/sparkle_key build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip > signature.txt
+          "${{ steps.sparkle.outputs.bin }}/sign_update" -f /tmp/sparkle_key build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip > signature.txt
           rm /tmp/sparkle_key
 
       - name: Upload Release Asset
@@ -50,6 +64,9 @@ jobs:
 
       - name: Generate appcast
         run: ./scripts/generate-appcast.sh build/export/
+        env:
+          GENERATE_APPCAST: ${{ steps.sparkle.outputs.bin }}/generate_appcast
+          VERSION: ${{ steps.version.outputs.VERSION }}
 
       - name: Deploy appcast to gh-pages
         uses: peaceiris/actions-gh-pages@v3

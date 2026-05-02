@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: macos-15
@@ -14,7 +18,10 @@ jobs:
         with:
           xcode-version: '16.0'
       - name: Install SwiftLint
-        run: brew install swiftlint
+        run: |
+          if ! command -v swiftlint >/dev/null 2>&1; then
+            brew install swiftlint
+          fi
       - name: SwiftLint
         run: swiftlint --strict
       - name: swift-format

@@ -29,7 +29,14 @@ struct MenuBarRendererTests {
         #expect(title(for: .diskUsage, snapshot: snapshot, dataUnit: .iec) == "DSK 75%")
         #expect(title(for: .networkSpeed, snapshot: snapshot, dataUnit: .si) == "↓ 2.5M ↑ 154K")
         #expect(title(for: .diskIO, snapshot: snapshot, dataUnit: .iec) == "↓ 1.0M ↑ 512K")
-        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 31℃")
+        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 46℃")
+    }
+
+    @Test("Temperature title does not fall back to battery temperature")
+    func temperatureTitleDoesNotFallBackToBatteryTemperature() {
+        let snapshot = makeSnapshot(cpuTemperature: nil, batteryTemperature: 30.6)
+
+        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 --℃")
     }
 
     @Test("Renderer creates combined title")
@@ -223,7 +230,7 @@ struct MenuBarRendererTests {
         return count
     }
 
-    private func makeSnapshot() -> MetricsSnapshot {
+    private func makeSnapshot(cpuTemperature: Double? = 45.8, batteryTemperature: Double? = 30.6) -> MetricsSnapshot {
         MetricsSnapshot(
             timestamp: Date(timeIntervalSince1970: 0),
             cpu: CPUMetrics(
@@ -270,8 +277,8 @@ struct MenuBarRendererTests {
                 ]
             ),
             thermal: ThermalMetrics(
-                cpuTemperatureCelsius: nil,
-                batteryTemperatureCelsius: 30.6
+                cpuTemperatureCelsius: cpuTemperature,
+                batteryTemperatureCelsius: batteryTemperature
             )
         )
     }

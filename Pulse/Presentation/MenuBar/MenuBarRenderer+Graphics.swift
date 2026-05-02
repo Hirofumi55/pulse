@@ -319,7 +319,7 @@ extension MenuBarRenderer {
                 throughputRatio(snapshot.disk.writeBytesPerSecond, scale: 20_000_000),
             ]
         case .cpuTemperature:
-            return [CGFloat(temperatureRatio(snapshot.thermal.primaryTemperatureCelsius))]
+            return [CGFloat(temperatureRatio(snapshot.thermal.cpuTemperatureCelsius))]
         case .gpuUsage:
             return [0.18]
         }
@@ -361,7 +361,7 @@ extension MenuBarRenderer {
         case .diskIO:
             Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond)
         case .cpuTemperature:
-            temperatureRatio(snapshot.thermal.primaryTemperatureCelsius)
+            temperatureRatio(snapshot.thermal.cpuTemperatureCelsius)
         case .gpuUsage:
             0
         }
@@ -387,7 +387,7 @@ extension MenuBarRenderer {
             (Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond) / 40_000_000)
                 .clamped(to: 0...1)
         case .cpuTemperature:
-            temperatureRatio(snapshot.thermal.primaryTemperatureCelsius)
+            temperatureRatio(snapshot.thermal.cpuTemperatureCelsius)
         case .gpuUsage:
             0
         }

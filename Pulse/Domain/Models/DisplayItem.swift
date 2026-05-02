@@ -24,7 +24,7 @@ enum DisplayItem: String, CaseIterable, Codable, Sendable, Identifiable {
     /// ディスク I/O。
     case diskIO
 
-    /// 温度。
+    /// CPU 温度。
     case cpuTemperature
 
     /// GPU 使用率。Phase 2 で有効化する。
@@ -49,7 +49,7 @@ enum DisplayItem: String, CaseIterable, Codable, Sendable, Identifiable {
         case .diskIO:
             "ディスクI/O"
         case .cpuTemperature:
-            "温度"
+            "CPU温度"
         case .gpuUsage:
             "GPU使用率"
         }

@@ -57,18 +57,21 @@ struct OverviewTab: View {
 
     private var thermalCard: some View {
         let thermal = latestSnapshot?.thermal
+        let cpuTemperature = thermal?.cpuTemperatureCelsius
         return MetricWidgetCard(
-            title: "温度",
+            title: "CPU温度",
             systemImage: "thermometer.medium",
-            value: temperatureText(thermal?.primaryTemperatureCelsius),
-            subtitle: thermal?.primarySourceName ?? "取得待ち",
+            value: temperatureText(cpuTemperature),
+            subtitle: cpuTemperature == nil ? "CPU温度待機中" : "CPUセンサー",
             tint: .orange
         ) {
-            TemperatureGaugeView(temperature: thermal?.primaryTemperatureCelsius)
+            TemperatureGaugeView(temperature: cpuTemperature)
         } footer: {
             WidgetPill(
-                text: "電池 \(temperatureText(thermal?.batteryTemperatureCelsius))", systemImage: "battery.100percent")
-            WidgetPill(text: thermalStatusText(thermal), systemImage: "waveform.path.ecg")
+                text: "電池 \(temperatureText(thermal?.batteryTemperatureCelsius))",
+                systemImage: "battery.100percent"
+            )
+            WidgetPill(text: thermalStatusText(cpuTemperature), systemImage: "waveform.path.ecg")
         }
     }
 
@@ -213,9 +216,9 @@ struct OverviewTab: View {
         }
     }
 
-    private func thermalStatusText(_ thermal: ThermalMetrics?) -> String {
-        guard let temperature = thermal?.primaryTemperatureCelsius else {
-            return "温度待機中"
+    private func thermalStatusText(_ temperature: Double?) -> String {
+        guard let temperature else {
+            return "CPU待機中"
         }
 
         if temperature >= 80 {

@@ -162,7 +162,7 @@ enum MenuBarRenderer {
         case .cpuTemperature:
             return temperatureTitle(
                 prefix: showIcon ? "温度 " : "",
-                value: snapshot.thermal.primaryTemperatureCelsius
+                value: snapshot.thermal.cpuTemperatureCelsius
             )
         case .gpuUsage:
             return placeholderTitle(for: item, showIcon: showIcon)

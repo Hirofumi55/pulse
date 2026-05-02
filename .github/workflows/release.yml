@@ -28,6 +28,18 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
+      - name: Validate Sparkle key
+        run: |
+          if [[ -z "$SPARKLE_PRIVATE_KEY" ]]; then
+            echo "SPARKLE_PRIVATE_KEY is required for signed Sparkle updates." >&2
+            exit 1
+          fi
+          PUBLIC_KEY="$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' Pulse/App/Info.plist)"
+          if [[ "$PUBLIC_KEY" == "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" ]]; then
+            echo "Pulse/App/Info.plist still contains the placeholder Sparkle public key." >&2
+            exit 1
+          fi
+
       - name: Build
         run: |
           xcodebuild \
@@ -54,7 +66,6 @@ jobs:
           echo "bin=$SPARKLE_BIN" >> "$GITHUB_OUTPUT"
 
       - name: Sign with Sparkle EdDSA
-        if: env.SPARKLE_PRIVATE_KEY != ''
         run: |
           echo "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_key
           "${{ steps.sparkle.outputs.bin }}/sign_update" -f /tmp/sparkle_key build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip > signature.txt

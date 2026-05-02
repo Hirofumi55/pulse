@@ -133,6 +133,7 @@ final class MenuBarController: NSObject {
         statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         statusItem.button?.toolTip = "Pulse"
         statusItem.button?.setAccessibilityLabel("Pulse システムモニター")
+        statusItem.button?.setAccessibilityHelp("クリックで詳細を開き、右クリックでメニューを開きます。")
         self.statusItem = statusItem
 
         updateStatusItemContent(force: true)
@@ -157,6 +158,7 @@ final class MenuBarController: NSObject {
             showIcon: preferences.showMenuBarIcons,
             dataUnit: preferences.dataUnit
         )
+        let accessibilityValue = title.isEmpty ? "取得待ち" : title
         let timestamp = coordinator.latestSnapshot?.timestamp.timeIntervalSinceReferenceDate ?? 0
         let identifier = [
             preferences.menuBarDisplayStyle.rawValue,
@@ -171,6 +173,8 @@ final class MenuBarController: NSObject {
 
         statusItemContentIdentifier = identifier
         lastStatusItemRenderDate = coordinator.latestSnapshot?.timestamp
+        statusItem.button?.toolTip = "Pulse \(accessibilityValue)"
+        statusItem.button?.setAccessibilityValue(accessibilityValue)
         switch preferences.menuBarDisplayStyle {
         case .text:
             statusItem.button?.image = nil

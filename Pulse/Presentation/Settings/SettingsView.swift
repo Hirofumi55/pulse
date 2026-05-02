@@ -34,7 +34,7 @@ struct SettingsView: View {
                     Label("情報", systemImage: "info.circle")
                 }
         }
-        .frame(width: 560, height: 420)
+        .frame(minWidth: 560, minHeight: 420)
         .background {
             PulseGlassBackdrop(opacity: 0.22)
         }

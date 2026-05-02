@@ -74,15 +74,11 @@ final class MetricsCoordinator {
 
     private func runLoop() async {
         while !Task.isCancelled {
-            do {
-                let snapshot = try await sampleAll()
-                guard !Task.isCancelled else {
-                    return
-                }
-                appendSnapshot(snapshot)
-            } catch {
-                logger.error("Sampling failed: \(String(describing: error), privacy: .public)")
+            let snapshot = await sampleAll()
+            guard !Task.isCancelled else {
+                return
             }
+            appendSnapshot(snapshot)
 
             do {
                 try await Task.sleep(for: samplingInterval)
@@ -92,21 +88,68 @@ final class MetricsCoordinator {
         }
     }
 
-    private func sampleAll() async throws -> MetricsSnapshot {
-        async let cpu = cpuSampler.sample()
-        async let memory = memorySampler.sample()
-        async let disk = diskSampler.sample()
-        async let network = networkSampler.sample()
-        async let thermal = thermalSampler.sample()
+    private func sampleAll() async -> MetricsSnapshot {
+        let previousSnapshot = latestSnapshot
+
+        async let cpu = sampleCPU(previous: previousSnapshot?.cpu)
+        async let memory = sampleMemory(previous: previousSnapshot?.memory)
+        async let disk = sampleDisk(previous: previousSnapshot?.disk)
+        async let network = sampleNetwork(previous: previousSnapshot?.network)
+        async let thermal = sampleThermal(previous: previousSnapshot?.thermal)
 
         return MetricsSnapshot(
             timestamp: .now,
-            cpu: try await cpu,
-            memory: try await memory,
-            disk: try await disk,
-            network: try await network,
-            thermal: try await thermal
+            cpu: await cpu,
+            memory: await memory,
+            disk: await disk,
+            network: await network,
+            thermal: await thermal
         )
+    }
+
+    private func sampleCPU(previous: CPUMetrics?) async -> CPUMetrics {
+        do {
+            return try await cpuSampler.sample()
+        } catch {
+            logger.error("CPU sampling failed: \(String(describing: error), privacy: .public)")
+            return previous ?? Self.emptyCPU()
+        }
+    }
+
+    private func sampleMemory(previous: MemoryMetrics?) async -> MemoryMetrics {
+        do {
+            return try await memorySampler.sample()
+        } catch {
+            logger.error("Memory sampling failed: \(String(describing: error), privacy: .public)")
+            return previous ?? Self.emptyMemory()
+        }
+    }
+
+    private func sampleDisk(previous: DiskMetrics?) async -> DiskMetrics {
+        do {
+            return try await diskSampler.sample()
+        } catch {
+            logger.error("Disk sampling failed: \(String(describing: error), privacy: .public)")
+            return previous ?? DiskMetrics(volumes: [], readBytesPerSecond: 0, writeBytesPerSecond: 0)
+        }
+    }
+
+    private func sampleNetwork(previous: NetworkMetrics?) async -> NetworkMetrics {
+        do {
+            return try await networkSampler.sample()
+        } catch {
+            logger.error("Network sampling failed: \(String(describing: error), privacy: .public)")
+            return previous ?? NetworkMetrics(interfaces: [])
+        }
+    }
+
+    private func sampleThermal(previous: ThermalMetrics?) async -> ThermalMetrics {
+        do {
+            return try await thermalSampler.sample()
+        } catch {
+            logger.error("Thermal sampling failed: \(String(describing: error), privacy: .public)")
+            return previous ?? ThermalMetrics(cpuTemperatureCelsius: nil, batteryTemperatureCelsius: nil)
+        }
     }
 
     private func appendSnapshot(_ snapshot: MetricsSnapshot) {
@@ -116,5 +159,31 @@ final class MetricsCoordinator {
         if history.count > maxHistoryCount {
             history.removeFirst(history.count - maxHistoryCount)
         }
+    }
+
+    private static func emptyCPU() -> CPUMetrics {
+        let logicalCoreCount = ProcessInfo.processInfo.activeProcessorCount
+        return CPUMetrics(
+            totalUsage: 0,
+            userUsage: 0,
+            systemUsage: 0,
+            idleUsage: 0,
+            perCoreUsage: Array(repeating: 0, count: logicalCoreCount),
+            physicalCoreCount: ProcessInfo.processInfo.processorCount,
+            logicalCoreCount: logicalCoreCount
+        )
+    }
+
+    private static func emptyMemory() -> MemoryMetrics {
+        MemoryMetrics(
+            totalBytes: ProcessInfo.processInfo.physicalMemory,
+            appBytes: 0,
+            wiredBytes: 0,
+            compressedBytes: 0,
+            cachedBytes: 0,
+            freeBytes: 0,
+            swapUsedBytes: 0,
+            pressure: 0
+        )
     }
 }

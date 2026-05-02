@@ -263,6 +263,7 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
                 Image(systemName: systemImage)
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(tint)
+                    .accessibilityHidden(true)
                 Text(title)
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(.secondary)
@@ -286,6 +287,7 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
 
             visual
                 .frame(maxWidth: .infinity)
+                .accessibilityHidden(true)
 
             FlowPills {
                 footer
@@ -297,6 +299,7 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
             tint: tint,
             materialOpacity: PulseGlassStyle.panelMaterialOpacity(for: preferences.popoverBackgroundOpacity)
         )
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -463,6 +466,7 @@ private struct WidgetPill: View {
         HStack(spacing: 3) {
             Image(systemName: systemImage)
                 .font(.system(size: 9, weight: .semibold))
+                .accessibilityHidden(true)
             Text(text)
                 .font(.system(size: 10, weight: .bold))
                 .lineLimit(1)

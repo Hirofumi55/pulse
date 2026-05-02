@@ -27,6 +27,7 @@ struct DisplaySettingsView: View {
                         }
                     }
                     .disabled(isDisabled(item))
+                    .accessibilityHint(displayHint(for: item))
                 }
             }
 
@@ -82,6 +83,8 @@ struct DisplaySettingsView: View {
                     }
 
                     Slider(value: popoverOpacityBinding, in: 0.08...0.9, step: 0.01)
+                        .accessibilityLabel("背景の濃さ")
+                        .accessibilityValue("\(Int((preferences.popoverBackgroundOpacity * 100).rounded()))%")
 
                     popoverOpacityPreview
                 }
@@ -152,6 +155,7 @@ struct DisplaySettingsView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "sparkles")
                             .symbolRenderingMode(.hierarchical)
+                            .accessibilityHidden(true)
                         Text("背景越しに内容が自然に透けます")
                             .lineLimit(1)
                     }
@@ -215,6 +219,8 @@ struct DisplaySettingsView: View {
             }
             .disabled(index == 0)
             .help("上へ")
+            .accessibilityLabel("\(item.displayName)を上へ移動")
+            .accessibilityHint("メニューバーでの表示順を一つ前にします")
 
             Button {
                 moveItem(from: index, offset: 1)
@@ -223,6 +229,8 @@ struct DisplaySettingsView: View {
             }
             .disabled(index == preferences.displayedItems.count - 1)
             .help("下へ")
+            .accessibilityLabel("\(item.displayName)を下へ移動")
+            .accessibilityHint("メニューバーでの表示順を一つ後にします")
         }
     }
 
@@ -247,6 +255,18 @@ struct DisplaySettingsView: View {
         }
 
         return !preferences.displayedItems.contains(item) && preferences.displayedItems.count >= 4
+    }
+
+    private func displayHint(for item: DisplayItem) -> String {
+        if !item.isAvailableInPhase1 {
+            return "次フェーズで対応予定です。"
+        }
+
+        if !preferences.displayedItems.contains(item), preferences.displayedItems.count >= 4 {
+            return "メニューバーに表示できる項目は最大4件です。"
+        }
+
+        return "メニューバーに表示する項目を切り替えます。"
     }
 }
 

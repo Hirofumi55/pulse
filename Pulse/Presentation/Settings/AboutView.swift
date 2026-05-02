@@ -35,8 +35,7 @@ struct AboutView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .formStyle(.grouped)
-        .padding(20)
+        .pulseGlassForm()
     }
 
     private func linkRow(title: String, urlString: String) -> some View {

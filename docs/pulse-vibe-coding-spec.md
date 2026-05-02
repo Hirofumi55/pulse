@@ -369,6 +369,7 @@ Release は `v*` tag push で Release build、ZIP 作成、Sparkle EdDSA 署名�
 
 1. `CHANGELOG.md` を更新
 2. `scripts/bump-version.sh 1.0.0` でバージョンを更新
+   - `MARKETING_VERSION` を指定バージョンへ、`CURRENT_PROJECT_VERSION` を前回値 +1 へ更新する
 3. コミット & プッシュ
 4. `git tag v1.0.0 && git push --tags`
 5. GitHub Actions でビルド・リリース・appcast 更新・Cask 更新

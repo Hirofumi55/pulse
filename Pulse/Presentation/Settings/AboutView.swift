@@ -25,8 +25,8 @@ struct AboutView: View {
             }
 
             Section("リンク") {
-                linkRow(title: "GitHub", urlString: "https://github.com/hirofumi/pulse")
-                linkRow(title: "Issues", urlString: "https://github.com/hirofumi/pulse/issues")
+                linkRow(title: "GitHub", urlString: "https://github.com/Hirofumi55/pulse")
+                linkRow(title: "Issues", urlString: "https://github.com/Hirofumi55/pulse/issues")
             }
 
             Section("ライセンス") {

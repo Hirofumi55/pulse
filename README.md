@@ -8,7 +8,7 @@
 [![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-arm64-orange?logo=apple)](https://support.apple.com/ja-jp/HT211814)
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift)](https://swift.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/hirofumi/pulse)](https://github.com/hirofumi/pulse/releases)
+[![Release](https://img.shields.io/github/v/release/Hirofumi55/pulse)](https://github.com/Hirofumi55/pulse/releases)
 
 <img src="docs/images/hero.png" width="640" alt="Pulse のスクリーンショット" />
 
@@ -50,7 +50,7 @@ CPU・メモリ・ディスク・ネットワークの使用状況をメニュ�
 
 ```bash
 # 1. Pulse 用の tap を追加
-brew tap hirofumi/tap
+brew tap Hirofumi55/tap
 
 # 2. Pulse をインストール
 brew install --cask pulse
@@ -63,7 +63,7 @@ open -a Pulse
 
 ### 方法 2: 手動インストール
 
-1. [Releases ページ](https://github.com/hirofumi/pulse/releases/latest) から最新版の `Pulse-x.y.z.zip` をダウンロード
+1. [Releases ページ](https://github.com/Hirofumi55/pulse/releases/latest) から最新版の `Pulse-x.y.z.zip` をダウンロード
 2. ZIP を展開して `Pulse.app` を `/Applications` フォルダへドラッグ
 3. 初回起動時に「開発元を確認できないため開けません」と表示された場合:
    - 「システム設定」→「プライバシーとセキュリティ」を開く
@@ -79,7 +79,7 @@ open -a Pulse
 
 ```bash
 # 1. ソースコードを取得
-git clone https://github.com/hirofumi/pulse.git
+git clone https://github.com/Hirofumi55/pulse.git
 cd pulse
 
 # 2. Release ビルドを作成
@@ -102,7 +102,7 @@ open -a Pulse
 
 ```bash
 brew uninstall --cask pulse
-brew untap hirofumi/tap   # 不要であれば
+brew untap Hirofumi55/tap   # 不要であれば
 ```
 
 ### 手動でインストールした場合
@@ -192,7 +192,7 @@ Homebrew Cask 経由でインストールした場合、この警告は表示さ
 
 - アクティビティモニタで Pulse プロセスが動作しているか確認
 - 一度アプリを終了し、再度起動してみてください
-- 改善しない場合は [Issues](https://github.com/hirofumi/pulse/issues) で報告してください
+- 改善しない場合は [Issues](https://github.com/Hirofumi55/pulse/issues) で報告してください
 
 ### 表示される値が Activity Monitor と異なる
 
@@ -210,7 +210,7 @@ Intel Mac をお使いの場合は [Stats](https://github.com/exelban/stats) な
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/hirofumi/pulse.git
+git clone https://github.com/Hirofumi55/pulse.git
 cd pulse
 
 # Xcode で開く
@@ -254,7 +254,7 @@ xcodebuild test -scheme Pulse -destination 'platform=macOS,arch=arm64'
 
 ## 不具合報告・要望
 
-[Issues](https://github.com/hirofumi/pulse/issues) からお寄せください。
+[Issues](https://github.com/Hirofumi55/pulse/issues) からお寄せください。
 報告の際は以下の情報を含めていただけると助かります。
 
 - macOS のバージョン(例: macOS 14.5)
@@ -279,6 +279,6 @@ xcodebuild test -scheme Pulse -destination 'platform=macOS,arch=arm64'
 
 Made with ❤️ for Apple Silicon
 
-[GitHub](https://github.com/hirofumi/pulse) ・ [Issues](https://github.com/hirofumi/pulse/issues) ・ [Releases](https://github.com/hirofumi/pulse/releases)
+[GitHub](https://github.com/Hirofumi55/pulse) ・ [Issues](https://github.com/Hirofumi55/pulse/issues) ・ [Releases](https://github.com/Hirofumi55/pulse/releases)
 
 </div>

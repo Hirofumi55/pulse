@@ -15,6 +15,6 @@ fi
 
 mkdir -p gh-pages
 generate_appcast \
-  --download-url-prefix "https://github.com/hirofumi/pulse/releases/download/v${VERSION}/" \
+  --download-url-prefix "https://github.com/Hirofumi55/pulse/releases/download/v${VERSION}/" \
   --output-dir gh-pages \
   "$RELEASE_DIR"

@@ -31,7 +31,7 @@
 	<key>SUEnableInstallerLauncherService</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://hirofumi.github.io/pulse/appcast.xml</string>
+	<string>https://hirofumi55.github.io/pulse/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
 	<key>SUScheduledCheckInterval</key>

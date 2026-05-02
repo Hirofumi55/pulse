@@ -14,7 +14,7 @@ Pulse への貢献ありがとうございます。
 ## セットアップ
 
 ```bash
-git clone https://github.com/hirofumi/pulse.git
+git clone https://github.com/Hirofumi55/pulse.git
 cd pulse
 open Pulse.xcodeproj
 ```

@@ -132,6 +132,37 @@ struct MenuBarRendererTests {
         #expect(Swift.abs(topColored - bottomColored) > 20)
     }
 
+    @Test("Horizontal bars keep a dark readable label area")
+    @MainActor
+    func horizontalBarsKeepDarkReadableLabelArea() {
+        let snapshot = makeSnapshot()
+        let image = MenuBarRenderer.image(
+            for: [.memoryUsage],
+            snapshot: snapshot,
+            history: [snapshot],
+            style: .bar,
+            options: MenuBarRenderOptions(
+                showIcon: true,
+                barLayout: .horizontal,
+                showBarPercentage: false
+            )
+        )
+        var rect = NSRect(origin: .zero, size: image.size)
+        let cgImage = image.cgImage(forProposedRect: &rect, context: nil, hints: nil)
+
+        #expect(cgImage != nil)
+        guard let cgImage else {
+            return
+        }
+
+        let bitmap = NSBitmapImageRep(cgImage: cgImage)
+        let centerRows = (bitmap.pixelsHigh / 3)..<(bitmap.pixelsHigh * 2 / 3)
+        let darkPixels = darkPixelCount(in: bitmap, rows: centerRows)
+        let minimumReadableArea = bitmap.pixelsWide * centerRows.count / 3
+
+        #expect(darkPixels > minimumReadableArea)
+    }
+
     private var barOptions: MenuBarRenderOptions {
         MenuBarRenderOptions(showIcon: true, barLayout: .vertical, showBarPercentage: true)
     }
@@ -145,6 +176,25 @@ struct MenuBarRendererTests {
                     color.alphaComponent > 0.2,
                     color.blueComponent > 0.35,
                     color.redComponent < 0.4
+                else {
+                    continue
+                }
+                count += 1
+            }
+        }
+        return count
+    }
+
+    private func darkPixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
+        var count = 0
+        for yPosition in rows {
+            for xPosition in 0..<bitmap.pixelsWide {
+                guard
+                    let color = bitmap.colorAt(x: xPosition, y: yPosition)?.usingColorSpace(.sRGB),
+                    color.alphaComponent > 0.45,
+                    color.redComponent < 0.18,
+                    color.greenComponent < 0.18,
+                    color.blueComponent < 0.18
                 else {
                     continue
                 }

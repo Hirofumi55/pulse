@@ -122,16 +122,17 @@ extension MenuBarRenderer {
             width: rect.width,
             height: max(8, rect.height - 4)
         )
-        drawRoundedRect(barRect, color: color(for: item).withAlphaComponent(0.28), radius: 2.5)
+        drawRoundedRect(barRect, color: accessibleTrackColor, radius: 3.5)
+        strokeRoundedRect(barRect, color: accessibleBorderColor, radius: 3.5, lineWidth: 0.6)
 
         let ratio = CGFloat(primaryRatio(for: item, snapshot: snapshot))
         let fillRect = NSRect(
-            x: barRect.minX,
-            y: barRect.minY,
-            width: max(4, barRect.width * ratio),
-            height: barRect.height
+            x: barRect.minX + 1,
+            y: barRect.minY + 1,
+            width: max(5, (barRect.width - 2) * ratio),
+            height: 4
         )
-        drawRoundedRect(fillRect, color: color(for: item), radius: 2.5)
+        drawRoundedRect(fillRect, color: color(for: item), radius: 2)
 
         if options.showIcon {
             drawInlineLabel(wideLabel(for: item), in: barRect)
@@ -237,13 +238,13 @@ extension MenuBarRenderer {
 
     private static func drawInlineLabel(_ label: String, in rect: NSRect) {
         let shadow = NSShadow()
-        shadow.shadowColor = NSColor.black.withAlphaComponent(0.35)
-        shadow.shadowBlurRadius = 1.2
+        shadow.shadowColor = NSColor.black.withAlphaComponent(0.85)
+        shadow.shadowBlurRadius = 1.6
         shadow.shadowOffset = .zero
 
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 10, weight: .bold),
-            .foregroundColor: NSColor.white.withAlphaComponent(0.95),
+            .font: NSFont.monospacedSystemFont(ofSize: 11, weight: .heavy),
+            .foregroundColor: NSColor.white,
             .shadow: shadow,
         ]
         let text = NSAttributedString(string: label, attributes: attributes)
@@ -260,6 +261,19 @@ extension MenuBarRenderer {
     private static func drawRoundedRect(_ rect: NSRect, color: NSColor, radius: CGFloat) {
         color.setFill()
         NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+    }
+
+    private static func strokeRoundedRect(
+        _ rect: NSRect,
+        color: NSColor,
+        radius: CGFloat,
+        lineWidth: CGFloat
+    ) {
+        color.setStroke()
+        let strokeRect = rect.insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
+        let path = NSBezierPath(roundedRect: strokeRect, xRadius: radius, yRadius: radius)
+        path.lineWidth = lineWidth
+        path.stroke()
     }
 
     private static func drawPercentLabel(for item: DisplayItem, snapshot: MetricsSnapshot?, in rect: NSRect) {
@@ -437,6 +451,14 @@ extension MenuBarRenderer {
 
     private static func color(for item: DisplayItem) -> NSColor {
         accentColors(for: item).first ?? NSColor.controlAccentColor
+    }
+
+    private static var accessibleTrackColor: NSColor {
+        NSColor(calibratedWhite: 0.02, alpha: 0.82)
+    }
+
+    private static var accessibleBorderColor: NSColor {
+        NSColor.white.withAlphaComponent(0.18)
     }
 
     private static func accentColors(for item: DisplayItem) -> [NSColor] {

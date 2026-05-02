@@ -19,6 +19,9 @@ final class MenuBarController: NSObject {
     private var statusItemContentIdentifier: String?
     private var displayedItems: [DisplayItem] = []
     private var popover: NSPopover?
+    private var popoverEventMonitors: [Any] = []
+    private var popoverResignObserver: NSObjectProtocol?
+    private var lastStatusItemRenderDate: Date?
     private var isPaused = false
 
     private let coordinator: MetricsCoordinator
@@ -48,6 +51,7 @@ final class MenuBarController: NSObject {
     func cleanup() {
         logger.debug("Menu bar controller cleanup started")
         popover?.close()
+        removePopoverDismissObservers()
         removeStatusItems()
         coordinator.stop()
     }
@@ -75,10 +79,18 @@ final class MenuBarController: NSObject {
             _ = coordinator.history
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
-                self?.updateStatusItemContent()
+                self?.handleMetricsChanged()
                 self?.observeMetrics()
             }
         }
+    }
+
+    private func handleMetricsChanged() {
+        guard shouldRenderStatusItemForLatestSnapshot() else {
+            return
+        }
+
+        updateStatusItemContent()
     }
 
     private func handlePreferencesChanged() {
@@ -87,18 +99,16 @@ final class MenuBarController: NSObject {
             displayedItems = nextDisplayedItems
             updateStatusItemLength()
             statusItemContentIdentifier = nil
-            updateStatusItemContent()
+            updateStatusItemContent(force: true)
             logger.debug(
                 "Menu bar status item updated: \(self.displayedItems.count, privacy: .public)"
             )
         } else {
             updateStatusItemLength()
-            updateStatusItemContent()
+            updateStatusItemContent(force: true)
         }
 
-        if !isPaused {
-            coordinator.updateInterval(preferences.samplingDuration)
-        }
+        applyActiveSamplingInterval()
     }
 
     private func filteredDisplayedItems() -> [DisplayItem] {
@@ -125,7 +135,7 @@ final class MenuBarController: NSObject {
         statusItem.button?.setAccessibilityLabel("Pulse システムモニター")
         self.statusItem = statusItem
 
-        updateStatusItemContent()
+        updateStatusItemContent(force: true)
     }
 
     private func removeStatusItems() {
@@ -136,7 +146,7 @@ final class MenuBarController: NSObject {
         statusItemContentIdentifier = nil
     }
 
-    private func updateStatusItemContent() {
+    private func updateStatusItemContent(force: Bool = false) {
         guard let statusItem else {
             return
         }
@@ -155,11 +165,12 @@ final class MenuBarController: NSObject {
             title,
             String(timestamp),
         ].joined(separator: "|")
-        guard statusItemContentIdentifier != identifier else {
+        guard force || statusItemContentIdentifier != identifier else {
             return
         }
 
         statusItemContentIdentifier = identifier
+        lastStatusItemRenderDate = coordinator.latestSnapshot?.timestamp
         switch preferences.menuBarDisplayStyle {
         case .text:
             statusItem.button?.image = nil
@@ -177,6 +188,23 @@ final class MenuBarController: NSObject {
                 options: renderOptions
             )
         }
+    }
+
+    private func shouldRenderStatusItemForLatestSnapshot() -> Bool {
+        guard statusItemContentIdentifier != nil else {
+            return true
+        }
+
+        guard let snapshotDate = coordinator.latestSnapshot?.timestamp else {
+            return true
+        }
+
+        guard let lastStatusItemRenderDate else {
+            return true
+        }
+
+        let elapsedSeconds = snapshotDate.timeIntervalSince(lastStatusItemRenderDate)
+        return elapsedSeconds >= preferences.samplingIntervalSeconds - 0.05
     }
 
     private func updateStatusItemLength() {
@@ -212,13 +240,68 @@ final class MenuBarController: NSObject {
 
         let popover = NSPopover()
         popover.behavior = .transient
+        popover.delegate = self
         popover.contentSize = NSSize(width: 420, height: 650)
         popover.contentViewController = NSHostingController(
             rootView: PopoverHostView(coordinator: coordinator, preferences: preferences)
         )
         self.popover = popover
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
+        installPopoverDismissObservers()
+        applyActiveSamplingInterval()
         logger.debug("Popover opened")
+    }
+
+    private func installPopoverDismissObservers() {
+        removePopoverDismissObservers()
+
+        let dismissEvents: NSEvent.EventTypeMask = [.leftMouseDown, .rightMouseDown]
+        let globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: dismissEvents) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.closePopoverFromFocusOut()
+            }
+        }
+        if let globalMonitor {
+            popoverEventMonitors.append(globalMonitor)
+        }
+
+        popoverResignObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didResignActiveNotification,
+            object: NSApp,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.closePopoverFromFocusOut()
+            }
+        }
+    }
+
+    private func removePopoverDismissObservers() {
+        for monitor in popoverEventMonitors {
+            NSEvent.removeMonitor(monitor)
+        }
+        popoverEventMonitors.removeAll()
+
+        if let popoverResignObserver {
+            NotificationCenter.default.removeObserver(popoverResignObserver)
+            self.popoverResignObserver = nil
+        }
+    }
+
+    private func closePopoverFromFocusOut() {
+        guard let popover, popover.isShown else {
+            return
+        }
+
+        popover.close()
+    }
+
+    private func applyActiveSamplingInterval() {
+        guard !isPaused else {
+            return
+        }
+
+        coordinator.updateInterval(popover?.isShown == true ? .seconds(1) : preferences.samplingDuration)
     }
 
     private func showContextMenu(for sender: NSStatusBarButton) {
@@ -246,7 +329,7 @@ final class MenuBarController: NSObject {
             coordinator.stop()
             logger.debug("Sampling paused from menu bar")
         } else {
-            coordinator.start(interval: preferences.samplingDuration)
+            coordinator.start(interval: popover?.isShown == true ? .seconds(1) : preferences.samplingDuration)
             logger.debug("Sampling resumed from menu bar")
         }
     }
@@ -254,5 +337,22 @@ final class MenuBarController: NSObject {
     @objc private func quit() {
         logger.debug("Quit requested from menu bar")
         NSApp.terminate(nil)
+    }
+}
+
+extension MenuBarController: NSPopoverDelegate {
+    func popoverDidClose(_ notification: Notification) {
+        guard
+            let closedPopover = notification.object as? NSPopover,
+            closedPopover === popover
+        else {
+            return
+        }
+
+        closedPopover.delegate = nil
+        popover = nil
+        removePopoverDismissObservers()
+        applyActiveSamplingInterval()
+        logger.debug("Popover closed")
     }
 }

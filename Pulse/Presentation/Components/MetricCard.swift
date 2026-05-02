@@ -32,9 +32,14 @@ struct MetricCard<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text(title)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(tint)
+                        .frame(width: 7, height: 7)
+                    Text(title)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                }
                 Spacer(minLength: 8)
                 Text(value)
                     .font(.system(size: 20, weight: .semibold, design: .rounded))
@@ -54,12 +59,11 @@ struct MetricCard<Content: View>: View {
             }
         }
         .padding(10)
-        .background(.regularMaterial)
+        .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay(alignment: .leading) {
+        .overlay {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(tint)
-                .frame(width: 3)
+                .strokeBorder(tint.opacity(0.18), lineWidth: 1)
         }
     }
 }

@@ -20,10 +20,16 @@ struct GaugeView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(.secondary.opacity(0.18), lineWidth: 10)
+                .stroke(.secondary.opacity(0.16), lineWidth: 12)
             Circle()
                 .trim(from: 0, to: clampedValue)
-                .stroke(tint, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .stroke(
+                    AngularGradient(
+                        colors: [tint.opacity(0.45), tint, tint.opacity(0.82)],
+                        center: .center
+                    ),
+                    style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                )
                 .rotationEffect(.degrees(-90))
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: clampedValue)
             VStack(spacing: 2) {
@@ -33,6 +39,13 @@ struct GaugeView: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.secondary)
             }
+        }
+        .padding(6)
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(tint.opacity(0.16), lineWidth: 1)
         }
         .frame(width: 118, height: 118)
     }

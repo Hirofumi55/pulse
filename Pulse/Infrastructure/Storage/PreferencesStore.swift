@@ -110,6 +110,7 @@ final class PreferencesStore {
     private var showMenuBarIconsStorage: Bool
     private var automaticallyChecksForUpdatesStorage: Bool
     private var appearanceStorage: AppearanceMode
+    private var popoverBackgroundOpacityStorage: Double
 
     /// メニューバーに表示する項目。順序付きで最大4件。
     var displayedItems: [DisplayItem] {
@@ -223,6 +224,22 @@ final class PreferencesStore {
         }
     }
 
+    /// 詳細ポップオーバー背景の不透明度。
+    var popoverBackgroundOpacity: Double {
+        get {
+            popoverBackgroundOpacityStorage
+        }
+        set {
+            let sanitizedOpacity = Self.sanitizePopoverBackgroundOpacity(newValue)
+            guard popoverBackgroundOpacityStorage != sanitizedOpacity else {
+                return
+            }
+
+            popoverBackgroundOpacityStorage = sanitizedOpacity
+            userDefaults.set(sanitizedOpacity, forKey: Key.popoverBackgroundOpacity)
+        }
+    }
+
     /// 設定ストアを作成する。
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
@@ -258,6 +275,9 @@ final class PreferencesStore {
             from: userDefaults,
             fallback: .system
         )
+        self.popoverBackgroundOpacityStorage = Self.sanitizePopoverBackgroundOpacity(
+            userDefaults.object(forKey: Key.popoverBackgroundOpacity) as? Double ?? 0.28
+        )
     }
 
     /// すべての設定をデフォルト値に戻す。
@@ -269,6 +289,7 @@ final class PreferencesStore {
         showMenuBarIcons = true
         automaticallyChecksForUpdates = true
         appearance = .system
+        popoverBackgroundOpacity = 0.28
     }
 
     private static func loadDisplayedItems(from userDefaults: UserDefaults) -> [DisplayItem] {
@@ -332,6 +353,10 @@ final class PreferencesStore {
             abs(left - value) < abs(right - value)
         } ?? 1.0
     }
+
+    private static func sanitizePopoverBackgroundOpacity(_ value: Double) -> Double {
+        Swift.min(Swift.max(value, 0.08), 0.9)
+    }
 }
 
 private enum Key {
@@ -342,4 +367,5 @@ private enum Key {
     static let showMenuBarIcons = "showMenuBarIcons"
     static let automaticallyChecksForUpdates = "automaticallyChecksForUpdates"
     static let appearance = "appearance"
+    static let popoverBackgroundOpacity = "popoverBackgroundOpacity"
 }

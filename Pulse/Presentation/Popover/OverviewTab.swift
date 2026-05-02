@@ -13,94 +13,154 @@ struct OverviewTab: View {
     let preferences: PreferencesStore
 
     private let columns = [
-        GridItem(.flexible(), spacing: 10),
-        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
     ]
 
+    private var latestSnapshot: MetricsSnapshot? {
+        coordinator.latestSnapshot
+    }
+
     private var history: [MetricsSnapshot] {
-        Array(coordinator.history.suffix(90))
+        Array(coordinator.history.suffix(36))
     }
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 10) {
-                MetricCard(
-                    title: "CPU",
-                    value: MetricFormatter.percentage(coordinator.latestSnapshot?.cpu.totalUsage ?? 0),
-                    subtitle: cpuSubtitle,
-                    tint: .blue
-                ) {
-                    SparklineChart(snapshots: history, tint: .blue, yDomain: 0...100) { snapshot in
-                        snapshot.cpu.totalUsage * 100
-                    }
-                }
+            VStack(alignment: .leading, spacing: 12) {
+                header
 
-                MetricCard(
-                    title: "メモリ",
-                    value: MetricFormatter.percentage(coordinator.latestSnapshot?.memory.usageRatio ?? 0),
-                    subtitle: memorySubtitle,
-                    tint: .green
-                ) {
-                    SparklineChart(snapshots: history, tint: .green, yDomain: 0...100) { snapshot in
-                        snapshot.memory.usageRatio * 100
-                    }
-                }
-
-                MetricCard(title: "ネットワーク", value: networkValue, subtitle: networkSubtitle, tint: .cyan) {
-                    SparklineChart(snapshots: history, tint: .cyan, yDomain: 0...networkChartMax) { snapshot in
-                        Double(snapshot.network.totalDownloadBytesPerSecond)
-                    }
-                }
-
-                MetricCard(
-                    title: "ストレージ",
-                    value: MetricFormatter.percentage(primaryVolume?.usageRatio ?? 0),
-                    subtitle: storageSubtitle,
-                    tint: .orange
-                ) {
-                    SparklineChart(snapshots: history, tint: .orange, yDomain: 0...diskChartMax) { snapshot in
-                        Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond)
-                    }
+                LazyVGrid(columns: columns, spacing: 8) {
+                    cpuCard
+                    memoryCard
+                    storageCard
+                    networkCard
                 }
             }
-            .padding(14)
+            .padding(12)
+        }
+        .scrollContentBackground(.hidden)
+    }
+
+    private var header: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Pulse")
+                    .font(.system(size: 20, weight: .semibold, design: .rounded))
+                Text("Apple Silicon の現在地")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            HStack(spacing: 5) {
+                Circle()
+                    .fill(latestSnapshot == nil ? Color.secondary.opacity(0.55) : Color.green)
+                    .frame(width: 7, height: 7)
+                Text(latestSnapshot == nil ? "待機中" : "ライブ")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background(.thinMaterial)
+            .clipShape(Capsule())
         }
     }
 
-    private var cpuSubtitle: String {
-        guard let cpu = coordinator.latestSnapshot?.cpu else {
-            return "待機中"
+    private var cpuCard: some View {
+        let cpu = latestSnapshot?.cpu
+        return MetricWidgetCard(
+            title: "CPU負荷",
+            systemImage: "cpu",
+            value: MetricFormatter.percentage(cpu?.totalUsage ?? 0),
+            subtitle: "\(cpu?.logicalCoreCount ?? 0)スレッド",
+            tint: .blue
+        ) {
+            CoreLoadBars(values: cpu?.perCoreUsage ?? [])
+        } footer: {
+            WidgetPill(text: "User \(MetricFormatter.percentage(cpu?.userUsage ?? 0))", systemImage: "person")
+            WidgetPill(text: "Sys \(MetricFormatter.percentage(cpu?.systemUsage ?? 0))", systemImage: "gearshape")
         }
+    }
 
-        return "\(cpu.logicalCoreCount) threads"
+    private var memoryCard: some View {
+        let memory = latestSnapshot?.memory
+        return MetricWidgetCard(
+            title: "メモリ",
+            systemImage: "memorychip",
+            value: MetricFormatter.percentage(memory?.usageRatio ?? 0),
+            subtitle: memorySubtitle,
+            tint: .teal
+        ) {
+            DonutMetricView(
+                segments: [
+                    DonutSegment(value: Double(memory?.appBytes ?? 0), color: .teal),
+                    DonutSegment(value: Double(memory?.wiredBytes ?? 0), color: .blue),
+                    DonutSegment(value: Double(memory?.compressedBytes ?? 0), color: .purple),
+                    DonutSegment(value: Double(memory?.cachedBytes ?? 0), color: .secondary.opacity(0.35)),
+                ],
+                centerText: MetricFormatter.percentage(memory?.pressure ?? 0),
+                centerCaption: "圧力"
+            )
+        } footer: {
+            WidgetPill(text: "空き \(bytes(memory?.freeBytes ?? 0))", systemImage: "arrow.down.to.line")
+            WidgetPill(text: "Swap \(bytes(memory?.swapUsedBytes ?? 0))", systemImage: "arrow.left.arrow.right")
+        }
+    }
+
+    private var storageCard: some View {
+        let volume = primaryVolume
+        return MetricWidgetCard(
+            title: "ストレージ",
+            systemImage: "internaldrive",
+            value: MetricFormatter.percentage(volume?.usageRatio ?? 0),
+            subtitle: storageSubtitle,
+            tint: .indigo
+        ) {
+            DonutMetricView(
+                segments: [
+                    DonutSegment(value: volume == nil ? 0 : Double(volume?.usedBytes ?? 0), color: .indigo),
+                    DonutSegment(value: Double(volume?.freeBytes ?? 0), color: .secondary.opacity(0.28)),
+                ],
+                centerText: bytes(volume?.freeBytes ?? 0),
+                centerCaption: "空き"
+            )
+        } footer: {
+            WidgetPill(text: volume?.name ?? "ボリューム待機中", systemImage: "externaldrive")
+        }
+    }
+
+    private var networkCard: some View {
+        let network = latestSnapshot?.network
+        return MetricWidgetCard(
+            title: "ネットワーク",
+            systemImage: "network",
+            value: MetricFormatter.bytesPerSecond(
+                network?.totalDownloadBytesPerSecond ?? 0,
+                dataUnit: preferences.dataUnit
+            ),
+            subtitle: "受信",
+            tint: .cyan
+        ) {
+            NetworkActivityView(history: history, dataUnit: preferences.dataUnit)
+        } footer: {
+            WidgetPill(
+                text: networkUploadText(network),
+                systemImage: "arrow.up"
+            )
+            WidgetPill(text: "\(activeInterfaceCount)IF", systemImage: "antenna.radiowaves.left.and.right")
+        }
     }
 
     private var memorySubtitle: String {
-        guard let memory = coordinator.latestSnapshot?.memory else {
+        guard let memory = latestSnapshot?.memory else {
             return "待機中"
         }
 
         let used = memory.appBytes + memory.wiredBytes + memory.compressedBytes
-        let usedText = MetricFormatter.bytes(used, dataUnit: preferences.dataUnit)
-        let totalText = MetricFormatter.bytes(memory.totalBytes, dataUnit: preferences.dataUnit)
-        return "\(usedText) / \(totalText)"
-    }
-
-    private var networkValue: String {
-        guard let network = coordinator.latestSnapshot?.network else {
-            return "0B/s"
-        }
-
-        return MetricFormatter.bytesPerSecond(network.totalDownloadBytesPerSecond, dataUnit: preferences.dataUnit)
-    }
-
-    private var networkSubtitle: String {
-        guard let network = coordinator.latestSnapshot?.network else {
-            return "待機中"
-        }
-
-        let upload = MetricFormatter.bytesPerSecond(network.totalUploadBytesPerSecond, dataUnit: preferences.dataUnit)
-        return "↑ \(upload)"
+        return "\(bytes(used)) / \(bytes(memory.totalBytes))"
     }
 
     private var storageSubtitle: String {
@@ -108,21 +168,274 @@ struct OverviewTab: View {
             return "待機中"
         }
 
-        let free = MetricFormatter.bytes(primaryVolume.freeBytes, dataUnit: preferences.dataUnit)
-        return "空き \(free)"
+        return "\(bytes(primaryVolume.usedBytes)) / \(bytes(primaryVolume.totalBytes))"
     }
 
     private var primaryVolume: VolumeInfo? {
-        coordinator.latestSnapshot?.disk.volumes.first { volume in
+        latestSnapshot?.disk.volumes.first { volume in
             volume.isInternal
-        } ?? coordinator.latestSnapshot?.disk.volumes.first
+        } ?? latestSnapshot?.disk.volumes.first
     }
 
-    private var networkChartMax: Double {
-        max(history.map { Double($0.network.totalDownloadBytesPerSecond) }.max() ?? 1, 1)
+    private var activeInterfaceCount: Int {
+        latestSnapshot?.network.interfaces.filter(\.isActive).count ?? 0
     }
 
-    private var diskChartMax: Double {
-        max(history.map { Double($0.disk.readBytesPerSecond + $0.disk.writeBytesPerSecond) }.max() ?? 1, 1)
+    private func networkUploadText(_ network: NetworkMetrics?) -> String {
+        let upload = MetricFormatter.bytesPerSecond(
+            network?.totalUploadBytesPerSecond ?? 0,
+            dataUnit: preferences.dataUnit
+        )
+        return "送信 \(upload)"
+    }
+
+    private func bytes(_ value: UInt64) -> String {
+        ByteFormatter.string(from: value, dataUnit: preferences.dataUnit, unitStyle: .compact)
+    }
+}
+
+private struct MetricWidgetCard<Visual: View, Footer: View>: View {
+    let title: String
+    let systemImage: String
+    let value: String
+    let subtitle: String
+    let tint: Color
+    let visual: Visual
+    let footer: Footer
+
+    init(
+        title: String,
+        systemImage: String,
+        value: String,
+        subtitle: String,
+        tint: Color,
+        @ViewBuilder visual: () -> Visual,
+        @ViewBuilder footer: () -> Footer
+    ) {
+        self.title = title
+        self.systemImage = systemImage
+        self.value = value
+        self.subtitle = subtitle
+        self.tint = tint
+        self.visual = visual()
+        self.footer = footer()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(tint)
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text(value)
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundStyle(.primary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.68)
+                Text(subtitle)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+
+            visual
+                .frame(maxWidth: .infinity)
+
+            FlowPills {
+                footer
+            }
+        }
+        .padding(9)
+        .frame(minHeight: 154, alignment: .topLeading)
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(tint.opacity(0.18), lineWidth: 1)
+        }
+    }
+}
+
+private struct CoreLoadBars: View {
+    let values: [Double]
+
+    private var displayValues: [Double] {
+        values.isEmpty ? Array(repeating: 0, count: 8) : values
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            HStack(alignment: .bottom, spacing: 3) {
+                ForEach(Array(displayValues.enumerated()), id: \.offset) { item in
+                    VStack(spacing: 1) {
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
+                            .fill(.blue.opacity(0.28))
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
+                            .fill(barGradient)
+                            .frame(height: barHeight(value: item.element, totalHeight: proxy.size.height))
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .frame(height: 43)
+    }
+
+    private var barGradient: LinearGradient {
+        LinearGradient(colors: [.cyan, .blue, .indigo], startPoint: .top, endPoint: .bottom)
+    }
+
+    private func barHeight(value: Double, totalHeight: CGFloat) -> CGFloat {
+        max(totalHeight * CGFloat(Swift.min(Swift.max(value, 0), 1)), 2)
+    }
+}
+
+private struct DonutMetricView: View {
+    let segments: [DonutSegment]
+    let centerText: String
+    let centerCaption: String
+
+    private var total: Double {
+        max(segments.reduce(0) { result, segment in result + max(segment.value, 0) }, 1)
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(.secondary.opacity(0.16), lineWidth: 13)
+
+            ForEach(Array(segments.enumerated()), id: \.offset) { item in
+                Circle()
+                    .trim(from: startTrim(at: item.offset), to: endTrim(at: item.offset))
+                    .stroke(
+                        item.element.color,
+                        style: StrokeStyle(lineWidth: 13, lineCap: .butt)
+                    )
+                    .rotationEffect(.degrees(-90))
+            }
+
+            VStack(spacing: 0) {
+                Text(centerText)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(centerCaption)
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 70, height: 70)
+        .frame(maxWidth: .infinity)
+    }
+
+    private func startTrim(at index: Int) -> Double {
+        segments.prefix(index).reduce(0) { result, segment in
+            result + max(segment.value, 0) / total
+        }
+    }
+
+    private func endTrim(at index: Int) -> Double {
+        startTrim(at: index) + max(segments[index].value, 0) / total
+    }
+}
+
+private struct DonutSegment {
+    let value: Double
+    let color: Color
+}
+
+private struct NetworkActivityView: View {
+    let history: [MetricsSnapshot]
+    let dataUnit: DataUnit
+
+    private var maxValue: Double {
+        max(
+            history.map { snapshot in
+                Double(
+                    max(
+                        snapshot.network.totalDownloadBytesPerSecond,
+                        snapshot.network.totalUploadBytesPerSecond
+                    )
+                )
+            }.max() ?? 1,
+            1
+        )
+    }
+
+    var body: some View {
+        VStack(spacing: 5) {
+            HStack(alignment: .bottom, spacing: 2) {
+                ForEach(Array(history.suffix(22).enumerated()), id: \.offset) { item in
+                    Capsule()
+                        .fill(.cyan.opacity(0.35))
+                        .overlay(alignment: .bottom) {
+                            Capsule()
+                                .fill(.cyan)
+                                .frame(height: height(for: item.element.network.totalDownloadBytesPerSecond))
+                        }
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(height: 44)
+
+            HStack {
+                Text("ピーク")
+                Spacer()
+                Text(ByteFormatter.rateString(from: UInt64(maxValue), dataUnit: dataUnit, unitStyle: .compact))
+                    .monospacedDigit()
+            }
+            .font(.system(size: 10, weight: .medium))
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    private func height(for bytes: UInt64) -> CGFloat {
+        max(44 * CGFloat(Double(bytes) / maxValue), 2)
+    }
+}
+
+private struct FlowPills<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        HStack(spacing: 5) {
+            content
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct WidgetPill: View {
+    let text: String
+    let systemImage: String
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: systemImage)
+                .font(.system(size: 9, weight: .semibold))
+            Text(text)
+                .font(.system(size: 10, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .background(.quaternary.opacity(0.65))
+        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
     }
 }

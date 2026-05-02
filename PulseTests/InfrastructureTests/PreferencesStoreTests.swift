@@ -7,6 +7,7 @@
 
 import Foundation
 import Testing
+
 @testable import Pulse
 
 @Suite("Preferences Store Tests")
@@ -28,6 +29,7 @@ struct PreferencesStoreTests {
         #expect(store.showMenuBarIcons)
         #expect(store.automaticallyChecksForUpdates)
         #expect(store.appearance == .system)
+        #expect(store.popoverBackgroundOpacity == 0.28)
     }
 
     @Test("Store persists changed values")
@@ -46,6 +48,7 @@ struct PreferencesStoreTests {
         store.showMenuBarIcons = false
         store.automaticallyChecksForUpdates = false
         store.appearance = .dark
+        store.popoverBackgroundOpacity = 0.55
 
         let reloadedStore = PreferencesStore(userDefaults: defaults.userDefaults)
 
@@ -56,6 +59,7 @@ struct PreferencesStoreTests {
         #expect(!reloadedStore.showMenuBarIcons)
         #expect(!reloadedStore.automaticallyChecksForUpdates)
         #expect(reloadedStore.appearance == .dark)
+        #expect(reloadedStore.popoverBackgroundOpacity == 0.55)
     }
 
     @Test("Store sanitizes displayed items and interval")
@@ -77,9 +81,11 @@ struct PreferencesStoreTests {
             .diskUsage,
         ]
         store.samplingIntervalSeconds = 3.0
+        store.popoverBackgroundOpacity = 2.0
 
         #expect(store.displayedItems == [.diskIO, .cpuUsage, .memoryUsage, .networkSpeed])
         #expect(store.samplingIntervalSeconds == 2.0)
+        #expect(store.popoverBackgroundOpacity == 0.9)
     }
 
     @Test("Store resets values to defaults")
@@ -98,6 +104,7 @@ struct PreferencesStoreTests {
         store.showMenuBarIcons = false
         store.automaticallyChecksForUpdates = false
         store.appearance = .light
+        store.popoverBackgroundOpacity = 0.8
 
         store.resetToDefaults()
 
@@ -108,6 +115,7 @@ struct PreferencesStoreTests {
         #expect(store.showMenuBarIcons)
         #expect(store.automaticallyChecksForUpdates)
         #expect(store.appearance == .system)
+        #expect(store.popoverBackgroundOpacity == 0.28)
     }
 
     private func makeUserDefaults() throws -> TestUserDefaults {

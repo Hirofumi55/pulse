@@ -5,6 +5,7 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
+import AppKit
 import SwiftUI
 
 /// メニューバー表示項目を設定するビュー。
@@ -40,6 +41,22 @@ struct DisplaySettingsView: View {
             Section("メニューバー") {
                 Toggle("アイコンを表示", isOn: iconBinding)
             }
+
+            Section("詳細ポップオーバー") {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Text("背景の濃さ")
+                        Spacer()
+                        Text("\(Int((preferences.popoverBackgroundOpacity * 100).rounded()))%")
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(value: popoverOpacityBinding, in: 0.08...0.9, step: 0.01)
+
+                    popoverOpacityPreview
+                }
+            }
         }
         .formStyle(.grouped)
         .padding(20)
@@ -51,6 +68,40 @@ struct DisplaySettingsView: View {
         } set: { newValue in
             preferences.showMenuBarIcons = newValue
         }
+    }
+
+    private var popoverOpacityBinding: Binding<Double> {
+        Binding {
+            preferences.popoverBackgroundOpacity
+        } set: { newValue in
+            preferences.popoverBackgroundOpacity = newValue
+        }
+    }
+
+    private var popoverOpacityPreview: some View {
+        ZStack {
+            LinearGradient(
+                colors: [.blue.opacity(0.35), .purple.opacity(0.3), .cyan.opacity(0.25)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color(NSColor.windowBackgroundColor).opacity(preferences.popoverBackgroundOpacity))
+                .overlay {
+                    HStack(spacing: 8) {
+                        Image(systemName: "sparkles")
+                            .symbolRenderingMode(.hierarchical)
+                        Text("背景越しに内容が自然に透けます")
+                            .lineLimit(1)
+                    }
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+                }
+                .padding(8)
+        }
+        .frame(height: 54)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     private func displayBinding(for item: DisplayItem) -> Binding<Bool> {

@@ -37,7 +37,7 @@ jobs:
             -resultBundlePath TestResults \
             -quiet
       - name: Upload test results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v5
         with:
           name: TestResults

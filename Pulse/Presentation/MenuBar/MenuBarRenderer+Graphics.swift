@@ -122,7 +122,7 @@ extension MenuBarRenderer {
             width: rect.width,
             height: max(8, rect.height - 4)
         )
-        drawRoundedRect(barRect, color: NSColor.labelColor.withAlphaComponent(0.10), radius: 2.5)
+        drawRoundedRect(barRect, color: color(for: item).withAlphaComponent(0.28), radius: 2.5)
 
         let ratio = CGFloat(primaryRatio(for: item, snapshot: snapshot))
         let fillRect = NSRect(
@@ -236,9 +236,15 @@ extension MenuBarRenderer {
     }
 
     private static func drawInlineLabel(_ label: String, in rect: NSRect) {
+        let shadow = NSShadow()
+        shadow.shadowColor = NSColor.black.withAlphaComponent(0.35)
+        shadow.shadowBlurRadius = 1.2
+        shadow.shadowOffset = .zero
+
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.systemFont(ofSize: 9, weight: .bold),
-            .foregroundColor: NSColor.labelColor,
+            .font: NSFont.monospacedSystemFont(ofSize: 10, weight: .bold),
+            .foregroundColor: NSColor.white.withAlphaComponent(0.95),
+            .shadow: shadow,
         ]
         let text = NSAttributedString(string: label, attributes: attributes)
         let textSize = text.size()
@@ -247,12 +253,6 @@ extension MenuBarRenderer {
             y: rect.midY - textSize.height / 2,
             width: textSize.width,
             height: textSize.height
-        )
-        let backgroundRect = labelRect.insetBy(dx: -4, dy: -1)
-        drawRoundedRect(
-            backgroundRect,
-            color: NSColor.windowBackgroundColor.withAlphaComponent(0.42),
-            radius: 4
         )
         text.draw(in: labelRect)
     }
@@ -419,17 +419,17 @@ extension MenuBarRenderer {
     private static func wideLabel(for item: DisplayItem) -> String {
         switch item {
         case .cpuUsage:
-            "CPU負荷"
+            "CPU"
         case .memoryUsage:
-            "メモリ"
+            "MEM"
         case .networkSpeed:
-            "通信"
+            "NET"
         case .diskUsage:
-            "容量"
+            "DSK"
         case .diskIO:
             "I/O"
         case .cpuTemperature:
-            "温度"
+            "TMP"
         case .gpuUsage:
             "GPU"
         }

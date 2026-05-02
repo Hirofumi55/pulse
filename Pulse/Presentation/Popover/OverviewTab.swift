@@ -26,20 +26,17 @@ struct OverviewTab: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 8) {
-                LazyVGrid(columns: columns, spacing: 8) {
-                    cpuCard
-                    memoryCard
-                    thermalCard
-                    storageCard
-                    networkCard
-                    diskIOCard
-                }
+        VStack(alignment: .leading, spacing: 8) {
+            LazyVGrid(columns: columns, spacing: 8) {
+                cpuCard
+                memoryCard
+                thermalCard
+                storageCard
+                networkCard
+                diskIOCard
             }
-            .padding(12)
         }
-        .scrollContentBackground(.hidden)
+        .padding(12)
     }
 
     private var cpuCard: some View {
@@ -293,7 +290,7 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
             }
         }
         .padding(9)
-        .frame(minHeight: 154, alignment: .topLeading)
+        .frame(height: 190, alignment: .topLeading)
         .pulseGlassPanel(tint: tint, materialOpacity: 0.78)
     }
 }

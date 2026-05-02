@@ -17,7 +17,10 @@ struct PopoverHostView: View {
         OverviewTab(coordinator: coordinator, preferences: preferences)
             .frame(width: 420, height: 650)
             .background {
-                PulseGlassBackdrop(opacity: preferences.popoverBackgroundOpacity)
+                PulseGlassBackdrop(
+                    opacity: preferences.popoverBackgroundOpacity,
+                    blurRadius: preferences.popoverBackgroundBlurRadius
+                )
             }
             .preferredColorScheme(preferences.appearance.colorScheme)
     }

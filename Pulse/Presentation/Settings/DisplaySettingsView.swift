@@ -86,6 +86,18 @@ struct DisplaySettingsView: View {
                         .accessibilityLabel("背景の濃さ")
                         .accessibilityValue("\(Int((preferences.popoverBackgroundOpacity * 100).rounded()))%")
 
+                    HStack {
+                        Text("ブラー")
+                        Spacer()
+                        Text("\(Int(preferences.popoverBackgroundBlurRadius.rounded()))pt")
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(value: popoverBlurBinding, in: 0...30, step: 1)
+                        .accessibilityLabel("背景ブラー")
+                        .accessibilityValue("\(Int(preferences.popoverBackgroundBlurRadius.rounded()))pt")
+
                     popoverOpacityPreview
                 }
             }
@@ -141,6 +153,14 @@ struct DisplaySettingsView: View {
         }
     }
 
+    private var popoverBlurBinding: Binding<Double> {
+        Binding {
+            preferences.popoverBackgroundBlurRadius
+        } set: { newValue in
+            preferences.popoverBackgroundBlurRadius = newValue
+        }
+    }
+
     private var popoverOpacityPreview: some View {
         ZStack {
             LinearGradient(
@@ -151,6 +171,11 @@ struct DisplaySettingsView: View {
 
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(Color(NSColor.windowBackgroundColor).opacity(preferences.popoverBackgroundOpacity))
+                .background {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                        .blur(radius: preferences.popoverBackgroundBlurRadius * 0.25)
+                }
                 .overlay {
                     HStack(spacing: 8) {
                         Image(systemName: "sparkles")

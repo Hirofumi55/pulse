@@ -114,6 +114,7 @@ final class PreferencesStore {
     private var automaticallyChecksForUpdatesStorage: Bool
     private var appearanceStorage: AppearanceMode
     private var popoverBackgroundOpacityStorage: Double
+    private var popoverBackgroundBlurRadiusStorage: Double
 
     /// メニューバーに表示する項目。順序付きで最大4件。
     var displayedItems: [DisplayItem] {
@@ -148,9 +149,7 @@ final class PreferencesStore {
     }
 
     /// サンプリング間隔を Duration として返す。
-    var samplingDuration: Duration {
-        .milliseconds(Int(samplingIntervalSeconds * 1000))
-    }
+    var samplingDuration: Duration { .milliseconds(Int(samplingIntervalSeconds * 1000)) }
 
     /// メニューバー表示の表現方法。
     var menuBarDisplayStyle: MenuBarDisplayStyle {
@@ -288,6 +287,22 @@ final class PreferencesStore {
         }
     }
 
+    /// 詳細ポップオーバー背景のブラー半径。
+    var popoverBackgroundBlurRadius: Double {
+        get {
+            popoverBackgroundBlurRadiusStorage
+        }
+        set {
+            let sanitizedRadius = Self.sanitizePopoverBackgroundBlurRadius(newValue)
+            guard popoverBackgroundBlurRadiusStorage != sanitizedRadius else {
+                return
+            }
+
+            popoverBackgroundBlurRadiusStorage = sanitizedRadius
+            userDefaults.set(sanitizedRadius, forKey: Key.popoverBackgroundBlurRadius)
+        }
+    }
+
     /// 設定ストアを作成する。
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
@@ -343,6 +358,9 @@ final class PreferencesStore {
         self.popoverBackgroundOpacityStorage = Self.sanitizePopoverBackgroundOpacity(
             userDefaults.object(forKey: Key.popoverBackgroundOpacity) as? Double ?? 0.28
         )
+        self.popoverBackgroundBlurRadiusStorage = Self.sanitizePopoverBackgroundBlurRadius(
+            userDefaults.object(forKey: Key.popoverBackgroundBlurRadius) as? Double ?? 14.0
+        )
     }
 
     /// すべての設定をデフォルト値に戻す。
@@ -358,6 +376,7 @@ final class PreferencesStore {
         automaticallyChecksForUpdates = true
         appearance = .system
         popoverBackgroundOpacity = 0.28
+        popoverBackgroundBlurRadius = 14.0
     }
 
     private static func loadDisplayedItems(from userDefaults: UserDefaults) -> [DisplayItem] {
@@ -425,6 +444,10 @@ final class PreferencesStore {
     private static func sanitizePopoverBackgroundOpacity(_ value: Double) -> Double {
         Swift.min(Swift.max(value, 0.08), 0.9)
     }
+
+    private static func sanitizePopoverBackgroundBlurRadius(_ value: Double) -> Double {
+        Swift.min(Swift.max(value, 0), 30)
+    }
 }
 
 private enum Key {
@@ -439,4 +462,5 @@ private enum Key {
     static let automaticallyChecksForUpdates = "automaticallyChecksForUpdates"
     static let appearance = "appearance"
     static let popoverBackgroundOpacity = "popoverBackgroundOpacity"
+    static let popoverBackgroundBlurRadius = "popoverBackgroundBlurRadius"
 }

@@ -24,25 +24,44 @@ enum PulseGlassStyle {
 /// Pulse 全体で使うクリアなすりガラス背景。
 struct PulseGlassBackdrop: View {
     let opacity: Double
+    let blurRadius: Double
+
+    init(opacity: Double, blurRadius: Double = 14) {
+        self.opacity = opacity
+        self.blurRadius = blurRadius
+    }
 
     var body: some View {
         ZStack {
             Rectangle()
                 .fill(.clear)
 
-            Rectangle()
-                .fill(Color(nsColor: .windowBackgroundColor).opacity(opacity))
+            ZStack {
+                Rectangle()
+                    .fill(Color(nsColor: .windowBackgroundColor).opacity(opacity))
 
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .opacity(Swift.min(Swift.max(opacity * 0.85, 0.05), 0.75))
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .opacity(Swift.min(Swift.max(opacity * 0.85, 0.05), 0.75))
+
+                LinearGradient(
+                    colors: [
+                        .white.opacity(opacity * 0.20),
+                        .clear,
+                        .accentColor.opacity(opacity * 0.16),
+                        .cyan.opacity(opacity * 0.10),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+            .blur(radius: blurRadius)
 
             LinearGradient(
                 colors: [
-                    .white.opacity(opacity * 0.20),
+                    .white.opacity(opacity * 0.22),
                     .clear,
-                    .accentColor.opacity(opacity * 0.16),
-                    .cyan.opacity(opacity * 0.10),
+                    .white.opacity(opacity * 0.08),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing

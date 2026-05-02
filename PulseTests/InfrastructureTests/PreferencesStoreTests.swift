@@ -33,6 +33,7 @@ struct PreferencesStoreTests {
         #expect(store.automaticallyChecksForUpdates)
         #expect(store.appearance == .system)
         #expect(store.popoverBackgroundOpacity == 0.28)
+        #expect(store.popoverBackgroundBlurRadius == 14.0)
     }
 
     @Test("Store persists changed values")
@@ -55,6 +56,7 @@ struct PreferencesStoreTests {
         store.automaticallyChecksForUpdates = false
         store.appearance = .dark
         store.popoverBackgroundOpacity = 0.55
+        store.popoverBackgroundBlurRadius = 22.0
 
         let reloadedStore = PreferencesStore(userDefaults: defaults.userDefaults)
 
@@ -69,6 +71,7 @@ struct PreferencesStoreTests {
         #expect(!reloadedStore.automaticallyChecksForUpdates)
         #expect(reloadedStore.appearance == .dark)
         #expect(reloadedStore.popoverBackgroundOpacity == 0.55)
+        #expect(reloadedStore.popoverBackgroundBlurRadius == 22.0)
     }
 
     @Test("Store sanitizes displayed items and interval")
@@ -91,10 +94,12 @@ struct PreferencesStoreTests {
         ]
         store.samplingIntervalSeconds = 2.8
         store.popoverBackgroundOpacity = 2.0
+        store.popoverBackgroundBlurRadius = 100.0
 
         #expect(store.displayedItems == [.diskIO, .cpuUsage, .memoryUsage, .networkSpeed])
         #expect(store.samplingIntervalSeconds == 3.0)
         #expect(store.popoverBackgroundOpacity == 0.9)
+        #expect(store.popoverBackgroundBlurRadius == 30.0)
     }
 
     @Test("Store resets values to defaults")
@@ -117,6 +122,7 @@ struct PreferencesStoreTests {
         store.automaticallyChecksForUpdates = false
         store.appearance = .light
         store.popoverBackgroundOpacity = 0.8
+        store.popoverBackgroundBlurRadius = 2.0
 
         store.resetToDefaults()
 
@@ -131,6 +137,7 @@ struct PreferencesStoreTests {
         #expect(store.automaticallyChecksForUpdates)
         #expect(store.appearance == .system)
         #expect(store.popoverBackgroundOpacity == 0.28)
+        #expect(store.popoverBackgroundBlurRadius == 14.0)
     }
 
     private func makeUserDefaults() throws -> TestUserDefaults {

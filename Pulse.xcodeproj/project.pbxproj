@@ -38,6 +38,7 @@
 		I00000000000000000000001 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000011 /* MenuBarController.swift */; };
 		I00000000000000000000002 /* MenuBarRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000012 /* MenuBarRenderer.swift */; };
 		I00000000000000000000003 /* MenuBarRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000013 /* MenuBarRendererTests.swift */; };
+		I00000000000000000000004 /* MenuBarRenderer+Graphics.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000014 /* MenuBarRenderer+Graphics.swift */; };
 		J00000000000000000000001 /* PopoverHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000011 /* PopoverHostView.swift */; };
 		J00000000000000000000002 /* OverviewTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000012 /* OverviewTab.swift */; };
 		J00000000000000000000003 /* CPUTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000013 /* CPUTab.swift */; };
@@ -102,6 +103,7 @@
 		I00000000000000000000011 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		I00000000000000000000012 /* MenuBarRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarRenderer.swift; sourceTree = "<group>"; };
 		I00000000000000000000013 /* MenuBarRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarRendererTests.swift; sourceTree = "<group>"; };
+		I00000000000000000000014 /* MenuBarRenderer+Graphics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MenuBarRenderer+Graphics.swift"; sourceTree = "<group>"; };
 		J00000000000000000000011 /* PopoverHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverHostView.swift; sourceTree = "<group>"; };
 		J00000000000000000000012 /* OverviewTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewTab.swift; sourceTree = "<group>"; };
 		J00000000000000000000013 /* CPUTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUTab.swift; sourceTree = "<group>"; };
@@ -354,6 +356,7 @@
 			children = (
 				I00000000000000000000011 /* MenuBarController.swift */,
 				I00000000000000000000012 /* MenuBarRenderer.swift */,
+				I00000000000000000000014 /* MenuBarRenderer+Graphics.swift */,
 			);
 			path = MenuBar;
 			sourceTree = "<group>";
@@ -524,6 +527,7 @@
 				H00000000000000000000001 /* PreferencesStore.swift in Sources */,
 				I00000000000000000000001 /* MenuBarController.swift in Sources */,
 				I00000000000000000000002 /* MenuBarRenderer.swift in Sources */,
+				I00000000000000000000004 /* MenuBarRenderer+Graphics.swift in Sources */,
 				J00000000000000000000001 /* PopoverHostView.swift in Sources */,
 				J00000000000000000000002 /* OverviewTab.swift in Sources */,
 				J00000000000000000000003 /* CPUTab.swift in Sources */,

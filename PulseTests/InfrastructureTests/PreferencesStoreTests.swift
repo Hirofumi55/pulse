@@ -23,7 +23,8 @@ struct PreferencesStoreTests {
         let store = PreferencesStore(userDefaults: defaults.userDefaults)
 
         #expect(store.displayedItems == [.cpuUsage, .memoryUsage, .networkSpeed])
-        #expect(store.samplingIntervalSeconds == 1.0)
+        #expect(store.samplingIntervalSeconds == 3.0)
+        #expect(store.menuBarDisplayStyle == .bar)
         #expect(store.temperatureUnit == .celsius)
         #expect(store.dataUnit == .iec)
         #expect(store.showMenuBarIcons)
@@ -42,7 +43,8 @@ struct PreferencesStoreTests {
         let store = PreferencesStore(userDefaults: defaults.userDefaults)
 
         store.displayedItems = [.diskIO, .cpuUsage, .memoryUsage]
-        store.samplingIntervalSeconds = 2.0
+        store.samplingIntervalSeconds = 5.0
+        store.menuBarDisplayStyle = .graph
         store.temperatureUnit = .fahrenheit
         store.dataUnit = .si
         store.showMenuBarIcons = false
@@ -53,7 +55,8 @@ struct PreferencesStoreTests {
         let reloadedStore = PreferencesStore(userDefaults: defaults.userDefaults)
 
         #expect(reloadedStore.displayedItems == [.diskIO, .cpuUsage, .memoryUsage])
-        #expect(reloadedStore.samplingIntervalSeconds == 2.0)
+        #expect(reloadedStore.samplingIntervalSeconds == 5.0)
+        #expect(reloadedStore.menuBarDisplayStyle == .graph)
         #expect(reloadedStore.temperatureUnit == .fahrenheit)
         #expect(reloadedStore.dataUnit == .si)
         #expect(!reloadedStore.showMenuBarIcons)
@@ -80,11 +83,11 @@ struct PreferencesStoreTests {
             .networkSpeed,
             .diskUsage,
         ]
-        store.samplingIntervalSeconds = 3.0
+        store.samplingIntervalSeconds = 2.8
         store.popoverBackgroundOpacity = 2.0
 
         #expect(store.displayedItems == [.diskIO, .cpuUsage, .memoryUsage, .networkSpeed])
-        #expect(store.samplingIntervalSeconds == 2.0)
+        #expect(store.samplingIntervalSeconds == 3.0)
         #expect(store.popoverBackgroundOpacity == 0.9)
     }
 
@@ -99,6 +102,7 @@ struct PreferencesStoreTests {
 
         store.displayedItems = [.diskUsage]
         store.samplingIntervalSeconds = 5.0
+        store.menuBarDisplayStyle = .text
         store.temperatureUnit = .fahrenheit
         store.dataUnit = .si
         store.showMenuBarIcons = false
@@ -109,7 +113,8 @@ struct PreferencesStoreTests {
         store.resetToDefaults()
 
         #expect(store.displayedItems == [.cpuUsage, .memoryUsage, .networkSpeed])
-        #expect(store.samplingIntervalSeconds == 1.0)
+        #expect(store.samplingIntervalSeconds == 3.0)
+        #expect(store.menuBarDisplayStyle == .bar)
         #expect(store.temperatureUnit == .celsius)
         #expect(store.dataUnit == .iec)
         #expect(store.showMenuBarIcons)

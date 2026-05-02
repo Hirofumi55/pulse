@@ -39,6 +39,22 @@ struct DisplaySettingsView: View {
             }
 
             Section("メニューバー") {
+                Picker("表示形式", selection: menuBarStyleBinding) {
+                    ForEach(MenuBarDisplayStyle.allCases) { style in
+                        Text(style.displayName)
+                            .tag(style)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Picker("更新頻度", selection: samplingIntervalBinding) {
+                    ForEach(PreferencesStore.allowedSamplingIntervals, id: \.self) { interval in
+                        Text(intervalTitle(interval))
+                            .tag(interval)
+                    }
+                }
+                .pickerStyle(.segmented)
+
                 Toggle("アイコンを表示", isOn: iconBinding)
             }
 
@@ -67,6 +83,22 @@ struct DisplaySettingsView: View {
             preferences.showMenuBarIcons
         } set: { newValue in
             preferences.showMenuBarIcons = newValue
+        }
+    }
+
+    private var menuBarStyleBinding: Binding<MenuBarDisplayStyle> {
+        Binding {
+            preferences.menuBarDisplayStyle
+        } set: { newValue in
+            preferences.menuBarDisplayStyle = newValue
+        }
+    }
+
+    private var samplingIntervalBinding: Binding<Double> {
+        Binding {
+            preferences.samplingIntervalSeconds
+        } set: { newValue in
+            preferences.samplingIntervalSeconds = newValue
         }
     }
 
@@ -102,6 +134,14 @@ struct DisplaySettingsView: View {
         }
         .frame(height: 54)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+
+    private func intervalTitle(_ interval: Double) -> String {
+        if interval == floor(interval) {
+            return "\(Int(interval))秒"
+        }
+
+        return String(format: "%.1f秒", interval)
     }
 
     private func displayBinding(for item: DisplayItem) -> Binding<Bool> {

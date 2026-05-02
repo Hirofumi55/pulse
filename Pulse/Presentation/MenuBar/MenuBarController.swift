@@ -16,7 +16,7 @@ private let logger = Logger(category: .menuBar)
 @MainActor
 final class MenuBarController: NSObject {
     private var statusItem: NSStatusItem?
-    private var statusItemTitle: String?
+    private var statusItemContentIdentifier: String?
     private var displayedItems: [DisplayItem] = []
     private var popover: NSPopover?
     private var isPaused = false
@@ -52,6 +52,7 @@ final class MenuBarController: NSObject {
             _ = preferences.showMenuBarIcons
             _ = preferences.dataUnit
             _ = preferences.samplingIntervalSeconds
+            _ = preferences.menuBarDisplayStyle
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
                 self?.handlePreferencesChanged()
@@ -63,9 +64,10 @@ final class MenuBarController: NSObject {
     private func observeMetrics() {
         withObservationTracking {
             _ = coordinator.latestSnapshot
+            _ = coordinator.history
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
-                self?.updateStatusItemTitle()
+                self?.updateStatusItemContent()
                 self?.observeMetrics()
             }
         }
@@ -76,14 +78,14 @@ final class MenuBarController: NSObject {
         if displayedItems != nextDisplayedItems {
             displayedItems = nextDisplayedItems
             updateStatusItemLength()
-            statusItemTitle = nil
-            updateStatusItemTitle()
+            statusItemContentIdentifier = nil
+            updateStatusItemContent()
             logger.debug(
                 "Menu bar status item updated: \(self.displayedItems.count, privacy: .public)"
             )
         } else {
             updateStatusItemLength()
-            updateStatusItemTitle()
+            updateStatusItemContent()
         }
 
         if !isPaused {
@@ -103,7 +105,8 @@ final class MenuBarController: NSObject {
         let statusItem = NSStatusBar.system.statusItem(
             withLength: MenuBarRenderer.preferredLength(
                 for: displayedItems,
-                showIcon: preferences.showMenuBarIcons
+                showIcon: preferences.showMenuBarIcons,
+                style: preferences.menuBarDisplayStyle
             )
         )
         statusItem.button?.action = #selector(handleClick(_:))
@@ -114,7 +117,7 @@ final class MenuBarController: NSObject {
         statusItem.button?.setAccessibilityLabel("Pulse システムモニター")
         self.statusItem = statusItem
 
-        updateStatusItemTitle()
+        updateStatusItemContent()
     }
 
     private func removeStatusItems() {
@@ -122,10 +125,10 @@ final class MenuBarController: NSObject {
             NSStatusBar.system.removeStatusItem(statusItem)
         }
         statusItem = nil
-        statusItemTitle = nil
+        statusItemContentIdentifier = nil
     }
 
-    private func updateStatusItemTitle() {
+    private func updateStatusItemContent() {
         guard let statusItem else {
             return
         }
@@ -136,18 +139,41 @@ final class MenuBarController: NSObject {
             showIcon: preferences.showMenuBarIcons,
             dataUnit: preferences.dataUnit
         )
-        guard statusItemTitle != title else {
+        let timestamp = coordinator.latestSnapshot?.timestamp.timeIntervalSinceReferenceDate ?? 0
+        let identifier = [
+            preferences.menuBarDisplayStyle.rawValue,
+            title,
+            String(timestamp),
+        ].joined(separator: "|")
+        guard statusItemContentIdentifier != identifier else {
             return
         }
 
-        statusItemTitle = title
-        statusItem.button?.title = title
+        statusItemContentIdentifier = identifier
+        switch preferences.menuBarDisplayStyle {
+        case .text:
+            statusItem.button?.image = nil
+            statusItem.button?.imagePosition = .noImage
+            statusItem.button?.title = title
+        case .bar, .graph:
+            statusItem.button?.title = ""
+            statusItem.button?.imagePosition = .imageOnly
+            statusItem.button?.imageScaling = .scaleNone
+            statusItem.button?.image = MenuBarRenderer.image(
+                for: displayedItems,
+                snapshot: coordinator.latestSnapshot,
+                history: coordinator.history,
+                showIcon: preferences.showMenuBarIcons,
+                style: preferences.menuBarDisplayStyle
+            )
+        }
     }
 
     private func updateStatusItemLength() {
         statusItem?.length = MenuBarRenderer.preferredLength(
             for: displayedItems,
-            showIcon: preferences.showMenuBarIcons
+            showIcon: preferences.showMenuBarIcons,
+            style: preferences.menuBarDisplayStyle
         )
     }
 

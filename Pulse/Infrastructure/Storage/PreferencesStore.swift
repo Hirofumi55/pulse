@@ -56,6 +56,35 @@ enum DataUnit: String, CaseIterable, Codable, Identifiable, Sendable {
     }
 }
 
+/// メニューバーに表示するメトリクスの表現方法。
+enum MenuBarDisplayStyle: String, CaseIterable, Codable, Identifiable, Sendable {
+    /// 横バーで表示する。
+    case bar
+
+    /// 小さな時系列グラフで表示する。
+    case graph
+
+    /// 従来の数値テキストで表示する。
+    case text
+
+    /// 識別子。
+    var id: String {
+        rawValue
+    }
+
+    /// UI に表示する日本語名。
+    var displayName: String {
+        switch self {
+        case .bar:
+            "バー"
+        case .graph:
+            "グラフ"
+        case .text:
+            "数値"
+        }
+    }
+}
+
 /// アプリの外観モード。
 enum AppearanceMode: String, CaseIterable, Codable, Identifiable, Sendable {
     /// システム設定に追従する。
@@ -98,13 +127,14 @@ final class PreferencesStore {
         .networkSpeed,
     ]
 
-    @ObservationIgnored private static let allowedSamplingIntervals = [0.5, 1.0, 2.0, 5.0]
+    @ObservationIgnored static let allowedSamplingIntervals = [1.0, 3.0, 5.0, 10.0]
     @ObservationIgnored private static let maximumDisplayedItemCount = 4
 
     @ObservationIgnored private let userDefaults: UserDefaults
 
     private var displayedItemsStorage: [DisplayItem]
     private var samplingIntervalSecondsStorage: Double
+    private var menuBarDisplayStyleStorage: MenuBarDisplayStyle
     private var temperatureUnitStorage: TemperatureUnit
     private var dataUnitStorage: DataUnit
     private var showMenuBarIconsStorage: Bool
@@ -147,6 +177,21 @@ final class PreferencesStore {
     /// サンプリング間隔を Duration として返す。
     var samplingDuration: Duration {
         .milliseconds(Int(samplingIntervalSeconds * 1000))
+    }
+
+    /// メニューバー表示の表現方法。
+    var menuBarDisplayStyle: MenuBarDisplayStyle {
+        get {
+            menuBarDisplayStyleStorage
+        }
+        set {
+            guard menuBarDisplayStyleStorage != newValue else {
+                return
+            }
+
+            menuBarDisplayStyleStorage = newValue
+            userDefaults.set(newValue.rawValue, forKey: Key.menuBarDisplayStyle)
+        }
     }
 
     /// 温度単位。
@@ -245,7 +290,13 @@ final class PreferencesStore {
         self.userDefaults = userDefaults
         self.displayedItemsStorage = Self.loadDisplayedItems(from: userDefaults)
         self.samplingIntervalSecondsStorage = Self.sanitizeSamplingInterval(
-            userDefaults.object(forKey: Key.samplingIntervalSeconds) as? Double ?? 1.0
+            userDefaults.object(forKey: Key.samplingIntervalSeconds) as? Double ?? 3.0
+        )
+        self.menuBarDisplayStyleStorage = Self.loadEnum(
+            MenuBarDisplayStyle.self,
+            forKey: Key.menuBarDisplayStyle,
+            from: userDefaults,
+            fallback: .bar
         )
         self.temperatureUnitStorage = Self.loadEnum(
             TemperatureUnit.self,
@@ -283,7 +334,8 @@ final class PreferencesStore {
     /// すべての設定をデフォルト値に戻す。
     func resetToDefaults() {
         displayedItems = Self.defaultDisplayedItems
-        samplingIntervalSeconds = 1.0
+        samplingIntervalSeconds = 3.0
+        menuBarDisplayStyle = .bar
         temperatureUnit = .celsius
         dataUnit = .iec
         showMenuBarIcons = true
@@ -351,7 +403,7 @@ final class PreferencesStore {
     private static func sanitizeSamplingInterval(_ value: Double) -> Double {
         allowedSamplingIntervals.min { left, right in
             abs(left - value) < abs(right - value)
-        } ?? 1.0
+        } ?? 3.0
     }
 
     private static func sanitizePopoverBackgroundOpacity(_ value: Double) -> Double {
@@ -362,6 +414,7 @@ final class PreferencesStore {
 private enum Key {
     static let displayedItems = "displayedItems"
     static let samplingIntervalSeconds = "samplingIntervalSeconds"
+    static let menuBarDisplayStyle = "menuBarDisplayStyle"
     static let temperatureUnit = "temperatureUnit"
     static let dataUnit = "dataUnit"
     static let showMenuBarIcons = "showMenuBarIcons"

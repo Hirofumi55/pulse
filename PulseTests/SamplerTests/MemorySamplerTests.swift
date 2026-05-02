@@ -6,6 +6,7 @@
 //
 
 import Testing
+
 @testable import Pulse
 
 @Suite("Memory Sampler Tests")

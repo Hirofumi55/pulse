@@ -21,6 +21,30 @@ enum MenuBarRenderer {
     /// メニューバー項目群の固定幅を返す。
     @MainActor
     static func preferredLength(for items: [DisplayItem], showIcon: Bool) -> CGFloat {
+        preferredLength(for: items, showIcon: showIcon, style: .text)
+    }
+
+    /// メニューバー項目群の固定幅を返す。
+    @MainActor
+    static func preferredLength(
+        for items: [DisplayItem],
+        showIcon: Bool,
+        style: MenuBarDisplayStyle
+    ) -> CGFloat {
+        switch style {
+        case .bar:
+            let widthPerItem: CGFloat = showIcon ? 35 : 24
+            return max(28, ceil(CGFloat(items.count) * widthPerItem + 8))
+        case .graph:
+            let widthPerItem: CGFloat = showIcon ? 42 : 34
+            return max(34, ceil(CGFloat(items.count) * widthPerItem + 8))
+        case .text:
+            return textPreferredLength(for: items, showIcon: showIcon)
+        }
+    }
+
+    @MainActor
+    private static func textPreferredLength(for items: [DisplayItem], showIcon: Bool) -> CGFloat {
         let titleSample = items.map { item in
             sampleTitle(for: item, showIcon: showIcon)
         }.joined(separator: "  ")

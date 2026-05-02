@@ -5,8 +5,10 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
+import AppKit
 import Foundation
 import Testing
+
 @testable import Pulse
 
 @Suite("Menu Bar Renderer Tests")
@@ -40,6 +42,32 @@ struct MenuBarRendererTests {
         )
 
         #expect(title == "CPU 42%  MEM 50%  ↓ 2.5M ↑ 154K")
+    }
+
+    @Test("Renderer creates graphic menu bar images")
+    @MainActor
+    func createsGraphicMenuBarImages() {
+        let snapshot = makeSnapshot()
+        let image = MenuBarRenderer.image(
+            for: [.cpuUsage, .memoryUsage, .networkSpeed],
+            snapshot: snapshot,
+            history: [snapshot],
+            showIcon: true,
+            style: .bar
+        )
+
+        #expect(image.size.width > 0)
+        #expect(image.size.height == 18)
+    }
+
+    @Test("Renderer uses compact length for graphic styles")
+    @MainActor
+    func usesCompactLengthForGraphicStyles() {
+        let items: [DisplayItem] = [.cpuUsage, .memoryUsage, .networkSpeed]
+        let textLength = MenuBarRenderer.preferredLength(for: items, showIcon: true, style: .text)
+        let barLength = MenuBarRenderer.preferredLength(for: items, showIcon: true, style: .bar)
+
+        #expect(barLength < textLength)
     }
 
     private func makeSnapshot() -> MetricsSnapshot {

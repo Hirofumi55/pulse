@@ -6,6 +6,7 @@
 //
 
 import Testing
+
 @testable import Pulse
 
 @Suite("Metrics Coordinator Tests")

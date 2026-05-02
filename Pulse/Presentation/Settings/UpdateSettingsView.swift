@@ -12,13 +12,11 @@ import SwiftUI
 struct UpdateSettingsView: View {
     @Environment(PreferencesStore.self) private var preferences
 
-    private let intervals = [0.5, 1.0, 2.0, 5.0]
-
     var body: some View {
         Form {
             Section("サンプリング") {
-                Picker("間隔", selection: samplingIntervalBinding) {
-                    ForEach(intervals, id: \.self) { interval in
+                Picker("更新頻度", selection: samplingIntervalBinding) {
+                    ForEach(PreferencesStore.allowedSamplingIntervals, id: \.self) { interval in
                         Text(intervalTitle(interval))
                             .tag(interval)
                     }

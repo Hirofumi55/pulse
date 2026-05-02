@@ -1,0 +1,828 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00000000000000000000001 /* PulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* PulseApp.swift */; };
+		A00000000000000000000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* AppDelegate.swift */; };
+		A00000000000000000000003 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* SettingsView.swift */; };
+		A00000000000000000000004 /* Logger+Pulse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000014 /* Logger+Pulse.swift */; };
+		A00000000000000000000005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000015 /* Assets.xcassets */; };
+		A00000000000000000000006 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* Localizable.xcstrings */; };
+		A00000000000000000000007 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A00000000000000000000027 /* Sparkle */; };
+		A00000000000000000000008 /* PulseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* PulseTests.swift */; };
+		B00000000000000000000001 /* MetricsSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000011 /* MetricsSnapshot.swift */; };
+		B00000000000000000000002 /* CPUMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000012 /* CPUMetrics.swift */; };
+		B00000000000000000000003 /* MemoryMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000013 /* MemoryMetrics.swift */; };
+		B00000000000000000000004 /* DiskMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000014 /* DiskMetrics.swift */; };
+		B00000000000000000000005 /* NetworkMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000015 /* NetworkMetrics.swift */; };
+		B00000000000000000000006 /* DisplayItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000016 /* DisplayItem.swift */; };
+		C00000000000000000000001 /* Sampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000011 /* Sampler.swift */; };
+		C00000000000000000000002 /* SamplerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000012 /* SamplerError.swift */; };
+		C00000000000000000000003 /* CPUSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000013 /* CPUSampler.swift */; };
+		C00000000000000000000004 /* CPUSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00000000000000000000014 /* CPUSamplerTests.swift */; };
+		D00000000000000000000001 /* MemorySampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000011 /* MemorySampler.swift */; };
+		D00000000000000000000002 /* MemorySamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00000000000000000000012 /* MemorySamplerTests.swift */; };
+		E00000000000000000000001 /* DiskSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00000000000000000000011 /* DiskSampler.swift */; };
+		E00000000000000000000002 /* DiskSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00000000000000000000012 /* DiskSamplerTests.swift */; };
+		F00000000000000000000001 /* NetworkSampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000011 /* NetworkSampler.swift */; };
+		F00000000000000000000002 /* NetworkSamplerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00000000000000000000012 /* NetworkSamplerTests.swift */; };
+		G00000000000000000000001 /* MetricsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = G00000000000000000000011 /* MetricsCoordinator.swift */; };
+		G00000000000000000000002 /* MetricsCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = G00000000000000000000012 /* MetricsCoordinatorTests.swift */; };
+		H00000000000000000000001 /* PreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = H00000000000000000000011 /* PreferencesStore.swift */; };
+		H00000000000000000000002 /* PreferencesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = H00000000000000000000012 /* PreferencesStoreTests.swift */; };
+		I00000000000000000000001 /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000011 /* MenuBarController.swift */; };
+		I00000000000000000000002 /* MenuBarRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000012 /* MenuBarRenderer.swift */; };
+		I00000000000000000000003 /* MenuBarRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = I00000000000000000000013 /* MenuBarRendererTests.swift */; };
+		J00000000000000000000001 /* PopoverHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000011 /* PopoverHostView.swift */; };
+		J00000000000000000000002 /* OverviewTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000012 /* OverviewTab.swift */; };
+		J00000000000000000000003 /* CPUTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000013 /* CPUTab.swift */; };
+		J00000000000000000000004 /* MemoryTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000014 /* MemoryTab.swift */; };
+		J00000000000000000000005 /* StorageTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000015 /* StorageTab.swift */; };
+		J00000000000000000000006 /* NetworkTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000016 /* NetworkTab.swift */; };
+		J00000000000000000000007 /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000017 /* MetricCard.swift */; };
+		J00000000000000000000008 /* SparklineChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000018 /* SparklineChart.swift */; };
+		J00000000000000000000009 /* GaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = J00000000000000000000019 /* GaugeView.swift */; };
+		K00000000000000000000001 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000011 /* GeneralSettingsView.swift */; };
+		K00000000000000000000002 /* DisplaySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000012 /* DisplaySettingsView.swift */; };
+		K00000000000000000000003 /* UpdateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000013 /* UpdateSettingsView.swift */; };
+		K00000000000000000000004 /* UnitSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000014 /* UnitSettingsView.swift */; };
+		K00000000000000000000005 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = K00000000000000000000015 /* AboutView.swift */; };
+		L00000000000000000000001 /* UpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = L00000000000000000000011 /* UpdateManager.swift */; };
+		M00000000000000000000001 /* Formatter+Bytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = M00000000000000000000011 /* Formatter+Bytes.swift */; };
+		N00000000000000000000001 /* ByteFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = N00000000000000000000011 /* ByteFormatterTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A00000000000000000000031 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000020 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000021;
+			remoteInfo = Pulse;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000010 /* Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000011 /* PulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000012 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A00000000000000000000013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A00000000000000000000014 /* Logger+Pulse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Pulse.swift"; sourceTree = "<group>"; };
+		A00000000000000000000015 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A00000000000000000000016 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		A00000000000000000000017 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000018 /* PulseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000019 /* PulseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000029 /* Pulse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pulse.entitlements; sourceTree = "<group>"; };
+		B00000000000000000000011 /* MetricsSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsSnapshot.swift; sourceTree = "<group>"; };
+		B00000000000000000000012 /* CPUMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetrics.swift; sourceTree = "<group>"; };
+		B00000000000000000000013 /* MemoryMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryMetrics.swift; sourceTree = "<group>"; };
+		B00000000000000000000014 /* DiskMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskMetrics.swift; sourceTree = "<group>"; };
+		B00000000000000000000015 /* NetworkMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMetrics.swift; sourceTree = "<group>"; };
+		B00000000000000000000016 /* DisplayItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayItem.swift; sourceTree = "<group>"; };
+		C00000000000000000000011 /* Sampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sampler.swift; sourceTree = "<group>"; };
+		C00000000000000000000012 /* SamplerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SamplerError.swift; sourceTree = "<group>"; };
+		C00000000000000000000013 /* CPUSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUSampler.swift; sourceTree = "<group>"; };
+		C00000000000000000000014 /* CPUSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUSamplerTests.swift; sourceTree = "<group>"; };
+		D00000000000000000000011 /* MemorySampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySampler.swift; sourceTree = "<group>"; };
+		D00000000000000000000012 /* MemorySamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorySamplerTests.swift; sourceTree = "<group>"; };
+		E00000000000000000000011 /* DiskSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskSampler.swift; sourceTree = "<group>"; };
+		E00000000000000000000012 /* DiskSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskSamplerTests.swift; sourceTree = "<group>"; };
+		F00000000000000000000011 /* NetworkSampler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSampler.swift; sourceTree = "<group>"; };
+		F00000000000000000000012 /* NetworkSamplerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSamplerTests.swift; sourceTree = "<group>"; };
+		G00000000000000000000011 /* MetricsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsCoordinator.swift; sourceTree = "<group>"; };
+		G00000000000000000000012 /* MetricsCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsCoordinatorTests.swift; sourceTree = "<group>"; };
+		H00000000000000000000011 /* PreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStore.swift; sourceTree = "<group>"; };
+		H00000000000000000000012 /* PreferencesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesStoreTests.swift; sourceTree = "<group>"; };
+		I00000000000000000000011 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		I00000000000000000000012 /* MenuBarRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarRenderer.swift; sourceTree = "<group>"; };
+		I00000000000000000000013 /* MenuBarRendererTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarRendererTests.swift; sourceTree = "<group>"; };
+		J00000000000000000000011 /* PopoverHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverHostView.swift; sourceTree = "<group>"; };
+		J00000000000000000000012 /* OverviewTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewTab.swift; sourceTree = "<group>"; };
+		J00000000000000000000013 /* CPUTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUTab.swift; sourceTree = "<group>"; };
+		J00000000000000000000014 /* MemoryTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTab.swift; sourceTree = "<group>"; };
+		J00000000000000000000015 /* StorageTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTab.swift; sourceTree = "<group>"; };
+		J00000000000000000000016 /* NetworkTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkTab.swift; sourceTree = "<group>"; };
+		J00000000000000000000017 /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
+		J00000000000000000000018 /* SparklineChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparklineChart.swift; sourceTree = "<group>"; };
+		J00000000000000000000019 /* GaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaugeView.swift; sourceTree = "<group>"; };
+		K00000000000000000000011 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		K00000000000000000000012 /* DisplaySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplaySettingsView.swift; sourceTree = "<group>"; };
+		K00000000000000000000013 /* UpdateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsView.swift; sourceTree = "<group>"; };
+		K00000000000000000000014 /* UnitSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitSettingsView.swift; sourceTree = "<group>"; };
+		K00000000000000000000015 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		L00000000000000000000011 /* UpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateManager.swift; sourceTree = "<group>"; };
+		M00000000000000000000011 /* Formatter+Bytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Formatter+Bytes.swift"; sourceTree = "<group>"; };
+		N00000000000000000000011 /* ByteFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteFormatterTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A00000000000000000000041 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000007 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000042 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A00000000000000000000050 = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000051 /* Pulse */,
+				A00000000000000000000058 /* PulseTests */,
+				A00000000000000000000059 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00000000000000000000051 /* Pulse */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000052 /* App */,
+				A00000000000000000000053 /* Presentation */,
+				B00000000000000000000050 /* Application */,
+				B00000000000000000000051 /* Domain */,
+				B00000000000000000000055 /* Infrastructure */,
+				A00000000000000000000054 /* Resources */,
+				A00000000000000000000055 /* Utilities */,
+			);
+			path = Pulse;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000052 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000011 /* PulseApp.swift */,
+				A00000000000000000000012 /* AppDelegate.swift */,
+				A00000000000000000000017 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000053 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				I00000000000000000000020 /* MenuBar */,
+				J00000000000000000000020 /* Popover */,
+				A00000000000000000000056 /* Settings */,
+				J00000000000000000000021 /* Components */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000054 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000015 /* Assets.xcassets */,
+				A00000000000000000000016 /* Localizable.xcstrings */,
+				A00000000000000000000029 /* Pulse.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000055 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000014 /* Logger+Pulse.swift */,
+				M00000000000000000000011 /* Formatter+Bytes.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000056 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000013 /* SettingsView.swift */,
+				K00000000000000000000011 /* GeneralSettingsView.swift */,
+				K00000000000000000000012 /* DisplaySettingsView.swift */,
+				K00000000000000000000013 /* UpdateSettingsView.swift */,
+				K00000000000000000000014 /* UnitSettingsView.swift */,
+				K00000000000000000000015 /* AboutView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000058 /* PulseTests */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000020 /* SamplerTests */,
+				G00000000000000000000020 /* DomainTests */,
+				H00000000000000000000020 /* InfrastructureTests */,
+				I00000000000000000000021 /* PresentationTests */,
+				N00000000000000000000020 /* UtilitiesTests */,
+				A00000000000000000000018 /* PulseTests.swift */,
+			);
+			path = PulseTests;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000059 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000010 /* Pulse.app */,
+				A00000000000000000000019 /* PulseTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000050 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000051 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000052 /* Models */,
+				B00000000000000000000053 /* UseCases */,
+				B00000000000000000000054 /* Protocols */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000052 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000011 /* MetricsSnapshot.swift */,
+				B00000000000000000000012 /* CPUMetrics.swift */,
+				B00000000000000000000013 /* MemoryMetrics.swift */,
+				B00000000000000000000014 /* DiskMetrics.swift */,
+				B00000000000000000000015 /* NetworkMetrics.swift */,
+				B00000000000000000000016 /* DisplayItem.swift */,
+				C00000000000000000000012 /* SamplerError.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000053 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				G00000000000000000000011 /* MetricsCoordinator.swift */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000054 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000011 /* Sampler.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000055 /* Infrastructure */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000056 /* Samplers */,
+				B00000000000000000000057 /* Storage */,
+				B00000000000000000000058 /* Update */,
+			);
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000056 /* Samplers */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000013 /* CPUSampler.swift */,
+				D00000000000000000000011 /* MemorySampler.swift */,
+				E00000000000000000000011 /* DiskSampler.swift */,
+				F00000000000000000000011 /* NetworkSampler.swift */,
+			);
+			path = Samplers;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000057 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				H00000000000000000000011 /* PreferencesStore.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		B00000000000000000000058 /* Update */ = {
+			isa = PBXGroup;
+			children = (
+				L00000000000000000000011 /* UpdateManager.swift */,
+			);
+			path = Update;
+			sourceTree = "<group>";
+		};
+		C00000000000000000000020 /* SamplerTests */ = {
+			isa = PBXGroup;
+			children = (
+				C00000000000000000000014 /* CPUSamplerTests.swift */,
+				D00000000000000000000012 /* MemorySamplerTests.swift */,
+				E00000000000000000000012 /* DiskSamplerTests.swift */,
+				F00000000000000000000012 /* NetworkSamplerTests.swift */,
+			);
+			path = SamplerTests;
+			sourceTree = "<group>";
+		};
+		G00000000000000000000020 /* DomainTests */ = {
+			isa = PBXGroup;
+			children = (
+				G00000000000000000000012 /* MetricsCoordinatorTests.swift */,
+			);
+			path = DomainTests;
+			sourceTree = "<group>";
+		};
+		H00000000000000000000020 /* InfrastructureTests */ = {
+			isa = PBXGroup;
+			children = (
+				H00000000000000000000012 /* PreferencesStoreTests.swift */,
+			);
+			path = InfrastructureTests;
+			sourceTree = "<group>";
+		};
+		I00000000000000000000020 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				I00000000000000000000011 /* MenuBarController.swift */,
+				I00000000000000000000012 /* MenuBarRenderer.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		I00000000000000000000021 /* PresentationTests */ = {
+			isa = PBXGroup;
+			children = (
+				I00000000000000000000013 /* MenuBarRendererTests.swift */,
+			);
+			path = PresentationTests;
+			sourceTree = "<group>";
+		};
+		J00000000000000000000020 /* Popover */ = {
+			isa = PBXGroup;
+			children = (
+				J00000000000000000000011 /* PopoverHostView.swift */,
+				J00000000000000000000012 /* OverviewTab.swift */,
+				J00000000000000000000013 /* CPUTab.swift */,
+				J00000000000000000000014 /* MemoryTab.swift */,
+				J00000000000000000000015 /* StorageTab.swift */,
+				J00000000000000000000016 /* NetworkTab.swift */,
+			);
+			path = Popover;
+			sourceTree = "<group>";
+		};
+		J00000000000000000000021 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				J00000000000000000000017 /* MetricCard.swift */,
+				J00000000000000000000018 /* SparklineChart.swift */,
+				J00000000000000000000019 /* GaugeView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		N00000000000000000000020 /* UtilitiesTests */ = {
+			isa = PBXGroup;
+			children = (
+				N00000000000000000000011 /* ByteFormatterTests.swift */,
+			);
+			path = UtilitiesTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00000000000000000000021 /* Pulse */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000070 /* Build configuration list for PBXNativeTarget "Pulse" */;
+			buildPhases = (
+				A00000000000000000000061 /* Sources */,
+				A00000000000000000000041 /* Frameworks */,
+				A00000000000000000000062 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Pulse;
+			packageProductDependencies = (
+				A00000000000000000000027 /* Sparkle */,
+			);
+			productName = Pulse;
+			productReference = A00000000000000000000010 /* Pulse.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00000000000000000000022 /* PulseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000080 /* Build configuration list for PBXNativeTarget "PulseTests" */;
+			buildPhases = (
+				A00000000000000000000063 /* Sources */,
+				A00000000000000000000042 /* Frameworks */,
+				A00000000000000000000064 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A00000000000000000000032 /* PBXTargetDependency */,
+			);
+			name = PulseTests;
+			productName = PulseTests;
+			productReference = A00000000000000000000019 /* PulseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000020 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A00000000000000000000021 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					A00000000000000000000022 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = A00000000000000000000021;
+					};
+				};
+			};
+			buildConfigurationList = A00000000000000000000090 /* Build configuration list for PBXProject "Pulse" */;
+			developmentRegion = ja;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				ja,
+				Base,
+			);
+			mainGroup = A00000000000000000000050;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A00000000000000000000026 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A00000000000000000000059 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A00000000000000000000021 /* Pulse */,
+				A00000000000000000000022 /* PulseTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A00000000000000000000062 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000005 /* Assets.xcassets in Resources */,
+				A00000000000000000000006 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000064 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A00000000000000000000061 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000001 /* PulseApp.swift in Sources */,
+				A00000000000000000000002 /* AppDelegate.swift in Sources */,
+				A00000000000000000000003 /* SettingsView.swift in Sources */,
+				A00000000000000000000004 /* Logger+Pulse.swift in Sources */,
+				B00000000000000000000001 /* MetricsSnapshot.swift in Sources */,
+				B00000000000000000000002 /* CPUMetrics.swift in Sources */,
+				B00000000000000000000003 /* MemoryMetrics.swift in Sources */,
+				B00000000000000000000004 /* DiskMetrics.swift in Sources */,
+				B00000000000000000000005 /* NetworkMetrics.swift in Sources */,
+				B00000000000000000000006 /* DisplayItem.swift in Sources */,
+				C00000000000000000000001 /* Sampler.swift in Sources */,
+				C00000000000000000000002 /* SamplerError.swift in Sources */,
+				C00000000000000000000003 /* CPUSampler.swift in Sources */,
+				D00000000000000000000001 /* MemorySampler.swift in Sources */,
+				E00000000000000000000001 /* DiskSampler.swift in Sources */,
+				F00000000000000000000001 /* NetworkSampler.swift in Sources */,
+				G00000000000000000000001 /* MetricsCoordinator.swift in Sources */,
+				H00000000000000000000001 /* PreferencesStore.swift in Sources */,
+				I00000000000000000000001 /* MenuBarController.swift in Sources */,
+				I00000000000000000000002 /* MenuBarRenderer.swift in Sources */,
+				J00000000000000000000001 /* PopoverHostView.swift in Sources */,
+				J00000000000000000000002 /* OverviewTab.swift in Sources */,
+				J00000000000000000000003 /* CPUTab.swift in Sources */,
+				J00000000000000000000004 /* MemoryTab.swift in Sources */,
+				J00000000000000000000005 /* StorageTab.swift in Sources */,
+				J00000000000000000000006 /* NetworkTab.swift in Sources */,
+				J00000000000000000000007 /* MetricCard.swift in Sources */,
+				J00000000000000000000008 /* SparklineChart.swift in Sources */,
+				J00000000000000000000009 /* GaugeView.swift in Sources */,
+				K00000000000000000000001 /* GeneralSettingsView.swift in Sources */,
+				K00000000000000000000002 /* DisplaySettingsView.swift in Sources */,
+				K00000000000000000000003 /* UpdateSettingsView.swift in Sources */,
+				K00000000000000000000004 /* UnitSettingsView.swift in Sources */,
+				K00000000000000000000005 /* AboutView.swift in Sources */,
+				L00000000000000000000001 /* UpdateManager.swift in Sources */,
+				M00000000000000000000001 /* Formatter+Bytes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000063 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000008 /* PulseTests.swift in Sources */,
+				C00000000000000000000004 /* CPUSamplerTests.swift in Sources */,
+				D00000000000000000000002 /* MemorySamplerTests.swift in Sources */,
+				E00000000000000000000002 /* DiskSamplerTests.swift in Sources */,
+				F00000000000000000000002 /* NetworkSamplerTests.swift in Sources */,
+				G00000000000000000000002 /* MetricsCoordinatorTests.swift in Sources */,
+				H00000000000000000000002 /* PreferencesStoreTests.swift in Sources */,
+				I00000000000000000000003 /* MenuBarRendererTests.swift in Sources */,
+				N00000000000000000000001 /* ByteFormatterTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A00000000000000000000032 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00000000000000000000021 /* Pulse */;
+			targetProxy = A00000000000000000000031 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A00000000000000000000071 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Pulse/Resources/Pulse.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				EXCLUDED_ARCHS = x86_64;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Pulse/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hirofumi.pulse;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A00000000000000000000072 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Pulse/Resources/Pulse.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				EXCLUDED_ARCHS = x86_64;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Pulse/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hirofumi.pulse;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		A00000000000000000000081 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hirofumi.pulse.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pulse";
+			};
+			name = Debug;
+		};
+		A00000000000000000000082 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hirofumi.pulse.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pulse";
+			};
+			name = Release;
+		};
+		A00000000000000000000091 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		A00000000000000000000092 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A00000000000000000000070 /* Build configuration list for PBXNativeTarget "Pulse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000071 /* Debug */,
+				A00000000000000000000072 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000080 /* Build configuration list for PBXNativeTarget "PulseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000081 /* Debug */,
+				A00000000000000000000082 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000090 /* Build configuration list for PBXProject "Pulse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000091 /* Debug */,
+				A00000000000000000000092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A00000000000000000000026 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A00000000000000000000027 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A00000000000000000000026 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A00000000000000000000020 /* Project object */;
+}

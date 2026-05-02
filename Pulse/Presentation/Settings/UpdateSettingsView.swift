@@ -32,8 +32,7 @@ struct UpdateSettingsView: View {
                 LabeledContent("現在のバージョン", value: Bundle.main.pulseVersion)
             }
         }
-        .formStyle(.grouped)
-        .padding(20)
+        .pulseGlassForm()
     }
 
     private var samplingIntervalBinding: Binding<Double> {

@@ -47,6 +47,18 @@ struct DisplaySettingsView: View {
                 }
                 .pickerStyle(.segmented)
 
+                if preferences.menuBarDisplayStyle == .bar {
+                    Picker("バー方向", selection: menuBarBarLayoutBinding) {
+                        ForEach(MenuBarBarLayout.allCases) { layout in
+                            Text(layout.displayName)
+                                .tag(layout)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    Toggle("バー内にパーセントを表示", isOn: barPercentageBinding)
+                }
+
                 Picker("更新頻度", selection: samplingIntervalBinding) {
                     ForEach(PreferencesStore.allowedSamplingIntervals, id: \.self) { interval in
                         Text(intervalTitle(interval))
@@ -74,8 +86,7 @@ struct DisplaySettingsView: View {
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding(20)
+        .pulseGlassForm()
     }
 
     private var iconBinding: Binding<Bool> {
@@ -99,6 +110,22 @@ struct DisplaySettingsView: View {
             preferences.samplingIntervalSeconds
         } set: { newValue in
             preferences.samplingIntervalSeconds = newValue
+        }
+    }
+
+    private var menuBarBarLayoutBinding: Binding<MenuBarBarLayout> {
+        Binding {
+            preferences.menuBarBarLayout
+        } set: { newValue in
+            preferences.menuBarBarLayout = newValue
+        }
+    }
+
+    private var barPercentageBinding: Binding<Bool> {
+        Binding {
+            preferences.showMenuBarBarPercentage
+        } set: { newValue in
+            preferences.showMenuBarBarPercentage = newValue
         }
     }
 
@@ -133,7 +160,7 @@ struct DisplaySettingsView: View {
                 .padding(8)
         }
         .frame(height: 54)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .pulseGlassPanel(tint: .cyan, materialOpacity: 0.48)
     }
 
     private func intervalTitle(_ interval: Double) -> String {

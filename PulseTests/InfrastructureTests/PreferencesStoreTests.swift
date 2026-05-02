@@ -25,6 +25,8 @@ struct PreferencesStoreTests {
         #expect(store.displayedItems == [.cpuUsage, .memoryUsage, .networkSpeed])
         #expect(store.samplingIntervalSeconds == 3.0)
         #expect(store.menuBarDisplayStyle == .bar)
+        #expect(store.menuBarBarLayout == .vertical)
+        #expect(store.showMenuBarBarPercentage)
         #expect(store.temperatureUnit == .celsius)
         #expect(store.dataUnit == .iec)
         #expect(store.showMenuBarIcons)
@@ -45,6 +47,8 @@ struct PreferencesStoreTests {
         store.displayedItems = [.diskIO, .cpuUsage, .memoryUsage]
         store.samplingIntervalSeconds = 5.0
         store.menuBarDisplayStyle = .graph
+        store.menuBarBarLayout = .horizontal
+        store.showMenuBarBarPercentage = false
         store.temperatureUnit = .fahrenheit
         store.dataUnit = .si
         store.showMenuBarIcons = false
@@ -57,6 +61,8 @@ struct PreferencesStoreTests {
         #expect(reloadedStore.displayedItems == [.diskIO, .cpuUsage, .memoryUsage])
         #expect(reloadedStore.samplingIntervalSeconds == 5.0)
         #expect(reloadedStore.menuBarDisplayStyle == .graph)
+        #expect(reloadedStore.menuBarBarLayout == .horizontal)
+        #expect(!reloadedStore.showMenuBarBarPercentage)
         #expect(reloadedStore.temperatureUnit == .fahrenheit)
         #expect(reloadedStore.dataUnit == .si)
         #expect(!reloadedStore.showMenuBarIcons)
@@ -103,6 +109,8 @@ struct PreferencesStoreTests {
         store.displayedItems = [.diskUsage]
         store.samplingIntervalSeconds = 5.0
         store.menuBarDisplayStyle = .text
+        store.menuBarBarLayout = .horizontal
+        store.showMenuBarBarPercentage = false
         store.temperatureUnit = .fahrenheit
         store.dataUnit = .si
         store.showMenuBarIcons = false
@@ -115,6 +123,8 @@ struct PreferencesStoreTests {
         #expect(store.displayedItems == [.cpuUsage, .memoryUsage, .networkSpeed])
         #expect(store.samplingIntervalSeconds == 3.0)
         #expect(store.menuBarDisplayStyle == .bar)
+        #expect(store.menuBarBarLayout == .vertical)
+        #expect(store.showMenuBarBarPercentage)
         #expect(store.temperatureUnit == .celsius)
         #expect(store.dataUnit == .iec)
         #expect(store.showMenuBarIcons)

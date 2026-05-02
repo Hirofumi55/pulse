@@ -19,10 +19,10 @@ extension MenuBarRenderer {
         for items: [DisplayItem],
         snapshot: MetricsSnapshot?,
         history: [MetricsSnapshot],
-        showIcon: Bool,
-        style: MenuBarDisplayStyle
+        style: MenuBarDisplayStyle,
+        options: MenuBarRenderOptions
     ) -> NSImage {
-        let width = preferredLength(for: items, showIcon: showIcon, style: style)
+        let width = preferredLength(for: items, style: style, options: options)
         let size = NSSize(width: width, height: imageHeight)
         let image = NSImage(size: size)
 
@@ -50,14 +50,14 @@ extension MenuBarRenderer {
 
             switch style {
             case .bar:
-                drawBarItem(item, snapshot: snapshot, in: itemRect, showIcon: showIcon)
+                drawBarItem(item, snapshot: snapshot, in: itemRect, options: options)
             case .graph:
-                drawGraphItem(item, history: history, snapshot: snapshot, in: itemRect, showIcon: showIcon)
+                drawGraphItem(item, history: history, snapshot: snapshot, in: itemRect, showIcon: options.showIcon)
             case .text:
                 drawFallbackText(
                     for: item,
                     snapshot: snapshot,
-                    showIcon: showIcon,
+                    showIcon: options.showIcon,
                     dataUnit: .iec,
                     in: itemRect
                 )
@@ -72,10 +72,51 @@ extension MenuBarRenderer {
         _ item: DisplayItem,
         snapshot: MetricsSnapshot?,
         in rect: NSRect,
-        showIcon: Bool
+        options: MenuBarRenderOptions
     ) {
-        let labelHeight: CGFloat = showIcon ? 7 : 0
-        if showIcon {
+        switch options.barLayout {
+        case .vertical:
+            drawVerticalBarItem(item, snapshot: snapshot, in: rect, options: options)
+        case .horizontal:
+            drawHorizontalBarItem(item, snapshot: snapshot, in: rect, options: options)
+        }
+    }
+
+    private static func drawVerticalBarItem(
+        _ item: DisplayItem,
+        snapshot: MetricsSnapshot?,
+        in rect: NSRect,
+        options: MenuBarRenderOptions
+    ) {
+        let ratios = barRatios(for: item, snapshot: snapshot)
+        let colors = accentColors(for: item)
+        let labelHeight: CGFloat = options.showIcon ? 6 : 0
+        if options.showIcon {
+            let labelRect = NSRect(x: rect.minX, y: rect.maxY - 6, width: rect.width, height: 6)
+            drawLabel(shortLabel(for: item), in: labelRect, size: 6)
+        }
+
+        let barRect = NSRect(
+            x: rect.minX + 1,
+            y: rect.minY + 1,
+            width: rect.width - 2,
+            height: max(8, rect.height - labelHeight - 1)
+        )
+        drawVerticalLanes(ratios: ratios, colors: colors, in: barRect)
+
+        if options.showBarPercentage {
+            drawPercentLabel(for: item, snapshot: snapshot, in: barRect)
+        }
+    }
+
+    private static func drawHorizontalBarItem(
+        _ item: DisplayItem,
+        snapshot: MetricsSnapshot?,
+        in rect: NSRect,
+        options: MenuBarRenderOptions
+    ) {
+        let labelHeight: CGFloat = options.showIcon ? 7 : 0
+        if options.showIcon {
             let labelRect = NSRect(x: rect.minX, y: rect.maxY - 8, width: rect.width, height: 8)
             drawLabel(shortLabel(for: item), in: labelRect)
         }
@@ -101,6 +142,30 @@ extension MenuBarRenderer {
                 height: segmentHeight
             )
             drawRoundedRect(fillRect, color: colors[index % colors.count], radius: 2.5)
+        }
+    }
+
+    private static func drawVerticalLanes(
+        ratios: [CGFloat],
+        colors: [NSColor],
+        in rect: NSRect
+    ) {
+        let spacing: CGFloat = ratios.count > 1 ? 1 : 0
+        let laneWidth = max(3, (rect.width - spacing * CGFloat(ratios.count - 1)) / CGFloat(max(ratios.count, 1)))
+
+        for (index, ratio) in ratios.enumerated() {
+            let xPosition = rect.minX + CGFloat(index) * (laneWidth + spacing)
+            let laneRect = NSRect(x: xPosition, y: rect.minY, width: laneWidth, height: rect.height)
+            drawRoundedRect(laneRect, color: NSColor.labelColor.withAlphaComponent(0.10), radius: 3)
+
+            let fillHeight = max(2, laneRect.height * ratio)
+            let fillRect = NSRect(
+                x: laneRect.minX,
+                y: laneRect.minY,
+                width: laneRect.width,
+                height: fillHeight
+            )
+            drawRoundedRect(fillRect, color: colors[index % colors.count], radius: 3)
         }
     }
 
@@ -169,9 +234,9 @@ extension MenuBarRenderer {
         NSAttributedString(string: title, attributes: attributes).draw(in: rect.insetBy(dx: 0, dy: 2))
     }
 
-    private static func drawLabel(_ label: String, in rect: NSRect) {
+    private static func drawLabel(_ label: String, in rect: NSRect, size: CGFloat = 7) {
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 7, weight: .semibold),
+            .font: NSFont.monospacedSystemFont(ofSize: size, weight: .semibold),
             .foregroundColor: NSColor.secondaryLabelColor,
         ]
         NSAttributedString(string: label, attributes: attributes).draw(in: rect)
@@ -180,6 +245,26 @@ extension MenuBarRenderer {
     private static func drawRoundedRect(_ rect: NSRect, color: NSColor, radius: CGFloat) {
         color.setFill()
         NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+    }
+
+    private static func drawPercentLabel(for item: DisplayItem, snapshot: MetricsSnapshot?, in rect: NSRect) {
+        let rawPercent = Int((primaryRatio(for: item, snapshot: snapshot) * 100).rounded())
+        let percent = Swift.min(Swift.max(rawPercent, 0), 100)
+        let label = "\(percent)%"
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 7, weight: .bold),
+            .foregroundColor: NSColor.labelColor,
+            .backgroundColor: NSColor.windowBackgroundColor.withAlphaComponent(0.50),
+        ]
+        let text = NSAttributedString(string: label, attributes: attributes)
+        let textSize = text.size()
+        let labelRect = NSRect(
+            x: rect.midX - textSize.width / 2,
+            y: rect.midY - textSize.height / 2,
+            width: textSize.width,
+            height: textSize.height
+        )
+        text.draw(in: labelRect)
     }
 
     private static func barRatios(for item: DisplayItem, snapshot: MetricsSnapshot?) -> [CGFloat] {
@@ -244,6 +329,30 @@ extension MenuBarRenderer {
             primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0
         case .diskIO:
             Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond)
+        case .cpuTemperature, .gpuUsage:
+            0
+        }
+    }
+
+    private static func primaryRatio(for item: DisplayItem, snapshot: MetricsSnapshot?) -> Double {
+        guard let snapshot else {
+            return 0
+        }
+
+        return switch item {
+        case .cpuUsage:
+            snapshot.cpu.totalUsage.clamped(to: 0...1)
+        case .memoryUsage:
+            snapshot.memory.usageRatio.clamped(to: 0...1)
+        case .networkSpeed:
+            (Double(
+                snapshot.network.totalDownloadBytesPerSecond + snapshot.network.totalUploadBytesPerSecond
+            ) / 10_000_000).clamped(to: 0...1)
+        case .diskUsage:
+            (primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0).clamped(to: 0...1)
+        case .diskIO:
+            (Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond) / 40_000_000)
+                .clamped(to: 0...1)
         case .cpuTemperature, .gpuUsage:
             0
         }

@@ -43,8 +43,7 @@ struct UnitSettingsView: View {
                 .pickerStyle(.segmented)
             }
         }
-        .formStyle(.grouped)
-        .padding(20)
+        .pulseGlassForm()
     }
 
     private var temperatureBinding: Binding<TemperatureUnit> {

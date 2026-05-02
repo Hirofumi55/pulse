@@ -64,8 +64,7 @@ struct OverviewTab: View {
             }
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(.thinMaterial)
-            .clipShape(Capsule())
+            .pulseGlassPanel(cornerRadius: 12, tint: latestSnapshot == nil ? .secondary : .green, materialOpacity: 0.62)
         }
     }
 
@@ -257,12 +256,7 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
         }
         .padding(9)
         .frame(minHeight: 154, alignment: .topLeading)
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(tint.opacity(0.18), lineWidth: 1)
-        }
+        .pulseGlassPanel(tint: tint, materialOpacity: 0.78)
     }
 }
 
@@ -435,7 +429,6 @@ private struct WidgetPill: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
-        .background(.quaternary.opacity(0.65))
-        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+        .pulseGlassPanel(cornerRadius: 5, tint: .secondary, materialOpacity: 0.45)
     }
 }

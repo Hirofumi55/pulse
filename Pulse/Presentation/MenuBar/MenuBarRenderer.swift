@@ -8,6 +8,18 @@
 import AppKit
 import Foundation
 
+/// メニューバー画像描画の設定。
+struct MenuBarRenderOptions: Equatable, Sendable {
+    /// アイコンラベルを表示するかどうか。
+    let showIcon: Bool
+
+    /// バー表示の方向。
+    let barLayout: MenuBarBarLayout
+
+    /// バー内にパーセントを表示するかどうか。
+    let showBarPercentage: Bool
+}
+
 /// メニューバーに表示する短いメトリクス文字列を生成する。
 enum MenuBarRenderer {
     @MainActor
@@ -21,25 +33,39 @@ enum MenuBarRenderer {
     /// メニューバー項目群の固定幅を返す。
     @MainActor
     static func preferredLength(for items: [DisplayItem], showIcon: Bool) -> CGFloat {
-        preferredLength(for: items, showIcon: showIcon, style: .text)
+        preferredLength(
+            for: items,
+            style: .text,
+            options: MenuBarRenderOptions(
+                showIcon: showIcon,
+                barLayout: .horizontal,
+                showBarPercentage: false
+            )
+        )
     }
 
     /// メニューバー項目群の固定幅を返す。
     @MainActor
     static func preferredLength(
         for items: [DisplayItem],
-        showIcon: Bool,
-        style: MenuBarDisplayStyle
+        style: MenuBarDisplayStyle,
+        options: MenuBarRenderOptions
     ) -> CGFloat {
         switch style {
         case .bar:
-            let widthPerItem: CGFloat = showIcon ? 35 : 24
+            let widthPerItem: CGFloat =
+                switch options.barLayout {
+                case .vertical:
+                    options.showBarPercentage ? 31 : 22
+                case .horizontal:
+                    options.showIcon ? 35 : 24
+                }
             return max(28, ceil(CGFloat(items.count) * widthPerItem + 8))
         case .graph:
-            let widthPerItem: CGFloat = showIcon ? 42 : 34
+            let widthPerItem: CGFloat = options.showIcon ? 42 : 34
             return max(34, ceil(CGFloat(items.count) * widthPerItem + 8))
         case .text:
-            return textPreferredLength(for: items, showIcon: showIcon)
+            return textPreferredLength(for: items, showIcon: options.showIcon)
         }
     }
 

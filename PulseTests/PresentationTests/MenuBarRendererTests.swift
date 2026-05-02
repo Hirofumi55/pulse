@@ -52,8 +52,8 @@ struct MenuBarRendererTests {
             for: [.cpuUsage, .memoryUsage, .networkSpeed],
             snapshot: snapshot,
             history: [snapshot],
-            showIcon: true,
-            style: .bar
+            style: .bar,
+            options: barOptions
         )
 
         #expect(image.size.width > 0)
@@ -64,10 +64,14 @@ struct MenuBarRendererTests {
     @MainActor
     func usesCompactLengthForGraphicStyles() {
         let items: [DisplayItem] = [.cpuUsage, .memoryUsage, .networkSpeed]
-        let textLength = MenuBarRenderer.preferredLength(for: items, showIcon: true, style: .text)
-        let barLength = MenuBarRenderer.preferredLength(for: items, showIcon: true, style: .bar)
+        let textLength = MenuBarRenderer.preferredLength(for: items, style: .text, options: barOptions)
+        let barLength = MenuBarRenderer.preferredLength(for: items, style: .bar, options: barOptions)
 
         #expect(barLength < textLength)
+    }
+
+    private var barOptions: MenuBarRenderOptions {
+        MenuBarRenderOptions(showIcon: true, barLayout: .vertical, showBarPercentage: true)
     }
 
     private func makeSnapshot() -> MetricsSnapshot {

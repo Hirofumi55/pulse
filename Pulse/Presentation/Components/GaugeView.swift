@@ -41,12 +41,7 @@ struct GaugeView: View {
             }
         }
         .padding(6)
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(tint.opacity(0.16), lineWidth: 1)
-        }
+        .pulseGlassPanel(tint: tint)
         .frame(width: 118, height: 118)
     }
 }

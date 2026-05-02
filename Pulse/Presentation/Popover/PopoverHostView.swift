@@ -44,7 +44,7 @@ struct PopoverHostView: View {
         }
         .frame(width: 380, height: 480)
         .background {
-            PopoverBackdrop(opacity: preferences.popoverBackgroundOpacity)
+            PulseGlassBackdrop(opacity: preferences.popoverBackgroundOpacity)
         }
         .preferredColorScheme(preferences.appearance.colorScheme)
     }
@@ -56,30 +56,4 @@ private enum PopoverTab: Hashable {
     case memory
     case storage
     case network
-}
-
-private struct PopoverBackdrop: View {
-    let opacity: Double
-
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.clear)
-
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .opacity(opacity)
-
-            LinearGradient(
-                colors: [
-                    .accentColor.opacity(opacity * 0.24),
-                    .clear,
-                    .cyan.opacity(opacity * 0.16),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        }
-        .ignoresSafeArea()
-    }
 }

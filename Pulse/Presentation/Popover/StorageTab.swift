@@ -89,8 +89,7 @@ struct StorageTab: View {
                 .foregroundStyle(.secondary)
         }
         .padding(10)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .pulseGlassPanel(tint: volume.isInternal ? .orange : .blue, materialOpacity: 0.74)
     }
 
     private func volumeSubtitle(_ volume: VolumeInfo) -> String {

@@ -59,12 +59,7 @@ struct MetricCard<Content: View>: View {
             }
         }
         .padding(10)
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(tint.opacity(0.18), lineWidth: 1)
-        }
+        .pulseGlassPanel(tint: tint)
     }
 }
 

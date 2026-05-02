@@ -35,6 +35,9 @@ struct SettingsView: View {
                 }
         }
         .frame(width: 560, height: 420)
+        .background {
+            PulseGlassBackdrop(opacity: 0.22)
+        }
         .preferredColorScheme(preferences.appearance.colorScheme)
     }
 }

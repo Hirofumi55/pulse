@@ -56,35 +56,6 @@ enum DataUnit: String, CaseIterable, Codable, Identifiable, Sendable {
     }
 }
 
-/// メニューバーに表示するメトリクスの表現方法。
-enum MenuBarDisplayStyle: String, CaseIterable, Codable, Identifiable, Sendable {
-    /// 横バーで表示する。
-    case bar
-
-    /// 小さな時系列グラフで表示する。
-    case graph
-
-    /// 従来の数値テキストで表示する。
-    case text
-
-    /// 識別子。
-    var id: String {
-        rawValue
-    }
-
-    /// UI に表示する日本語名。
-    var displayName: String {
-        switch self {
-        case .bar:
-            "バー"
-        case .graph:
-            "グラフ"
-        case .text:
-            "数値"
-        }
-    }
-}
-
 /// アプリの外観モード。
 enum AppearanceMode: String, CaseIterable, Codable, Identifiable, Sendable {
     /// システム設定に追従する。
@@ -135,6 +106,8 @@ final class PreferencesStore {
     private var displayedItemsStorage: [DisplayItem]
     private var samplingIntervalSecondsStorage: Double
     private var menuBarDisplayStyleStorage: MenuBarDisplayStyle
+    private var menuBarBarLayoutStorage: MenuBarBarLayout
+    private var showMenuBarBarPercentageStorage: Bool
     private var temperatureUnitStorage: TemperatureUnit
     private var dataUnitStorage: DataUnit
     private var showMenuBarIconsStorage: Bool
@@ -191,6 +164,36 @@ final class PreferencesStore {
 
             menuBarDisplayStyleStorage = newValue
             userDefaults.set(newValue.rawValue, forKey: Key.menuBarDisplayStyle)
+        }
+    }
+
+    /// バー表示の方向。
+    var menuBarBarLayout: MenuBarBarLayout {
+        get {
+            menuBarBarLayoutStorage
+        }
+        set {
+            guard menuBarBarLayoutStorage != newValue else {
+                return
+            }
+
+            menuBarBarLayoutStorage = newValue
+            userDefaults.set(newValue.rawValue, forKey: Key.menuBarBarLayout)
+        }
+    }
+
+    /// バー内にパーセントを表示するかどうか。
+    var showMenuBarBarPercentage: Bool {
+        get {
+            showMenuBarBarPercentageStorage
+        }
+        set {
+            guard showMenuBarBarPercentageStorage != newValue else {
+                return
+            }
+
+            showMenuBarBarPercentageStorage = newValue
+            userDefaults.set(newValue, forKey: Key.showMenuBarBarPercentage)
         }
     }
 
@@ -298,6 +301,17 @@ final class PreferencesStore {
             from: userDefaults,
             fallback: .bar
         )
+        self.menuBarBarLayoutStorage = Self.loadEnum(
+            MenuBarBarLayout.self,
+            forKey: Key.menuBarBarLayout,
+            from: userDefaults,
+            fallback: .vertical
+        )
+        self.showMenuBarBarPercentageStorage = Self.loadBool(
+            forKey: Key.showMenuBarBarPercentage,
+            from: userDefaults,
+            fallback: true
+        )
         self.temperatureUnitStorage = Self.loadEnum(
             TemperatureUnit.self,
             forKey: Key.temperatureUnit,
@@ -336,6 +350,8 @@ final class PreferencesStore {
         displayedItems = Self.defaultDisplayedItems
         samplingIntervalSeconds = 3.0
         menuBarDisplayStyle = .bar
+        menuBarBarLayout = .vertical
+        showMenuBarBarPercentage = true
         temperatureUnit = .celsius
         dataUnit = .iec
         showMenuBarIcons = true
@@ -415,6 +431,8 @@ private enum Key {
     static let displayedItems = "displayedItems"
     static let samplingIntervalSeconds = "samplingIntervalSeconds"
     static let menuBarDisplayStyle = "menuBarDisplayStyle"
+    static let menuBarBarLayout = "menuBarBarLayout"
+    static let showMenuBarBarPercentage = "showMenuBarBarPercentage"
     static let temperatureUnit = "temperatureUnit"
     static let dataUnit = "dataUnit"
     static let showMenuBarIcons = "showMenuBarIcons"

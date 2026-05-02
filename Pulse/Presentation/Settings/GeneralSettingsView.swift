@@ -37,8 +37,7 @@ struct GeneralSettingsView: View {
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding(20)
+        .pulseGlassForm()
     }
 }
 

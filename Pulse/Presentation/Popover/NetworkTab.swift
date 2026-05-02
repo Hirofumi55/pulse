@@ -83,8 +83,7 @@ struct NetworkTab: View {
             .font(.system(size: 11, weight: .medium, design: .monospaced))
         }
         .padding(10)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .pulseGlassPanel(tint: interface.isActive ? .cyan : .secondary, materialOpacity: 0.74)
     }
 
     private func downloadText(for interface: InterfaceInfo) -> String {

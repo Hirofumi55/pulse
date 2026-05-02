@@ -53,6 +53,8 @@ final class MenuBarController: NSObject {
             _ = preferences.dataUnit
             _ = preferences.samplingIntervalSeconds
             _ = preferences.menuBarDisplayStyle
+            _ = preferences.menuBarBarLayout
+            _ = preferences.showMenuBarBarPercentage
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
                 self?.handlePreferencesChanged()
@@ -105,8 +107,8 @@ final class MenuBarController: NSObject {
         let statusItem = NSStatusBar.system.statusItem(
             withLength: MenuBarRenderer.preferredLength(
                 for: displayedItems,
-                showIcon: preferences.showMenuBarIcons,
-                style: preferences.menuBarDisplayStyle
+                style: preferences.menuBarDisplayStyle,
+                options: renderOptions
             )
         )
         statusItem.button?.action = #selector(handleClick(_:))
@@ -142,6 +144,8 @@ final class MenuBarController: NSObject {
         let timestamp = coordinator.latestSnapshot?.timestamp.timeIntervalSinceReferenceDate ?? 0
         let identifier = [
             preferences.menuBarDisplayStyle.rawValue,
+            preferences.menuBarBarLayout.rawValue,
+            String(preferences.showMenuBarBarPercentage),
             title,
             String(timestamp),
         ].joined(separator: "|")
@@ -163,8 +167,8 @@ final class MenuBarController: NSObject {
                 for: displayedItems,
                 snapshot: coordinator.latestSnapshot,
                 history: coordinator.history,
-                showIcon: preferences.showMenuBarIcons,
-                style: preferences.menuBarDisplayStyle
+                style: preferences.menuBarDisplayStyle,
+                options: renderOptions
             )
         }
     }
@@ -172,8 +176,16 @@ final class MenuBarController: NSObject {
     private func updateStatusItemLength() {
         statusItem?.length = MenuBarRenderer.preferredLength(
             for: displayedItems,
+            style: preferences.menuBarDisplayStyle,
+            options: renderOptions
+        )
+    }
+
+    private var renderOptions: MenuBarRenderOptions {
+        MenuBarRenderOptions(
             showIcon: preferences.showMenuBarIcons,
-            style: preferences.menuBarDisplayStyle
+            barLayout: preferences.menuBarBarLayout,
+            showBarPercentage: preferences.showMenuBarBarPercentage
         )
     }
 

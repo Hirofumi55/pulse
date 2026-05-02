@@ -36,6 +36,10 @@ final class MetricsCoordinator {
 
     /// 指定間隔でサンプリングを開始する。
     func start(interval: Duration = .seconds(1)) {
+        if samplingTask != nil, samplingInterval == interval {
+            return
+        }
+
         samplingInterval = interval
         samplingTask?.cancel()
         samplingTask = Task { [weak self] in
@@ -55,6 +59,10 @@ final class MetricsCoordinator {
 
     /// サンプリング間隔を更新する。
     func updateInterval(_ interval: Duration) {
+        guard samplingInterval != interval else {
+            return
+        }
+
         let shouldRestart = samplingTask != nil
         samplingInterval = interval
         logger.debug("Sampling interval updated")

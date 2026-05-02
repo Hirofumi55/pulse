@@ -65,7 +65,6 @@ final class MenuBarController: NSObject {
             _ = preferences.menuBarDisplayStyle
             _ = preferences.menuBarBarLayout
             _ = preferences.showMenuBarBarPercentage
-            _ = preferences.popoverBackgroundOpacity
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
                 self?.handlePreferencesChanged()

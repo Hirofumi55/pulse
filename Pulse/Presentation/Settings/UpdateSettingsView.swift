@@ -26,9 +26,19 @@ struct UpdateSettingsView: View {
 
             Section("アップデート") {
                 Toggle("自動的に確認", isOn: automaticUpdateBinding)
+                    .disabled(!Bundle.main.isSparkleUpdateConfigured)
                 Button("今すぐ確認") {
                     NotificationCenter.default.post(name: .pulseCheckForUpdates, object: nil)
                 }
+                .disabled(!Bundle.main.isSparkleUpdateConfigured)
+
+                if !Bundle.main.isSparkleUpdateConfigured {
+                    Text(Bundle.main.sparkleUpdateConfigurationStatus)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 LabeledContent("現在のバージョン", value: Bundle.main.pulseVersion)
             }
         }

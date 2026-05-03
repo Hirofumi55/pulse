@@ -27,18 +27,24 @@ for command in curl git shasum awk; do
 done
 
 TMP_DIR="$(mktemp -d)"
+GIT_CONFIG_FILE="${TMP_DIR}/gitconfig"
 
 cleanup() {
   rm -rf "$TMP_DIR"
 }
 trap cleanup EXIT
 
+cat >"$GIT_CONFIG_FILE" <<GITCONFIG
+[http "https://github.com/"]
+	extraheader = AUTHORIZATION: bearer ${GH_TOKEN}
+GITCONFIG
+chmod 600 "$GIT_CONFIG_FILE"
+
 echo "Downloading ${DOWNLOAD_URL}"
 curl -fsSL "$DOWNLOAD_URL" -o "${TMP_DIR}/${ZIP_NAME}"
 SHA256="$(shasum -a 256 "${TMP_DIR}/${ZIP_NAME}" | awk '{print $1}')"
 
-git -c "http.extraHeader=AUTHORIZATION: bearer ${GH_TOKEN}" \
-  clone "https://github.com/${TAP_REPO}.git" "${TMP_DIR}/tap"
+GIT_CONFIG_GLOBAL="$GIT_CONFIG_FILE" git clone "https://github.com/${TAP_REPO}.git" "${TMP_DIR}/tap"
 
 cd "${TMP_DIR}/tap"
 mkdir -p Casks
@@ -76,6 +82,6 @@ git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git add "$CASK_PATH"
 git commit -m "Update Pulse cask to ${VERSION}"
-git push origin "HEAD:${TAP_BRANCH}"
+GIT_CONFIG_GLOBAL="$GIT_CONFIG_FILE" git push origin "HEAD:${TAP_BRANCH}"
 
 echo "Homebrew Cask updated for Pulse ${VERSION}."

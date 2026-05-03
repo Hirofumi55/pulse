@@ -24,6 +24,13 @@ final class UpdateManager {
 
     /// Sparkle updater を開始する。
     func start() {
+        guard Bundle.main.isSparkleUpdateConfigured else {
+            logger.warning(
+                "Sparkle updater disabled: \(Bundle.main.sparkleUpdateConfigurationStatus, privacy: .public)"
+            )
+            return
+        }
+
         let updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
             updaterDelegate: nil,
@@ -36,6 +43,10 @@ final class UpdateManager {
 
     /// UserDefaults 側の更新設定を Sparkle に反映する。
     func applyPreferences() {
+        guard Bundle.main.isSparkleUpdateConfigured else {
+            return
+        }
+
         updaterController?.updater.automaticallyChecksForUpdates =
             preferences.automaticallyChecksForUpdates
         logger.debug(
@@ -48,7 +59,46 @@ final class UpdateManager {
 
     /// アップデートを手動確認する。
     func checkForUpdates() {
+        guard Bundle.main.isSparkleUpdateConfigured else {
+            logger.warning(
+                "Sparkle manual update check skipped: \(Bundle.main.sparkleUpdateConfigurationStatus, privacy: .public)"
+            )
+            return
+        }
+
         logger.debug("Sparkle manual update check started")
         updaterController?.checkForUpdates(nil)
+    }
+}
+
+extension Bundle {
+    /// Sparkle の更新設定が実際に使える状態かどうか。
+    var isSparkleUpdateConfigured: Bool {
+        sparkleUpdateConfigurationIssue == nil
+    }
+
+    /// Sparkle の更新設定状態を説明する文言。
+    var sparkleUpdateConfigurationStatus: String {
+        sparkleUpdateConfigurationIssue ?? "アップデート確認を利用できます"
+    }
+
+    private var sparkleUpdateConfigurationIssue: String? {
+        guard
+            let publicKey = object(forInfoDictionaryKey: "SUPublicEDKey") as? String,
+            !publicKey.isEmpty,
+            publicKey != "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+        else {
+            return "Sparkle公開鍵が未設定のため、アップデート確認は無効です。"
+        }
+
+        guard
+            let feedURLString = object(forInfoDictionaryKey: "SUFeedURL") as? String,
+            let feedURL = URL(string: feedURLString),
+            feedURL.scheme == "https"
+        else {
+            return "アップデート確認URLがHTTPSで設定されていません。"
+        }
+
+        return nil
     }
 }

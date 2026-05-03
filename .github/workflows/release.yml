@@ -15,9 +15,6 @@ env:
 jobs:
   build:
     runs-on: macos-15
-    env:
-      SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-      TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
     steps:
       - uses: actions/checkout@v5
       - uses: maxim-lobanov/setup-xcode@v1
@@ -30,7 +27,7 @@ jobs:
 
       - name: Validate Sparkle key
         run: |
-          if [[ -z "$SPARKLE_PRIVATE_KEY" ]]; then
+          if [[ "${{ secrets.SPARKLE_PRIVATE_KEY != '' }}" != "true" ]]; then
             echo "SPARKLE_PRIVATE_KEY is required for signed Sparkle updates." >&2
             exit 1
           fi
@@ -66,10 +63,18 @@ jobs:
           echo "bin=$SPARKLE_BIN" >> "$GITHUB_OUTPUT"
 
       - name: Sign with Sparkle EdDSA
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
-          echo "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_key
-          "${{ steps.sparkle.outputs.bin }}/sign_update" -f /tmp/sparkle_key build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip > signature.txt
-          rm /tmp/sparkle_key
+          umask 077
+          KEY_FILE="$(mktemp)"
+          cleanup() {
+            rm -f "$KEY_FILE"
+          }
+          trap cleanup EXIT
+          printf "%s\n" "$SPARKLE_PRIVATE_KEY" > "$KEY_FILE"
+          "${{ steps.sparkle.outputs.bin }}/sign_update" -f "$KEY_FILE" \
+            build/export/Pulse-${{ steps.version.outputs.VERSION }}.zip > signature.txt
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
@@ -80,6 +85,7 @@ jobs:
         run: ./scripts/generate-appcast.sh build/export/
         env:
           GENERATE_APPCAST: ${{ steps.sparkle.outputs.bin }}/generate_appcast
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
           VERSION: ${{ steps.version.outputs.VERSION }}
 
       - name: Deploy appcast to gh-pages
@@ -90,7 +96,7 @@ jobs:
           keep_files: true
 
       - name: Update Homebrew Cask
-        if: env.TAP_REPO_TOKEN != ''
+        if: ${{ secrets.TAP_REPO_TOKEN != '' }}
         run: ./scripts/update-cask.sh ${{ steps.version.outputs.VERSION }}
         env:
-          GH_TOKEN: ${{ env.TAP_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}

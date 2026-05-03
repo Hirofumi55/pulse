@@ -85,3 +85,32 @@ struct IOMeterView: View {
         }
     }
 }
+
+struct WidgetPill: View {
+    @Environment(PreferencesStore.self) private var preferences
+    let text: String
+    let systemImage: String
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: systemImage)
+                .font(.system(size: 9, weight: .semibold))
+                .accessibilityHidden(true)
+            Text(text)
+                .font(.system(size: 10, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 3)
+        .pulseGlassPanel(
+            cornerRadius: 5,
+            tint: .secondary,
+            materialOpacity: PulseGlassStyle.pillMaterialOpacity(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            )
+        )
+    }
+}

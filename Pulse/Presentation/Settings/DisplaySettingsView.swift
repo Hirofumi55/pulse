@@ -29,6 +29,11 @@ struct DisplaySettingsView: View {
                     .disabled(isDisabled(item))
                     .accessibilityHint(displayHint(for: item))
                 }
+
+                Text("メニューバーには最大4項目を表示できます。少なくとも1項目は選択してください。")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Section("順序") {
@@ -59,6 +64,8 @@ struct DisplaySettingsView: View {
 
                     Toggle("縦バー内にパーセントを表示", isOn: barPercentageBinding)
                         .disabled(preferences.menuBarBarLayout == .horizontal)
+                        .help(verticalPercentageHelp)
+                        .accessibilityHint(verticalPercentageHelp)
                 }
 
                 Picker("更新頻度", selection: samplingIntervalBinding) {
@@ -69,7 +76,14 @@ struct DisplaySettingsView: View {
                 }
                 .pickerStyle(.segmented)
 
-                Toggle("ラベルを表示", isOn: iconBinding)
+                Toggle("短縮ラベルを表示", isOn: iconBinding)
+                    .help("CPU、MEM、NET などの短縮ラベルをメニューバー内に表示します。")
+                    .accessibilityHint("CPU、MEM、NET などの短縮ラベルをメニューバー内に表示します。")
+
+                Text("ウィジェットを開いている間は、詳細情報を毎秒更新します。")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Section("詳細ポップオーバー") {
@@ -159,6 +173,14 @@ struct DisplaySettingsView: View {
         } set: { newValue in
             preferences.popoverBackgroundBlurRadius = newValue
         }
+    }
+
+    private var verticalPercentageHelp: String {
+        if preferences.menuBarBarLayout == .horizontal {
+            return "横バーではラベルを優先するため、パーセント表示は縦バーでのみ使えます。"
+        }
+
+        return "縦バーの中に現在値のパーセントを表示します。"
     }
 
     private var popoverOpacityPreview: some View {

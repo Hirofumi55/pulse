@@ -44,14 +44,14 @@ struct OverviewTab: View {
         return MetricWidgetCard(
             title: "CPU負荷",
             systemImage: "cpu",
-            value: MetricFormatter.percentage(cpu?.totalUsage ?? 0),
-            subtitle: "\(cpu?.logicalCoreCount ?? 0)スレッド",
+            value: percentageText(cpu?.totalUsage),
+            subtitle: cpu.map { "\($0.logicalCoreCount)スレッド" } ?? "取得待ち",
             tint: .blue
         ) {
             CoreLoadBars(values: cpu?.perCoreUsage ?? [])
         } footer: {
-            WidgetPill(text: "User \(MetricFormatter.percentage(cpu?.userUsage ?? 0))", systemImage: "person")
-            WidgetPill(text: "Sys \(MetricFormatter.percentage(cpu?.systemUsage ?? 0))", systemImage: "gearshape")
+            WidgetPill(text: "User \(percentageText(cpu?.userUsage))", systemImage: "person")
+            WidgetPill(text: "Sys \(percentageText(cpu?.systemUsage))", systemImage: "gearshape")
         }
     }
 
@@ -80,7 +80,7 @@ struct OverviewTab: View {
         return MetricWidgetCard(
             title: "メモリ",
             systemImage: "memorychip",
-            value: MetricFormatter.percentage(memory?.usageRatio ?? 0),
+            value: percentageText(memory?.usageRatio),
             subtitle: memorySubtitle,
             tint: .teal
         ) {
@@ -91,7 +91,7 @@ struct OverviewTab: View {
                     DonutSegment(value: Double(memory?.compressedBytes ?? 0), color: .purple),
                     DonutSegment(value: Double(memory?.cachedBytes ?? 0), color: .secondary.opacity(0.35)),
                 ],
-                centerText: MetricFormatter.percentage(memory?.pressure ?? 0),
+                centerText: percentageText(memory?.pressure),
                 centerCaption: "圧力"
             )
         } footer: {
@@ -105,7 +105,7 @@ struct OverviewTab: View {
         return MetricWidgetCard(
             title: "ストレージ",
             systemImage: "internaldrive",
-            value: MetricFormatter.percentage(volume?.usageRatio ?? 0),
+            value: percentageText(volume?.usageRatio),
             subtitle: storageSubtitle,
             tint: .indigo
         ) {
@@ -127,18 +127,14 @@ struct OverviewTab: View {
         return MetricWidgetCard(
             title: "ディスクI/O",
             systemImage: "arrow.up.arrow.down.square",
-            value: ByteFormatter.rateString(
-                from: (disk?.readBytesPerSecond ?? 0) + (disk?.writeBytesPerSecond ?? 0),
-                dataUnit: preferences.dataUnit,
-                unitStyle: .compact
-            ),
+            value: diskIOValue(disk),
             subtitle: "読み書き合計",
             tint: .purple
         ) {
             IOMeterView(read: disk?.readBytesPerSecond ?? 0, write: disk?.writeBytesPerSecond ?? 0)
         } footer: {
-            WidgetPill(text: "読 \(bytes(disk?.readBytesPerSecond ?? 0))/s", systemImage: "arrow.down")
-            WidgetPill(text: "書 \(bytes(disk?.writeBytesPerSecond ?? 0))/s", systemImage: "arrow.up")
+            WidgetPill(text: "読 \(rateText(disk?.readBytesPerSecond))", systemImage: "arrow.down")
+            WidgetPill(text: "書 \(rateText(disk?.writeBytesPerSecond))", systemImage: "arrow.up")
         }
     }
 
@@ -147,10 +143,7 @@ struct OverviewTab: View {
         return MetricWidgetCard(
             title: "ネットワーク",
             systemImage: "network",
-            value: MetricFormatter.bytesPerSecond(
-                network?.totalDownloadBytesPerSecond ?? 0,
-                dataUnit: preferences.dataUnit
-            ),
+            value: rateText(network?.totalDownloadBytesPerSecond),
             subtitle: "受信",
             tint: .cyan
         ) {
@@ -160,7 +153,7 @@ struct OverviewTab: View {
                 text: networkUploadText(network),
                 systemImage: "arrow.up"
             )
-            WidgetPill(text: "\(activeInterfaceCount)IF", systemImage: "antenna.radiowaves.left.and.right")
+            WidgetPill(text: activeInterfaceSummary, systemImage: "antenna.radiowaves.left.and.right")
         }
     }
 
@@ -191,12 +184,44 @@ struct OverviewTab: View {
         latestSnapshot?.network.interfaces.filter(\.isActive).count ?? 0
     }
 
+    private var activeInterfaceSummary: String {
+        guard latestSnapshot?.network != nil else {
+            return "IF待機中"
+        }
+
+        return "\(activeInterfaceCount)IF"
+    }
+
     private func networkUploadText(_ network: NetworkMetrics?) -> String {
-        let upload = MetricFormatter.bytesPerSecond(
-            network?.totalUploadBytesPerSecond ?? 0,
-            dataUnit: preferences.dataUnit
+        "送信 \(rateText(network?.totalUploadBytesPerSecond))"
+    }
+
+    private func diskIOValue(_ disk: DiskMetrics?) -> String {
+        guard let disk else {
+            return "--/s"
+        }
+
+        return ByteFormatter.rateString(
+            from: disk.readBytesPerSecond + disk.writeBytesPerSecond,
+            dataUnit: preferences.dataUnit,
+            unitStyle: .compact
         )
-        return "送信 \(upload)"
+    }
+
+    private func percentageText(_ ratio: Double?) -> String {
+        guard let ratio else {
+            return "--"
+        }
+
+        return MetricFormatter.percentage(ratio)
+    }
+
+    private func rateText(_ bytes: UInt64?) -> String {
+        guard let bytes else {
+            return "--/s"
+        }
+
+        return MetricFormatter.bytesPerSecond(bytes, dataUnit: preferences.dataUnit)
     }
 
     private func bytes(_ value: UInt64) -> String {
@@ -314,6 +339,8 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
             )
         )
         .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue("\(value)、\(subtitle)")
     }
 }
 
@@ -467,34 +494,5 @@ private struct FlowPills<Content: View>: View {
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-private struct WidgetPill: View {
-    @Environment(PreferencesStore.self) private var preferences
-    let text: String
-    let systemImage: String
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Image(systemName: systemImage)
-                .font(.system(size: 9, weight: .semibold))
-                .accessibilityHidden(true)
-            Text(text)
-                .font(.system(size: 10, weight: .bold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.72)
-        }
-        .foregroundStyle(.secondary)
-        .padding(.horizontal, 6)
-        .padding(.vertical, 3)
-        .pulseGlassPanel(
-            cornerRadius: 5,
-            tint: .secondary,
-            materialOpacity: PulseGlassStyle.pillMaterialOpacity(
-                for: preferences.popoverBackgroundOpacity,
-                blurRadius: preferences.popoverBackgroundBlurRadius
-            )
-        )
     }
 }

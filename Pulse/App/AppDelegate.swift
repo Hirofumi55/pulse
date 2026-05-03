@@ -91,14 +91,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 .environment(preferences)
         )
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 560, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 560, height: 500),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
         window.title = "Pulse 設定"
         window.contentViewController = hostingController
-        window.minSize = NSSize(width: 560, height: 420)
+        window.minSize = NSSize(width: 560, height: 460)
         window.center()
         window.isReleasedWhenClosed = false
 

@@ -62,6 +62,24 @@ enum PulseGlassTone {
         }
     }
 
+    func backdropBaseOpacity(for opacity: Double) -> Double {
+        switch self {
+        case .adaptive:
+            opacity
+        case .clearBlack:
+            Swift.min(Swift.max(0.56 + opacity * 0.34, 0.56), 0.92)
+        }
+    }
+
+    func panelBaseOpacity(for materialOpacity: Double) -> Double {
+        switch self {
+        case .adaptive:
+            materialOpacity * 0.22
+        case .clearBlack:
+            Swift.min(Swift.max(0.26 + materialOpacity * 0.36, 0.30), 0.64)
+        }
+    }
+
     var shadowOpacity: Double {
         switch self {
         case .adaptive:
@@ -100,7 +118,7 @@ struct PulseGlassBackdrop: View {
 
             ZStack {
                 Rectangle()
-                    .fill(tone.baseColor.opacity(opacity * tone.baseOpacityMultiplier))
+                    .fill(tone.baseColor.opacity(tone.backdropBaseOpacity(for: opacity)))
 
                 backdropMaterial
                     .opacity(materialOpacity)
@@ -185,11 +203,7 @@ private struct PulseGlassPanelModifier: ViewModifier {
             .background {
                 ZStack {
                     shape
-                        .fill(
-                            tone.baseColor.opacity(
-                                materialOpacity * 0.22 * tone.baseOpacityMultiplier
-                            )
-                        )
+                        .fill(tone.baseColor.opacity(tone.panelBaseOpacity(for: materialOpacity)))
 
                     panelMaterial(shape: shape)
                         .opacity(materialOpacity)

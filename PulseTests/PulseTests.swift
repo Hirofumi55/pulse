@@ -40,6 +40,14 @@ struct PulseTests {
         #expect(
             PulseGlassTone.clearBlack.baseOpacityMultiplier > PulseGlassTone.adaptive.baseOpacityMultiplier
         )
+        #expect(
+            PulseGlassTone.clearBlack.backdropBaseOpacity(for: 0.28)
+                > PulseGlassTone.adaptive.backdropBaseOpacity(for: 0.28)
+        )
+        #expect(
+            PulseGlassTone.clearBlack.panelBaseOpacity(for: 0.42)
+                > PulseGlassTone.adaptive.panelBaseOpacity(for: 0.42)
+        )
         #expect(PulseGlassTone.clearBlack.shadowOpacity > PulseGlassTone.adaptive.shadowOpacity)
     }
 }

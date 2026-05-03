@@ -260,6 +260,7 @@ final class MenuBarController: NSObject {
         hostingController.view.layer?.backgroundColor = NSColor.clear.cgColor
         popover.contentViewController = hostingController
         self.popover = popover
+        NSApp.activate(ignoringOtherApps: true)
         popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
         configurePopoverWindow(for: popover)
         installPopoverDismissObservers()
@@ -364,8 +365,10 @@ extension MenuBarController {
 
         window.isOpaque = false
         window.backgroundColor = .clear
-        clearViewBackground(window.contentView)
-        clearViewBackground(window.contentView?.superview)
+        window.appearance = NSAppearance(named: .darkAqua)
+        stylePopoverViewTree(window.contentView)
+        stylePopoverViewTree(window.contentView?.superview)
+        window.makeKey()
     }
 
     fileprivate func refreshPopoverAppearance() {
@@ -378,17 +381,25 @@ extension MenuBarController {
         popover.contentViewController?.view.needsDisplay = true
     }
 
-    fileprivate func clearViewBackground(_ view: NSView?) {
+    fileprivate func stylePopoverViewTree(_ view: NSView?) {
         guard let view else {
             return
         }
 
+        view.appearance = NSAppearance(named: .darkAqua)
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.clear.cgColor
         view.layer?.isOpaque = false
 
+        if let visualEffectView = view as? NSVisualEffectView {
+            visualEffectView.material = .hudWindow
+            visualEffectView.blendingMode = .behindWindow
+            visualEffectView.state = .active
+            visualEffectView.isEmphasized = true
+        }
+
         for subview in view.subviews {
-            clearViewBackground(subview)
+            stylePopoverViewTree(subview)
         }
     }
 }

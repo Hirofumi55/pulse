@@ -19,7 +19,8 @@ struct PopoverHostView: View {
             .background {
                 PulseGlassBackdrop(
                     opacity: preferences.popoverBackgroundOpacity,
-                    blurRadius: preferences.popoverBackgroundBlurRadius
+                    blurRadius: preferences.popoverBackgroundBlurRadius,
+                    tone: .clearBlack
                 )
             }
             .preferredColorScheme(preferences.appearance.colorScheme)

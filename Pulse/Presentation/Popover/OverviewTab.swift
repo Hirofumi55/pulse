@@ -336,7 +336,8 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
             materialOpacity: PulseGlassStyle.panelMaterialOpacity(
                 for: preferences.popoverBackgroundOpacity,
                 blurRadius: preferences.popoverBackgroundBlurRadius
-            )
+            ),
+            tone: .clearBlack
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(title)

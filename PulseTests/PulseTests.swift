@@ -34,4 +34,12 @@ struct PulseTests {
         #expect(highBlur > lowBlur)
         #expect(highOpacity > lowOpacity)
     }
+
+    @Test("黒基調ガラスは通常トーンより濃く表示される")
+    func clearBlackGlassToneIsDarkerThanAdaptiveTone() {
+        #expect(
+            PulseGlassTone.clearBlack.baseOpacityMultiplier > PulseGlassTone.adaptive.baseOpacityMultiplier
+        )
+        #expect(PulseGlassTone.clearBlack.shadowOpacity > PulseGlassTone.adaptive.shadowOpacity)
+    }
 }

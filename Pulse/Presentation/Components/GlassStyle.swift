@@ -39,14 +39,49 @@ enum PulseGlassStyle {
     }
 }
 
+/// ガラス背景の色調。
+enum PulseGlassTone {
+    case adaptive
+    case clearBlack
+
+    var baseColor: Color {
+        switch self {
+        case .adaptive:
+            Color(nsColor: .windowBackgroundColor)
+        case .clearBlack:
+            .black
+        }
+    }
+
+    var baseOpacityMultiplier: Double {
+        switch self {
+        case .adaptive:
+            1
+        case .clearBlack:
+            1.18
+        }
+    }
+
+    var shadowOpacity: Double {
+        switch self {
+        case .adaptive:
+            0.08
+        case .clearBlack:
+            0.18
+        }
+    }
+}
+
 /// Pulse 全体で使うクリアなすりガラス背景。
 struct PulseGlassBackdrop: View {
     let opacity: Double
     let blurRadius: Double
+    let tone: PulseGlassTone
 
-    init(opacity: Double, blurRadius: Double = 14) {
+    init(opacity: Double, blurRadius: Double = 14, tone: PulseGlassTone = .adaptive) {
         self.opacity = opacity
         self.blurRadius = blurRadius
+        self.tone = tone
     }
 
     var body: some View {
@@ -65,10 +100,9 @@ struct PulseGlassBackdrop: View {
 
             ZStack {
                 Rectangle()
-                    .fill(Color(nsColor: .windowBackgroundColor).opacity(opacity))
+                    .fill(tone.baseColor.opacity(opacity * tone.baseOpacityMultiplier))
 
-                Rectangle()
-                    .fill(.ultraThinMaterial)
+                backdropMaterial
                     .opacity(materialOpacity)
 
                 LinearGradient(
@@ -96,6 +130,17 @@ struct PulseGlassBackdrop: View {
         }
         .ignoresSafeArea()
     }
+
+    @ViewBuilder
+    private var backdropMaterial: some View {
+        switch tone {
+        case .adaptive:
+            Rectangle()
+                .fill(.ultraThinMaterial)
+        case .clearBlack:
+            ActiveGlassMaterial(material: .hudWindow)
+        }
+    }
 }
 
 extension View {
@@ -103,13 +148,15 @@ extension View {
     func pulseGlassPanel(
         cornerRadius: CGFloat = 8,
         tint: Color = .accentColor,
-        materialOpacity: Double = 0.82
+        materialOpacity: Double = 0.82,
+        tone: PulseGlassTone = .adaptive
     ) -> some View {
         modifier(
             PulseGlassPanelModifier(
                 cornerRadius: cornerRadius,
                 tint: tint,
-                materialOpacity: materialOpacity
+                materialOpacity: materialOpacity,
+                tone: tone
             )
         )
     }
@@ -129,6 +176,7 @@ private struct PulseGlassPanelModifier: ViewModifier {
     let cornerRadius: CGFloat
     let tint: Color
     let materialOpacity: Double
+    let tone: PulseGlassTone
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -137,10 +185,13 @@ private struct PulseGlassPanelModifier: ViewModifier {
             .background {
                 ZStack {
                     shape
-                        .fill(Color(nsColor: .windowBackgroundColor).opacity(materialOpacity * 0.22))
+                        .fill(
+                            tone.baseColor.opacity(
+                                materialOpacity * 0.22 * tone.baseOpacityMultiplier
+                            )
+                        )
 
-                    shape
-                        .fill(.ultraThinMaterial)
+                    panelMaterial(shape: shape)
                         .opacity(materialOpacity)
 
                     shape
@@ -172,6 +223,39 @@ private struct PulseGlassPanelModifier: ViewModifier {
                     .strokeBorder(tint.opacity(materialOpacity * 0.35), lineWidth: 1)
             }
             .clipShape(shape)
-            .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 5)
+            .shadow(color: .black.opacity(tone.shadowOpacity), radius: 10, x: 0, y: 5)
+    }
+
+    @ViewBuilder
+    private func panelMaterial(shape: RoundedRectangle) -> some View {
+        switch tone {
+        case .adaptive:
+            shape
+                .fill(.ultraThinMaterial)
+        case .clearBlack:
+            ActiveGlassMaterial(material: .hudWindow)
+                .clipShape(shape)
+        }
+    }
+}
+
+private struct ActiveGlassMaterial: NSViewRepresentable {
+    let material: NSVisualEffectView.Material
+
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        configure(view)
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        configure(nsView)
+    }
+
+    private func configure(_ view: NSVisualEffectView) {
+        view.material = material
+        view.blendingMode = .behindWindow
+        view.state = .active
+        view.isEmphasized = true
     }
 }

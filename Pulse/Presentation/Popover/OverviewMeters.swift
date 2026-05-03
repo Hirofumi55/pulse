@@ -110,7 +110,8 @@ struct WidgetPill: View {
             materialOpacity: PulseGlassStyle.pillMaterialOpacity(
                 for: preferences.popoverBackgroundOpacity,
                 blurRadius: preferences.popoverBackgroundBlurRadius
-            )
+            ),
+            tone: .clearBlack
         )
     }
 }

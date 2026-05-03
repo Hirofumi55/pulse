@@ -396,6 +396,10 @@ extension MenuBarController {
             visualEffectView.blendingMode = .behindWindow
             visualEffectView.state = .active
             visualEffectView.isEmphasized = true
+            visualEffectView.alphaValue = PulseGlassStyle.popoverWindowMaterialAlpha(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            )
         }
 
         for subview in view.subviews {

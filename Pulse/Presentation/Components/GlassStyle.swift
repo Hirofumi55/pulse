@@ -34,6 +34,12 @@ enum PulseGlassStyle {
         return Swift.min(Swift.max(0.05 + opacity * (0.22 + blurStrength * 0.34), 0.08), 0.48)
     }
 
+    /// AppKit 側のポップオーバーマテリアル不透明度。
+    static func popoverWindowMaterialAlpha(for opacity: Double, blurRadius: Double) -> CGFloat {
+        let blurStrength = normalizedBlurStrength(for: blurRadius)
+        return CGFloat(Swift.min(Swift.max(0.08 + opacity * 0.26 + blurStrength * 0.30, 0.10), 0.62))
+    }
+
     private static func normalizedBlurStrength(for blurRadius: Double) -> Double {
         Swift.min(Swift.max(blurRadius / 30, 0), 1)
     }
@@ -67,7 +73,7 @@ enum PulseGlassTone {
         case .adaptive:
             opacity
         case .clearBlack:
-            Swift.min(Swift.max(0.56 + opacity * 0.34, 0.56), 0.92)
+            Swift.min(Swift.max(0.20 + opacity * 0.68, 0.20), 0.86)
         }
     }
 
@@ -76,7 +82,16 @@ enum PulseGlassTone {
         case .adaptive:
             materialOpacity * 0.22
         case .clearBlack:
-            Swift.min(Swift.max(0.26 + materialOpacity * 0.36, 0.30), 0.64)
+            Swift.min(Swift.max(0.16 + materialOpacity * 0.50, 0.18), 0.58)
+        }
+    }
+
+    func backdropBlurRadius(for blurRadius: Double) -> Double {
+        switch self {
+        case .adaptive:
+            blurRadius * 0.10
+        case .clearBlack:
+            blurRadius * 0.34
         }
     }
 
@@ -134,7 +149,7 @@ struct PulseGlassBackdrop: View {
                     endPoint: .bottomTrailing
                 )
             }
-            .blur(radius: blurRadius * 0.10)
+            .blur(radius: tone.backdropBlurRadius(for: blurRadius))
 
             LinearGradient(
                 colors: [

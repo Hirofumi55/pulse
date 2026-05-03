@@ -45,9 +45,25 @@ struct PulseTests {
                 > PulseGlassTone.adaptive.backdropBaseOpacity(for: 0.28)
         )
         #expect(
+            PulseGlassTone.clearBlack.backdropBaseOpacity(for: 0.8)
+                > PulseGlassTone.clearBlack.backdropBaseOpacity(for: 0.2)
+        )
+        #expect(
             PulseGlassTone.clearBlack.panelBaseOpacity(for: 0.42)
                 > PulseGlassTone.adaptive.panelBaseOpacity(for: 0.42)
         )
         #expect(PulseGlassTone.clearBlack.shadowOpacity > PulseGlassTone.adaptive.shadowOpacity)
+    }
+
+    @Test("ポップオーバーマテリアルは透過度とブラー設定を反映する")
+    func popoverMaterialRespondsToOpacityAndBlur() {
+        let lowOpacity = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.2, blurRadius: 14)
+        let highOpacity = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.8, blurRadius: 14)
+        let lowBlur = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.4, blurRadius: 2)
+        let highBlur = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.4, blurRadius: 30)
+
+        #expect(highOpacity > lowOpacity)
+        #expect(highBlur > lowBlur)
+        #expect(PulseGlassTone.clearBlack.backdropBlurRadius(for: 30) > 0)
     }
 }

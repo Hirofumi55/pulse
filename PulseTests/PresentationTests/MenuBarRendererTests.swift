@@ -39,6 +39,20 @@ struct MenuBarRendererTests {
         #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 --℃")
     }
 
+    @Test("Temperature title respects selected unit")
+    func temperatureTitleRespectsSelectedUnit() {
+        let snapshot = makeSnapshot(cpuTemperature: 45.8)
+        let title = MenuBarRenderer.title(
+            for: .cpuTemperature,
+            snapshot: snapshot,
+            showIcon: true,
+            dataUnit: .iec,
+            temperatureUnit: .fahrenheit
+        )
+
+        #expect(title == "温度 114℉")
+    }
+
     @Test("Renderer creates combined title")
     func createsCombinedTitle() {
         let snapshot = makeSnapshot()
@@ -213,7 +227,9 @@ struct MenuBarRendererTests {
 
         #expect(saturatedPixels < maximumSaturatedPixels)
     }
+}
 
+extension MenuBarRendererTests {
     private var barOptions: MenuBarRenderOptions {
         MenuBarRenderOptions(showIcon: true, barLayout: .vertical, showBarPercentage: true)
     }
@@ -334,6 +350,11 @@ struct MenuBarRendererTests {
         snapshot: MetricsSnapshot,
         dataUnit: DataUnit
     ) -> String {
-        MenuBarRenderer.title(for: item, snapshot: snapshot, showIcon: true, dataUnit: dataUnit)
+        MenuBarRenderer.title(
+            for: item,
+            snapshot: snapshot,
+            showIcon: true,
+            dataUnit: dataUnit
+        )
     }
 }

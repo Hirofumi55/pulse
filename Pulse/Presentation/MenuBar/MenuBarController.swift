@@ -61,6 +61,7 @@ final class MenuBarController: NSObject {
             _ = preferences.displayedItems
             _ = preferences.showMenuBarIcons
             _ = preferences.dataUnit
+            _ = preferences.temperatureUnit
             _ = preferences.samplingIntervalSeconds
             _ = preferences.menuBarDisplayStyle
             _ = preferences.menuBarBarLayout
@@ -159,7 +160,8 @@ final class MenuBarController: NSObject {
             for: displayedItems,
             snapshot: coordinator.latestSnapshot,
             showIcon: preferences.showMenuBarIcons,
-            dataUnit: preferences.dataUnit
+            dataUnit: preferences.dataUnit,
+            temperatureUnit: preferences.temperatureUnit
         )
         let accessibilityValue = title.isEmpty ? "取得待ち" : title
         let timestamp = coordinator.latestSnapshot?.timestamp.timeIntervalSinceReferenceDate ?? 0
@@ -167,6 +169,7 @@ final class MenuBarController: NSObject {
             preferences.menuBarDisplayStyle.rawValue,
             preferences.menuBarBarLayout.rawValue,
             String(preferences.showMenuBarBarPercentage),
+            preferences.temperatureUnit.rawValue,
             title,
             String(timestamp),
         ].joined(separator: "|")

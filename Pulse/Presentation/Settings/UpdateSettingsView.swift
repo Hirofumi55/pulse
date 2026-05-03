@@ -13,6 +13,9 @@ struct UpdateSettingsView: View {
     @Environment(PreferencesStore.self) private var preferences
 
     var body: some View {
+        let isUpdateConfigured = Bundle.main.isSparkleUpdateConfigured
+        let updateConfigurationStatus = Bundle.main.sparkleUpdateConfigurationStatus
+
         Form {
             Section("サンプリング") {
                 Picker("更新頻度", selection: samplingIntervalBinding) {
@@ -26,14 +29,22 @@ struct UpdateSettingsView: View {
 
             Section("アップデート") {
                 Toggle("自動的に確認", isOn: automaticUpdateBinding)
-                    .disabled(!Bundle.main.isSparkleUpdateConfigured)
+                    .disabled(!isUpdateConfigured)
+                    .help(isUpdateConfigured ? "Sparkle による自動確認を切り替えます。" : updateConfigurationStatus)
+                    .accessibilityHint(
+                        isUpdateConfigured ? "Sparkle による自動確認を切り替えます。" : updateConfigurationStatus
+                    )
                 Button("今すぐ確認") {
                     NotificationCenter.default.post(name: .pulseCheckForUpdates, object: nil)
                 }
-                .disabled(!Bundle.main.isSparkleUpdateConfigured)
+                .disabled(!isUpdateConfigured)
+                .help(isUpdateConfigured ? "新しいバージョンの有無を確認します。" : updateConfigurationStatus)
+                .accessibilityHint(
+                    isUpdateConfigured ? "新しいバージョンの有無を確認します。" : updateConfigurationStatus
+                )
 
-                if !Bundle.main.isSparkleUpdateConfigured {
-                    Text(Bundle.main.sparkleUpdateConfigurationStatus)
+                if !isUpdateConfigured {
+                    Text(updateConfigurationStatus)
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

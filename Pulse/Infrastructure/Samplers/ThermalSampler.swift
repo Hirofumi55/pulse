@@ -71,7 +71,7 @@ actor ThermalSampler: Sampler {
                 let productName = IOHIDServiceClientCopyProperty(service, "Product" as CFString) as? String,
                 let priority = cpuTemperaturePriority(for: productName),
                 let rawValue = hidTemperatureValue(from: service),
-                let temperature = normalizedCPUTemperature(from: rawValue)
+                let temperature = ThermalValueNormalizer.cpuTemperatureCelsius(from: rawValue)
             else {
                 return nil
             }
@@ -136,19 +136,6 @@ actor ThermalSampler: Sampler {
         return nil
     }
 
-    private static func normalizedCPUTemperature(from rawValue: Double) -> Double? {
-        let candidates = [
-            rawValue,
-            rawValue / 100,
-            rawValue / 10 - 273.15,
-            rawValue - 273.15,
-        ]
-
-        return candidates.first { temperature in
-            (-20...120).contains(temperature)
-        }
-    }
-
     private static func sampleAppleSmartBatteryTemperature() -> Double? {
         guard let matching = IOServiceMatching("AppleSmartBattery") else {
             return nil
@@ -173,18 +160,7 @@ actor ThermalSampler: Sampler {
             return nil
         }
 
-        return normalizedBatteryTemperature(from: rawTemperature)
-    }
-
-    private static func normalizedBatteryTemperature(from rawValue: Double) -> Double? {
-        let candidates = [
-            rawValue / 100,
-            rawValue / 10 - 273.15,
-        ]
-
-        return candidates.first { temperature in
-            (-20...120).contains(temperature)
-        }
+        return ThermalValueNormalizer.batteryTemperatureCelsius(from: rawTemperature)
     }
 
     private static func doubleValue(from value: Any?) -> Double? {
@@ -204,6 +180,37 @@ actor ThermalSampler: Sampler {
         default:
             nil
         }
+    }
+}
+
+enum ThermalValueNormalizer {
+    static func cpuTemperatureCelsius(from rawValue: Double) -> Double? {
+        normalizedTemperature(
+            from: [
+                rawValue,
+                rawValue / 100,
+                rawValue / 10 - 273.15,
+                rawValue - 273.15,
+            ]
+        )
+    }
+
+    static func batteryTemperatureCelsius(from rawValue: Double) -> Double? {
+        normalizedTemperature(
+            from: [
+                rawValue / 100,
+                rawValue / 10 - 273.15,
+            ]
+        )
+    }
+
+    private static func normalizedTemperature(from candidates: [Double]) -> Double? {
+        candidates.first { temperature in
+            (15...120).contains(temperature)
+        }
+            ?? candidates.first { temperature in
+                (-20...120).contains(temperature)
+            }
     }
 }
 

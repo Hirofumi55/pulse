@@ -24,4 +24,16 @@ struct ThermalMetricsTests {
 
         #expect(metrics.cpuTemperatureStatusMessage == "CPUセンサー")
     }
+
+    @Test("CPU temperature normalizer prefers plausible Kelvin conversion")
+    func cpuTemperatureNormalizerPrefersPlausibleKelvinConversion() {
+        let temperature = ThermalValueNormalizer.cpuTemperatureCelsius(from: 310) ?? 0
+
+        #expect(abs(temperature - 36.85) < 0.001)
+    }
+
+    @Test("CPU temperature normalizer keeps centi celsius values")
+    func cpuTemperatureNormalizerKeepsCentiCelsiusValues() {
+        #expect(ThermalValueNormalizer.cpuTemperatureCelsius(from: 3100) == 31)
+    }
 }

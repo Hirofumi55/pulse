@@ -308,7 +308,10 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
         .frame(height: 190, alignment: .topLeading)
         .pulseGlassPanel(
             tint: tint,
-            materialOpacity: PulseGlassStyle.panelMaterialOpacity(for: preferences.popoverBackgroundOpacity)
+            materialOpacity: PulseGlassStyle.panelMaterialOpacity(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            )
         )
         .accessibilityElement(children: .combine)
     }
@@ -469,7 +472,6 @@ private struct FlowPills<Content: View>: View {
 
 private struct WidgetPill: View {
     @Environment(PreferencesStore.self) private var preferences
-
     let text: String
     let systemImage: String
 
@@ -489,7 +491,10 @@ private struct WidgetPill: View {
         .pulseGlassPanel(
             cornerRadius: 5,
             tint: .secondary,
-            materialOpacity: PulseGlassStyle.pillMaterialOpacity(for: preferences.popoverBackgroundOpacity)
+            materialOpacity: PulseGlassStyle.pillMaterialOpacity(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            )
         )
     }
 }

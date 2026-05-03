@@ -10,14 +10,32 @@ import SwiftUI
 
 /// ガラス表現の不透明度を一元的に調整するヘルパー。
 enum PulseGlassStyle {
+    /// 背景全体のマテリアル不透明度。
+    static func backdropMaterialOpacity(for opacity: Double, blurRadius: Double) -> Double {
+        let blurStrength = normalizedBlurStrength(for: blurRadius)
+        return Swift.min(Swift.max(0.04 + opacity * (0.30 + blurStrength * 0.70), 0.04), 0.92)
+    }
+
+    /// 背景全体のハイライト不透明度。
+    static func backdropHighlightOpacity(for opacity: Double, blurRadius: Double) -> Double {
+        let blurStrength = normalizedBlurStrength(for: blurRadius)
+        return Swift.min(Swift.max(opacity * (0.16 + blurStrength * 0.18), 0.02), 0.34)
+    }
+
     /// ウィジェットカード用のマテリアル不透明度。
-    static func panelMaterialOpacity(for opacity: Double) -> Double {
-        Swift.min(Swift.max(0.08 + opacity * 0.48, 0.12), 0.58)
+    static func panelMaterialOpacity(for opacity: Double, blurRadius: Double = 14) -> Double {
+        let blurStrength = normalizedBlurStrength(for: blurRadius)
+        return Swift.min(Swift.max(0.06 + opacity * (0.28 + blurStrength * 0.42), 0.10), 0.64)
     }
 
     /// 小さなピル要素用のマテリアル不透明度。
-    static func pillMaterialOpacity(for opacity: Double) -> Double {
-        Swift.min(Swift.max(0.06 + opacity * 0.36, 0.10), 0.42)
+    static func pillMaterialOpacity(for opacity: Double, blurRadius: Double = 14) -> Double {
+        let blurStrength = normalizedBlurStrength(for: blurRadius)
+        return Swift.min(Swift.max(0.05 + opacity * (0.22 + blurStrength * 0.34), 0.08), 0.48)
+    }
+
+    private static func normalizedBlurStrength(for blurRadius: Double) -> Double {
+        Swift.min(Swift.max(blurRadius / 30, 0), 1)
     }
 }
 
@@ -32,6 +50,15 @@ struct PulseGlassBackdrop: View {
     }
 
     var body: some View {
+        let materialOpacity = PulseGlassStyle.backdropMaterialOpacity(
+            for: opacity,
+            blurRadius: blurRadius
+        )
+        let highlightOpacity = PulseGlassStyle.backdropHighlightOpacity(
+            for: opacity,
+            blurRadius: blurRadius
+        )
+
         ZStack {
             Rectangle()
                 .fill(.clear)
@@ -42,26 +69,26 @@ struct PulseGlassBackdrop: View {
 
                 Rectangle()
                     .fill(.ultraThinMaterial)
-                    .opacity(Swift.min(Swift.max(opacity * 0.85, 0.05), 0.75))
+                    .opacity(materialOpacity)
 
                 LinearGradient(
                     colors: [
-                        .white.opacity(opacity * 0.20),
+                        .white.opacity(highlightOpacity),
                         .clear,
-                        .accentColor.opacity(opacity * 0.16),
-                        .cyan.opacity(opacity * 0.10),
+                        .accentColor.opacity(highlightOpacity * 0.65),
+                        .cyan.opacity(highlightOpacity * 0.40),
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
             }
-            .blur(radius: blurRadius)
+            .blur(radius: blurRadius * 0.10)
 
             LinearGradient(
                 colors: [
-                    .white.opacity(opacity * 0.22),
+                    .white.opacity(highlightOpacity * 1.2),
                     .clear,
-                    .white.opacity(opacity * 0.08),
+                    .white.opacity(highlightOpacity * 0.5),
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing

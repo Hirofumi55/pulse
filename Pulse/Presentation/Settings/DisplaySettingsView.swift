@@ -192,7 +192,10 @@ struct DisplaySettingsView: View {
         .frame(height: 54)
         .pulseGlassPanel(
             tint: .cyan,
-            materialOpacity: PulseGlassStyle.panelMaterialOpacity(for: preferences.popoverBackgroundOpacity)
+            materialOpacity: PulseGlassStyle.panelMaterialOpacity(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            )
         )
     }
 

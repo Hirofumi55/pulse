@@ -133,10 +133,10 @@ struct MenuBarRendererTests {
         let bandHeight = max(1, bitmap.pixelsHigh / 4)
         let topBand = 0..<bandHeight
         let bottomBand = (bitmap.pixelsHigh - bandHeight)..<bitmap.pixelsHigh
-        let topColored = coloredPixelCount(in: bitmap, rows: topBand)
-        let bottomColored = coloredPixelCount(in: bitmap, rows: bottomBand)
+        let topVisible = visiblePixelCount(in: bitmap, rows: topBand)
+        let bottomVisible = visiblePixelCount(in: bitmap, rows: bottomBand)
 
-        #expect(Swift.abs(topColored - bottomColored) > 20)
+        #expect(Swift.abs(topVisible - bottomVisible) > 20)
     }
 
     @Test("Horizontal bars keep their original compact width")
@@ -184,17 +184,63 @@ struct MenuBarRendererTests {
         #expect(cyanPixels < maximumCyanPixels)
     }
 
+    @Test("Graphic menu bar images use monochrome styling")
+    @MainActor
+    func graphicMenuBarImagesUseMonochromeStyling() {
+        let snapshot = makeSnapshot()
+        let image = MenuBarRenderer.image(
+            for: [.cpuUsage, .memoryUsage, .networkSpeed],
+            snapshot: snapshot,
+            history: [snapshot],
+            style: .bar,
+            options: MenuBarRenderOptions(
+                showIcon: true,
+                barLayout: .horizontal,
+                showBarPercentage: false
+            )
+        )
+        var rect = NSRect(origin: .zero, size: image.size)
+        let cgImage = image.cgImage(forProposedRect: &rect, context: nil, hints: nil)
+
+        #expect(cgImage != nil)
+        guard let cgImage else {
+            return
+        }
+
+        let bitmap = NSBitmapImageRep(cgImage: cgImage)
+        let saturatedPixels = saturatedPixelCount(in: bitmap, rows: 0..<bitmap.pixelsHigh)
+        let maximumSaturatedPixels = bitmap.pixelsWide * bitmap.pixelsHigh / 30
+
+        #expect(saturatedPixels < maximumSaturatedPixels)
+    }
+
     private var barOptions: MenuBarRenderOptions {
         MenuBarRenderOptions(showIcon: true, barLayout: .vertical, showBarPercentage: true)
     }
 
-    private func coloredPixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
+    private func visiblePixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
         var count = 0
         for yPosition in rows {
             for xPosition in 0..<bitmap.pixelsWide {
                 guard
                     let color = bitmap.colorAt(x: xPosition, y: yPosition)?.usingColorSpace(.sRGB),
-                    color.alphaComponent > 0.2,
+                    color.alphaComponent > 0.2
+                else {
+                    continue
+                }
+                count += 1
+            }
+        }
+        return count
+    }
+
+    private func saturatedPixelCount(in bitmap: NSBitmapImageRep, rows: Range<Int>) -> Int {
+        var count = 0
+        for yPosition in rows {
+            for xPosition in 0..<bitmap.pixelsWide {
+                guard
+                    let color = bitmap.colorAt(x: xPosition, y: yPosition)?.usingColorSpace(.sRGB),
+                    color.alphaComponent > 0.25,
                     componentSpread(color) > 0.12
                 else {
                     continue

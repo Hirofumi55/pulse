@@ -223,7 +223,7 @@ extension MenuBarRenderer {
         let title = title(for: item, snapshot: snapshot, showIcon: showIcon, dataUnit: dataUnit)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedSystemFont(ofSize: 10, weight: .regular),
-            .foregroundColor: NSColor.labelColor,
+            .foregroundColor: menuBarLabelColor,
         ]
         NSAttributedString(string: title, attributes: attributes).draw(in: rect.insetBy(dx: 0, dy: 2))
     }
@@ -231,7 +231,7 @@ extension MenuBarRenderer {
     private static func drawLabel(_ label: String, in rect: NSRect, size: CGFloat = 7) {
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedSystemFont(ofSize: size, weight: .semibold),
-            .foregroundColor: NSColor.secondaryLabelColor,
+            .foregroundColor: menuBarLabelColor,
         ]
         NSAttributedString(string: label, attributes: attributes).draw(in: rect)
     }
@@ -280,10 +280,15 @@ extension MenuBarRenderer {
         let rawPercent = Int((primaryRatio(for: item, snapshot: snapshot) * 100).rounded())
         let percent = Swift.min(Swift.max(rawPercent, 0), 100)
         let label = "\(percent)%"
+        let shadow = NSShadow()
+        shadow.shadowColor = NSColor.black.withAlphaComponent(0.85)
+        shadow.shadowBlurRadius = 1.4
+        shadow.shadowOffset = .zero
+
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.monospacedSystemFont(ofSize: 7, weight: .bold),
-            .foregroundColor: NSColor.labelColor,
-            .backgroundColor: NSColor.windowBackgroundColor.withAlphaComponent(0.50),
+            .foregroundColor: menuBarLabelColor,
+            .shadow: shadow,
         ]
         let text = NSAttributedString(string: label, attributes: attributes)
         let textSize = text.size()
@@ -435,52 +440,32 @@ extension MenuBarRenderer {
     }
 
     private static var menuBarLabelColor: NSColor {
-        NSColor.secondaryLabelColor
+        NSColor.white.withAlphaComponent(0.92)
     }
 
     private static var menuBarBorderColor: NSColor {
-        NSColor.white.withAlphaComponent(0.18)
+        NSColor.white.withAlphaComponent(0.20)
     }
 
-    private static func menuBarTrackColor(for item: DisplayItem) -> NSColor {
-        menuBarFillColor(for: item).withAlphaComponent(0.22)
+    private static func menuBarTrackColor(for _: DisplayItem) -> NSColor {
+        NSColor.black.withAlphaComponent(0.26)
     }
 
-    private static func menuBarFillColor(for item: DisplayItem) -> NSColor {
-        switch item {
-        case .cpuUsage:
-            NSColor(calibratedRed: 0.30, green: 0.24, blue: 0.72, alpha: 0.96)
-        case .memoryUsage:
-            NSColor(calibratedRed: 0.48, green: 0.24, blue: 0.62, alpha: 0.96)
-        case .networkSpeed:
-            NSColor(calibratedRed: 0.58, green: 0.32, blue: 0.10, alpha: 0.96)
-        case .diskUsage:
-            NSColor(calibratedRed: 0.27, green: 0.32, blue: 0.68, alpha: 0.96)
-        case .diskIO:
-            NSColor(calibratedRed: 0.56, green: 0.24, blue: 0.40, alpha: 0.96)
-        case .cpuTemperature:
-            NSColor(calibratedRed: 0.68, green: 0.32, blue: 0.08, alpha: 0.96)
-        case .gpuUsage:
-            NSColor(calibratedRed: 0.24, green: 0.48, blue: 0.28, alpha: 0.96)
-        }
+    private static func menuBarFillColor(for _: DisplayItem) -> NSColor {
+        NSColor.white.withAlphaComponent(0.34)
     }
 
     private static func accentColors(for item: DisplayItem) -> [NSColor] {
         switch item {
-        case .cpuUsage:
-            [NSColor.systemIndigo]
-        case .memoryUsage:
-            [NSColor.systemPurple]
-        case .networkSpeed:
-            [NSColor.systemOrange, NSColor.systemPink]
-        case .diskUsage:
-            [NSColor.systemIndigo]
-        case .diskIO:
-            [NSColor.systemPurple, NSColor.systemOrange]
-        case .cpuTemperature:
-            [NSColor.systemOrange]
+        case .networkSpeed, .diskIO:
+            [
+                NSColor.white.withAlphaComponent(0.72),
+                NSColor.white.withAlphaComponent(0.48),
+            ]
+        case .cpuUsage, .memoryUsage, .diskUsage, .cpuTemperature:
+            [NSColor.white.withAlphaComponent(0.68)]
         case .gpuUsage:
-            [NSColor.systemGreen]
+            [NSColor.white.withAlphaComponent(0.46)]
         }
     }
 }

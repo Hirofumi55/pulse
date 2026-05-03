@@ -65,6 +65,8 @@ final class MenuBarController: NSObject {
             _ = preferences.menuBarDisplayStyle
             _ = preferences.menuBarBarLayout
             _ = preferences.showMenuBarBarPercentage
+            _ = preferences.popoverBackgroundOpacity
+            _ = preferences.popoverBackgroundBlurRadius
         } onChange: { [weak self] in
             Task { @MainActor [weak self] in
                 self?.handlePreferencesChanged()
@@ -109,6 +111,7 @@ final class MenuBarController: NSObject {
         }
 
         applyActiveSamplingInterval()
+        refreshPopoverAppearance()
     }
 
     private func filteredDisplayedItems() -> [DisplayItem] {
@@ -261,17 +264,6 @@ final class MenuBarController: NSObject {
         logger.debug("Popover opened")
     }
 
-    private func configurePopoverWindow(for popover: NSPopover) {
-        guard let window = popover.contentViewController?.view.window else {
-            return
-        }
-
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.contentView?.wantsLayer = true
-        window.contentView?.layer?.backgroundColor = NSColor.clear.cgColor
-    }
-
     private func installPopoverDismissObservers() {
         removePopoverDismissObservers()
 
@@ -357,6 +349,44 @@ final class MenuBarController: NSObject {
     @objc private func quit() {
         logger.debug("Quit requested from menu bar")
         NSApp.terminate(nil)
+    }
+}
+
+@MainActor
+extension MenuBarController {
+    fileprivate func configurePopoverWindow(for popover: NSPopover) {
+        guard let window = popover.contentViewController?.view.window else {
+            return
+        }
+
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        clearViewBackground(window.contentView)
+        clearViewBackground(window.contentView?.superview)
+    }
+
+    fileprivate func refreshPopoverAppearance() {
+        guard let popover, popover.isShown else {
+            return
+        }
+
+        configurePopoverWindow(for: popover)
+        popover.contentViewController?.view.needsLayout = true
+        popover.contentViewController?.view.needsDisplay = true
+    }
+
+    fileprivate func clearViewBackground(_ view: NSView?) {
+        guard let view else {
+            return
+        }
+
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.clear.cgColor
+        view.layer?.isOpaque = false
+
+        for subview in view.subviews {
+            clearViewBackground(subview)
+        }
     }
 }
 

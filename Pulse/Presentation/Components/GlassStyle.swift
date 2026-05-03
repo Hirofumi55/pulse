@@ -37,7 +37,12 @@ enum PulseGlassStyle {
     /// AppKit 側のポップオーバーマテリアル不透明度。
     static func popoverWindowMaterialAlpha(for opacity: Double, blurRadius: Double) -> CGFloat {
         let blurStrength = normalizedBlurStrength(for: blurRadius)
-        return CGFloat(Swift.min(Swift.max(0.08 + opacity * 0.26 + blurStrength * 0.30, 0.10), 0.62))
+        return CGFloat(Swift.min(Swift.max(0.56 + opacity * 0.34 + blurStrength * 0.10, 0.58), 0.96))
+    }
+
+    /// AppKit 側のポップオーバーウィンドウ黒ベース不透明度。
+    static func popoverWindowBackgroundAlpha(for opacity: Double) -> CGFloat {
+        CGFloat(Swift.min(Swift.max(0.42 + opacity * 0.48, 0.44), 0.86))
     }
 
     private static func normalizedBlurStrength(for blurRadius: Double) -> Double {
@@ -73,7 +78,7 @@ enum PulseGlassTone {
         case .adaptive:
             opacity
         case .clearBlack:
-            Swift.min(Swift.max(0.20 + opacity * 0.68, 0.20), 0.86)
+            Swift.min(Swift.max(0.46 + opacity * 0.48, 0.48), 0.90)
         }
     }
 
@@ -82,7 +87,7 @@ enum PulseGlassTone {
         case .adaptive:
             materialOpacity * 0.22
         case .clearBlack:
-            Swift.min(Swift.max(0.16 + materialOpacity * 0.50, 0.18), 0.58)
+            Swift.min(Swift.max(0.28 + materialOpacity * 0.50, 0.30), 0.66)
         }
     }
 

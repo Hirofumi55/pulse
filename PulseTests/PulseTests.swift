@@ -61,9 +61,13 @@ struct PulseTests {
         let highOpacity = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.8, blurRadius: 14)
         let lowBlur = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.4, blurRadius: 2)
         let highBlur = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.4, blurRadius: 30)
+        let lowBackground = PulseGlassStyle.popoverWindowBackgroundAlpha(for: 0.2)
+        let highBackground = PulseGlassStyle.popoverWindowBackgroundAlpha(for: 0.8)
 
         #expect(highOpacity > lowOpacity)
         #expect(highBlur > lowBlur)
+        #expect(highBackground > lowBackground)
+        #expect(lowBackground > 0.5)
         #expect(PulseGlassTone.clearBlack.backdropBlurRadius(for: 30) > 0)
     }
 }

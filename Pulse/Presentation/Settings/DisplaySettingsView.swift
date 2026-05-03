@@ -191,34 +191,31 @@ struct DisplaySettingsView: View {
                 endPoint: .bottomTrailing
             )
 
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color(NSColor.windowBackgroundColor).opacity(preferences.popoverBackgroundOpacity))
-                .background {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                        .blur(radius: preferences.popoverBackgroundBlurRadius * 0.25)
+            PulseGlassBackdrop(
+                opacity: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius,
+                tone: .clearBlack
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(.white.opacity(0.18), lineWidth: 0.8)
+            }
+            .overlay {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .symbolRenderingMode(.hierarchical)
+                        .accessibilityHidden(true)
+                    Text("背景越しに内容が自然に透けます")
+                        .lineLimit(1)
                 }
-                .overlay {
-                    HStack(spacing: 8) {
-                        Image(systemName: "sparkles")
-                            .symbolRenderingMode(.hierarchical)
-                            .accessibilityHidden(true)
-                        Text("背景越しに内容が自然に透けます")
-                            .lineLimit(1)
-                    }
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
-                }
-                .padding(8)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+            }
+            .padding(8)
         }
         .frame(height: 54)
-        .pulseGlassPanel(
-            tint: .cyan,
-            materialOpacity: PulseGlassStyle.panelMaterialOpacity(
-                for: preferences.popoverBackgroundOpacity,
-                blurRadius: preferences.popoverBackgroundBlurRadius
-            )
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     private func intervalTitle(_ interval: Double) -> String {

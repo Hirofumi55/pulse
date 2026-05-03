@@ -364,7 +364,9 @@ extension MenuBarController {
         }
 
         window.isOpaque = false
-        window.backgroundColor = .clear
+        window.backgroundColor = NSColor.black.withAlphaComponent(
+            PulseGlassStyle.popoverWindowBackgroundAlpha(for: preferences.popoverBackgroundOpacity)
+        )
         window.appearance = NSAppearance(named: .darkAqua)
         stylePopoverViewTree(window.contentView)
         stylePopoverViewTree(window.contentView?.superview)

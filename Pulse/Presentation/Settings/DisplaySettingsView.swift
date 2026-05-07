@@ -301,12 +301,20 @@ struct DisplaySettingsView: View {
             return true
         }
 
+        if preferences.displayedItems.contains(item), preferences.displayedItems.count == 1 {
+            return true
+        }
+
         return !preferences.displayedItems.contains(item) && preferences.displayedItems.count >= 4
     }
 
     private func displayHint(for item: DisplayItem) -> String {
         if !item.isAvailableInPhase1 {
             return "次フェーズで対応予定です。"
+        }
+
+        if preferences.displayedItems.contains(item), preferences.displayedItems.count == 1 {
+            return "メニューバーには少なくとも1項目が必要です。"
         }
 
         if !preferences.displayedItems.contains(item), preferences.displayedItems.count >= 4 {

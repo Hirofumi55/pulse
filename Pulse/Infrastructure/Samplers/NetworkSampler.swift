@@ -26,7 +26,7 @@ actor NetworkSampler: Sampler {
     func sample() async throws -> NetworkMetrics {
         let rawStats = try sampleRawStats()
         let currentSamples = Dictionary(
-            uniqueKeysWithValues: rawStats.map { rawStat in
+            rawStats.map { rawStat in
                 (
                     rawStat.name,
                     NetworkCounterSample(
@@ -35,7 +35,8 @@ actor NetworkSampler: Sampler {
                         timestamp: rawStat.timestamp
                     )
                 )
-            }
+            },
+            uniquingKeysWith: { _, latest in latest }
         )
         let interfaces = rawStats.compactMap { rawStat in
             makeInterfaceInfo(from: rawStat)

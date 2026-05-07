@@ -102,6 +102,20 @@ struct PreferencesStoreTests {
         #expect(store.popoverBackgroundBlurRadius == 30.0)
     }
 
+    @Test("Store restores defaults when displayed items become empty")
+    func restoresDefaultsWhenDisplayedItemsBecomeEmpty() throws {
+        let defaults = try makeUserDefaults()
+        defer {
+            defaults.cleanup()
+        }
+
+        let store = PreferencesStore(userDefaults: defaults.userDefaults)
+
+        store.displayedItems = [.gpuUsage]
+
+        #expect(store.displayedItems == [.cpuUsage, .memoryUsage, .networkSpeed])
+    }
+
     @Test("Store resets values to defaults")
     func resetsValuesToDefaults() throws {
         let defaults = try makeUserDefaults()

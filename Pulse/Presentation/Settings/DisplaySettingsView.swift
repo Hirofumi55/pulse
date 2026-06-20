@@ -80,6 +80,8 @@ struct DisplaySettingsView: View {
                     .help("CPU、MEM、NET などの短縮ラベルをメニューバー内に表示します。")
                     .accessibilityHint("CPU、MEM、NET などの短縮ラベルをメニューバー内に表示します。")
 
+                MenuBarPreviewView()
+
                 Text("ウィジェットを開いている間は、詳細情報を毎秒更新します。")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.secondary)
@@ -322,6 +324,90 @@ struct DisplaySettingsView: View {
         }
 
         return "メニューバーに表示する項目を切り替えます。"
+    }
+}
+
+private struct MenuBarPreviewView: View {
+    @Environment(PreferencesStore.self) private var preferences
+
+    var body: some View {
+        HStack {
+            Text("プレビュー")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.secondary)
+
+            Spacer(minLength: 12)
+
+            previewContent
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("メニューバープレビュー")
+        .accessibilityValue(accessibilityValue)
+    }
+
+    @ViewBuilder
+    private var previewContent: some View {
+        let width = MenuBarRenderer.preferredLength(
+            for: preferences.displayedItems,
+            style: preferences.menuBarDisplayStyle,
+            options: renderOptions
+        )
+
+        ZStack {
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(.black.opacity(0.78))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .strokeBorder(.white.opacity(0.18), lineWidth: 0.7)
+                }
+
+            switch preferences.menuBarDisplayStyle {
+            case .text:
+                Text(title)
+                    .font(.system(size: 11, weight: .regular, design: .monospaced))
+                    .foregroundStyle(.white.opacity(0.92))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, 6)
+            case .bar, .graph:
+                Image(nsImage: image)
+                    .accessibilityHidden(true)
+            }
+        }
+        .frame(width: min(max(width, 72), 220), height: 26)
+    }
+
+    private var image: NSImage {
+        MenuBarRenderer.image(
+            for: preferences.displayedItems,
+            snapshot: nil,
+            history: [],
+            style: preferences.menuBarDisplayStyle,
+            options: renderOptions
+        )
+    }
+
+    private var title: String {
+        MenuBarRenderer.title(
+            for: preferences.displayedItems,
+            snapshot: nil,
+            showIcon: preferences.showMenuBarIcons,
+            dataUnit: preferences.dataUnit,
+            temperatureUnit: preferences.temperatureUnit
+        )
+    }
+
+    private var accessibilityValue: String {
+        "\(preferences.menuBarDisplayStyle.displayName)、\(title)"
+    }
+
+    private var renderOptions: MenuBarRenderOptions {
+        MenuBarRenderOptions(
+            showIcon: preferences.showMenuBarIcons,
+            barLayout: preferences.menuBarBarLayout,
+            showBarPercentage: preferences.showMenuBarBarPercentage
+        )
     }
 }
 

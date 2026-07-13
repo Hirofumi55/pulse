@@ -50,8 +50,8 @@ struct OverviewTab: View {
         ) {
             CoreLoadBars(values: cpu?.perCoreUsage ?? [])
         } footer: {
-            WidgetPill(text: "User \(percentageText(cpu?.userUsage))", systemImage: "person")
-            WidgetPill(text: "Sys \(percentageText(cpu?.systemUsage))", systemImage: "gearshape")
+            WidgetPill(text: "ユーザー \(percentageText(cpu?.userUsage))", systemImage: "person")
+            WidgetPill(text: "システム \(percentageText(cpu?.systemUsage))", systemImage: "gearshape")
         }
     }
 
@@ -65,7 +65,7 @@ struct OverviewTab: View {
             subtitle: cpuTemperatureSubtitle(thermal),
             tint: .orange
         ) {
-            TemperatureGaugeView(temperature: cpuTemperature)
+            TemperatureGaugeView(temperature: cpuTemperature, unit: preferences.temperatureUnit)
         } footer: {
             WidgetPill(
                 text: "電池 \(temperatureText(thermal?.batteryTemperatureCelsius))",
@@ -96,7 +96,7 @@ struct OverviewTab: View {
             )
         } footer: {
             WidgetPill(text: "空き \(bytes(memory?.freeBytes ?? 0))", systemImage: "arrow.down.to.line")
-            WidgetPill(text: "Swap \(bytes(memory?.swapUsedBytes ?? 0))", systemImage: "arrow.left.arrow.right")
+            WidgetPill(text: "スワップ \(bytes(memory?.swapUsedBytes ?? 0))", systemImage: "arrow.left.arrow.right")
         }
     }
 
@@ -186,10 +186,10 @@ struct OverviewTab: View {
 
     private var activeInterfaceSummary: String {
         guard latestSnapshot?.network != nil else {
-            return "IF待機中"
+            return "接続待ち"
         }
 
-        return "\(activeInterfaceCount)IF"
+        return "\(activeInterfaceCount)接続"
     }
 
     private func networkUploadText(_ network: NetworkMetrics?) -> String {
@@ -301,15 +301,15 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
                     .foregroundStyle(tint)
                     .accessibilityHidden(true)
                 Text(title)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.secondary)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.primary.opacity(0.78))
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(value)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(size: 25, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
                     .monospacedDigit()
                     .lineLimit(1)
@@ -431,56 +431,6 @@ private struct DonutMetricView: View {
 private struct DonutSegment {
     let value: Double
     let color: Color
-}
-
-private struct NetworkActivityView: View {
-    let history: [MetricsSnapshot]
-    let dataUnit: DataUnit
-
-    private var maxValue: Double {
-        max(
-            history.map { snapshot in
-                Double(
-                    max(
-                        snapshot.network.totalDownloadBytesPerSecond,
-                        snapshot.network.totalUploadBytesPerSecond
-                    )
-                )
-            }.max() ?? 1,
-            1
-        )
-    }
-
-    var body: some View {
-        VStack(spacing: 5) {
-            HStack(alignment: .bottom, spacing: 2) {
-                ForEach(Array(history.suffix(22).enumerated()), id: \.offset) { item in
-                    Capsule()
-                        .fill(.cyan.opacity(0.35))
-                        .overlay(alignment: .bottom) {
-                            Capsule()
-                                .fill(.cyan)
-                                .frame(height: height(for: item.element.network.totalDownloadBytesPerSecond))
-                        }
-                        .frame(maxWidth: .infinity)
-                }
-            }
-            .frame(height: 44)
-
-            HStack {
-                Text("ピーク")
-                Spacer()
-                Text(ByteFormatter.rateString(from: UInt64(maxValue), dataUnit: dataUnit, unitStyle: .compact))
-                    .monospacedDigit()
-            }
-            .font(.system(size: 10, weight: .medium))
-            .foregroundStyle(.secondary)
-        }
-    }
-
-    private func height(for bytes: UInt64) -> CGFloat {
-        max(44 * CGFloat(Double(bytes) / maxValue), 2)
-    }
 }
 
 private struct FlowPills<Content: View>: View {

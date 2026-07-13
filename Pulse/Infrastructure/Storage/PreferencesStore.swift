@@ -434,19 +434,33 @@ final class PreferencesStore {
 
         return sanitizedItems
     }
+}
 
-    private static func sanitizeSamplingInterval(_ value: Double) -> Double {
-        allowedSamplingIntervals.min { left, right in
+extension PreferencesStore {
+    fileprivate static func sanitizeSamplingInterval(_ value: Double) -> Double {
+        guard value.isFinite else {
+            return 3.0
+        }
+
+        return allowedSamplingIntervals.min { left, right in
             abs(left - value) < abs(right - value)
         } ?? 3.0
     }
 
-    private static func sanitizePopoverBackgroundOpacity(_ value: Double) -> Double {
-        Swift.min(Swift.max(value, 0.08), 0.9)
+    fileprivate static func sanitizePopoverBackgroundOpacity(_ value: Double) -> Double {
+        guard value.isFinite else {
+            return 0.28
+        }
+
+        return Swift.min(Swift.max(value, 0.08), 0.9)
     }
 
-    private static func sanitizePopoverBackgroundBlurRadius(_ value: Double) -> Double {
-        Swift.min(Swift.max(value, 0), 30)
+    fileprivate static func sanitizePopoverBackgroundBlurRadius(_ value: Double) -> Double {
+        guard value.isFinite else {
+            return 14.0
+        }
+
+        return Swift.min(Swift.max(value, 0), 30)
     }
 }
 

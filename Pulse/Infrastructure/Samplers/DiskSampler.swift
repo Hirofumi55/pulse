@@ -7,6 +7,9 @@
 
 import Foundation
 import IOKit
+import os
+
+private let logger = Logger(category: .sampler)
 
 /// Foundation と IOKit からディスク容量と I/O 速度を取得する Sampler。
 actor DiskSampler: Sampler {
@@ -41,8 +44,31 @@ actor DiskSampler: Sampler {
             throw SamplerError.unexpectedFormat
         }
 
-        let volumes = try urls.compactMap { url in
-            try makeVolumeInfo(from: url)
+        return try sampleVolumes(from: urls)
+    }
+
+    func sampleVolumes(from urls: [URL]) throws -> [VolumeInfo] {
+        var volumes: [VolumeInfo] = []
+        var firstError: (any Error)?
+        var skippedVolumeCount = 0
+
+        for url in urls {
+            do {
+                if let volume = try makeVolumeInfo(from: url) {
+                    volumes.append(volume)
+                }
+            } catch {
+                firstError = firstError ?? error
+                skippedVolumeCount += 1
+            }
+        }
+
+        if skippedVolumeCount > 0 {
+            logger.debug("Unreadable mounted volumes skipped: \(skippedVolumeCount, privacy: .public)")
+        }
+
+        if volumes.isEmpty, let firstError {
+            throw firstError
         }
 
         return volumes.sorted { left, right in

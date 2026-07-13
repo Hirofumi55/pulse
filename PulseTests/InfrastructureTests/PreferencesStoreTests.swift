@@ -102,6 +102,30 @@ struct PreferencesStoreTests {
         #expect(store.popoverBackgroundBlurRadius == 30.0)
     }
 
+    @Test("Store replaces non-finite numeric values with defaults")
+    func replacesNonFiniteNumericValues() throws {
+        let defaults = try makeUserDefaults()
+        defer {
+            defaults.cleanup()
+        }
+
+        defaults.userDefaults.set(Double.nan, forKey: "samplingIntervalSeconds")
+        defaults.userDefaults.set(Double.infinity, forKey: "popoverBackgroundOpacity")
+        defaults.userDefaults.set(-Double.infinity, forKey: "popoverBackgroundBlurRadius")
+
+        let store = PreferencesStore(userDefaults: defaults.userDefaults)
+
+        #expect(store.samplingIntervalSeconds == 3.0)
+        #expect(store.popoverBackgroundOpacity == 0.28)
+        #expect(store.popoverBackgroundBlurRadius == 14.0)
+
+        store.popoverBackgroundOpacity = .nan
+        store.popoverBackgroundBlurRadius = .infinity
+
+        #expect(store.popoverBackgroundOpacity == 0.28)
+        #expect(store.popoverBackgroundBlurRadius == 14.0)
+    }
+
     @Test("Store restores defaults when displayed items become empty")
     func restoresDefaultsWhenDisplayedItemsBecomeEmpty() throws {
         let defaults = try makeUserDefaults()

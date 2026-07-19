@@ -103,16 +103,16 @@ struct DisplaySettingsView: View {
                         .accessibilityValue("\(Int((preferences.popoverBackgroundOpacity * 100).rounded()))%")
 
                     HStack {
-                        Text("ブラー")
+                        Text("ブラー強度")
                         Spacer()
-                        Text("\(Int(preferences.popoverBackgroundBlurRadius.rounded()))pt")
+                        Text("\(popoverBlurPercentage)%")
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                     }
 
                     Slider(value: popoverBlurBinding, in: 0...30, step: 1)
-                        .accessibilityLabel("背景ブラー")
-                        .accessibilityValue("\(Int(preferences.popoverBackgroundBlurRadius.rounded()))pt")
+                        .accessibilityLabel("背景ブラー強度")
+                        .accessibilityValue("\(popoverBlurPercentage)%")
 
                     popoverOpacityPreview
                 }
@@ -183,6 +183,10 @@ struct DisplaySettingsView: View {
         }
 
         return "縦バーの中に現在値のパーセントを表示します。"
+    }
+
+    private var popoverBlurPercentage: Int {
+        Int((preferences.popoverBackgroundBlurRadius / 30 * 100).rounded())
     }
 
     private var popoverOpacityPreview: some View {

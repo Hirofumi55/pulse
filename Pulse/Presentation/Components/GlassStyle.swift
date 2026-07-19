@@ -12,41 +12,42 @@ import SwiftUI
 enum PulseGlassStyle {
     /// 背景全体のマテリアル不透明度。
     static func backdropMaterialOpacity(for opacity: Double, blurRadius: Double) -> Double {
+        let backgroundOpacity = normalizedOpacity(opacity)
         let blurStrength = normalizedBlurStrength(for: blurRadius)
-        return Swift.min(Swift.max(0.04 + opacity * (0.30 + blurStrength * 0.70), 0.04), 0.92)
+        return clamped(blurStrength * (0.90 - backgroundOpacity * 0.75), to: 0...0.86)
     }
 
     /// 背景全体のハイライト不透明度。
     static func backdropHighlightOpacity(for opacity: Double, blurRadius: Double) -> Double {
+        let backgroundOpacity = normalizedOpacity(opacity)
         let blurStrength = normalizedBlurStrength(for: blurRadius)
-        return Swift.min(Swift.max(opacity * (0.16 + blurStrength * 0.18), 0.02), 0.34)
+        return clamped(0.015 + backgroundOpacity * 0.10 + blurStrength * 0.08, to: 0.015...0.18)
     }
 
     /// ウィジェットカード用のマテリアル不透明度。
     static func panelMaterialOpacity(for opacity: Double, blurRadius: Double = 14) -> Double {
+        let backgroundOpacity = normalizedOpacity(opacity)
         let blurStrength = normalizedBlurStrength(for: blurRadius)
-        return Swift.min(Swift.max(0.06 + opacity * (0.28 + blurStrength * 0.42), 0.10), 0.64)
+        return clamped(0.12 + backgroundOpacity * 0.32 + blurStrength * 0.22, to: 0.12...0.64)
     }
 
     /// 小さなピル要素用のマテリアル不透明度。
     static func pillMaterialOpacity(for opacity: Double, blurRadius: Double = 14) -> Double {
+        let backgroundOpacity = normalizedOpacity(opacity)
         let blurStrength = normalizedBlurStrength(for: blurRadius)
-        return Swift.min(Swift.max(0.05 + opacity * (0.22 + blurStrength * 0.34), 0.08), 0.48)
+        return clamped(0.08 + backgroundOpacity * 0.22 + blurStrength * 0.16, to: 0.08...0.46)
     }
 
-    /// AppKit 側のポップオーバーマテリアル不透明度。
-    static func popoverWindowMaterialAlpha(for opacity: Double, blurRadius: Double) -> CGFloat {
-        let blurStrength = normalizedBlurStrength(for: blurRadius)
-        return CGFloat(Swift.min(Swift.max(0.56 + opacity * 0.34 + blurStrength * 0.10, 0.58), 0.96))
-    }
-
-    /// AppKit 側のポップオーバーウィンドウ黒ベース不透明度。
-    static func popoverWindowBackgroundAlpha(for opacity: Double) -> CGFloat {
-        CGFloat(Swift.min(Swift.max(0.42 + opacity * 0.48, 0.44), 0.86))
+    private static func normalizedOpacity(_ opacity: Double) -> Double {
+        clamped(opacity, to: 0...1)
     }
 
     private static func normalizedBlurStrength(for blurRadius: Double) -> Double {
-        Swift.min(Swift.max(blurRadius / 30, 0), 1)
+        clamped(blurRadius / 30, to: 0...1)
+    }
+
+    private static func clamped(_ value: Double, to range: ClosedRange<Double>) -> Double {
+        Swift.min(Swift.max(value, range.lowerBound), range.upperBound)
     }
 }
 
@@ -78,7 +79,7 @@ enum PulseGlassTone {
         case .adaptive:
             opacity
         case .clearBlack:
-            Swift.min(Swift.max(0.46 + opacity * 0.48, 0.48), 0.90)
+            Swift.min(Swift.max(0.14 + opacity * 0.95, 0.20), 0.80)
         }
     }
 
@@ -87,16 +88,7 @@ enum PulseGlassTone {
         case .adaptive:
             materialOpacity * 0.22
         case .clearBlack:
-            Swift.min(Swift.max(0.28 + materialOpacity * 0.50, 0.30), 0.66)
-        }
-    }
-
-    func backdropBlurRadius(for blurRadius: Double) -> Double {
-        switch self {
-        case .adaptive:
-            blurRadius * 0.10
-        case .clearBlack:
-            blurRadius * 0.34
+            Swift.min(Swift.max(0.18 + materialOpacity * 0.50, 0.24), 0.52)
         }
     }
 
@@ -136,25 +128,22 @@ struct PulseGlassBackdrop: View {
             Rectangle()
                 .fill(.clear)
 
-            ZStack {
-                Rectangle()
-                    .fill(tone.baseColor.opacity(tone.backdropBaseOpacity(for: opacity)))
+            backdropMaterial
+                .opacity(materialOpacity)
 
-                backdropMaterial
-                    .opacity(materialOpacity)
+            Rectangle()
+                .fill(tone.baseColor.opacity(tone.backdropBaseOpacity(for: opacity)))
 
-                LinearGradient(
-                    colors: [
-                        .white.opacity(highlightOpacity),
-                        .clear,
-                        .accentColor.opacity(highlightOpacity * 0.65),
-                        .cyan.opacity(highlightOpacity * 0.40),
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            }
-            .blur(radius: tone.backdropBlurRadius(for: blurRadius))
+            LinearGradient(
+                colors: [
+                    .white.opacity(highlightOpacity),
+                    .clear,
+                    .accentColor.opacity(highlightOpacity * 0.65),
+                    .cyan.opacity(highlightOpacity * 0.40),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
 
             LinearGradient(
                 colors: [
@@ -222,11 +211,11 @@ private struct PulseGlassPanelModifier: ViewModifier {
         content
             .background {
                 ZStack {
-                    shape
-                        .fill(tone.baseColor.opacity(tone.panelBaseOpacity(for: materialOpacity)))
-
                     panelMaterial(shape: shape)
                         .opacity(materialOpacity)
+
+                    shape
+                        .fill(tone.baseColor.opacity(tone.panelBaseOpacity(for: materialOpacity)))
 
                     shape
                         .fill(tint.opacity(materialOpacity * 0.08))

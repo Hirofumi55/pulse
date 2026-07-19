@@ -26,13 +26,14 @@ struct PulseTests {
 
     @Test("ガラス表現は透過度とブラー設定を反映する")
     func glassStyleRespondsToOpacityAndBlur() {
-        let lowBlur = PulseGlassStyle.backdropMaterialOpacity(for: 0.28, blurRadius: 2)
+        let lowBlur = PulseGlassStyle.backdropMaterialOpacity(for: 0.28, blurRadius: 0)
         let highBlur = PulseGlassStyle.backdropMaterialOpacity(for: 0.28, blurRadius: 30)
-        let lowOpacity = PulseGlassStyle.panelMaterialOpacity(for: 0.2, blurRadius: 20)
-        let highOpacity = PulseGlassStyle.panelMaterialOpacity(for: 0.8, blurRadius: 20)
+        let lowOpacity = PulseGlassStyle.panelMaterialOpacity(for: 0.08, blurRadius: 20)
+        let highOpacity = PulseGlassStyle.panelMaterialOpacity(for: 0.9, blurRadius: 20)
 
-        #expect(highBlur > lowBlur)
-        #expect(highOpacity > lowOpacity)
+        #expect(lowBlur == 0)
+        #expect(highBlur - lowBlur > 0.5)
+        #expect(highOpacity - lowOpacity > 0.2)
     }
 
     @Test("黒基調ガラスは通常トーンより濃く表示される")
@@ -55,19 +56,13 @@ struct PulseTests {
         #expect(PulseGlassTone.clearBlack.shadowOpacity > PulseGlassTone.adaptive.shadowOpacity)
     }
 
-    @Test("ポップオーバーマテリアルは透過度とブラー設定を反映する")
-    func popoverMaterialRespondsToOpacityAndBlur() {
-        let lowOpacity = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.2, blurRadius: 14)
-        let highOpacity = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.8, blurRadius: 14)
-        let lowBlur = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.4, blurRadius: 2)
-        let highBlur = PulseGlassStyle.popoverWindowMaterialAlpha(for: 0.4, blurRadius: 30)
-        let lowBackground = PulseGlassStyle.popoverWindowBackgroundAlpha(for: 0.2)
-        let highBackground = PulseGlassStyle.popoverWindowBackgroundAlpha(for: 0.8)
+    @Test("ポップオーバー背景は透過度設定を十分な幅で反映する")
+    func popoverBackdropRespondsToOpacity() {
+        let lowOpacity = PulseGlassTone.clearBlack.backdropBaseOpacity(for: 0.08)
+        let highOpacity = PulseGlassTone.clearBlack.backdropBaseOpacity(for: 0.9)
 
-        #expect(highOpacity > lowOpacity)
-        #expect(highBlur > lowBlur)
-        #expect(highBackground > lowBackground)
-        #expect(lowBackground > 0.5)
-        #expect(PulseGlassTone.clearBlack.backdropBlurRadius(for: 30) > 0)
+        #expect(lowOpacity < 0.25)
+        #expect(highOpacity > 0.7)
+        #expect(highOpacity - lowOpacity > 0.5)
     }
 }

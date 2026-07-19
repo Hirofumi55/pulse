@@ -364,12 +364,16 @@ extension MenuBarController {
         }
 
         window.isOpaque = false
-        window.backgroundColor = NSColor.black.withAlphaComponent(
-            PulseGlassStyle.popoverWindowBackgroundAlpha(for: preferences.popoverBackgroundOpacity)
-        )
+        window.backgroundColor = .clear
         window.appearance = NSAppearance(named: .darkAqua)
-        stylePopoverViewTree(window.contentView)
-        stylePopoverViewTree(window.contentView?.superview)
+        let hostedContentView = popover.contentViewController?.view
+        hostedContentView?.appearance = NSAppearance(named: .darkAqua)
+        hostedContentView?.wantsLayer = true
+        hostedContentView?.layer?.backgroundColor = NSColor.clear.cgColor
+        stylePopoverViewTree(
+            window.contentView?.superview ?? window.contentView,
+            excluding: hostedContentView
+        )
         window.makeKey()
     }
 
@@ -383,29 +387,22 @@ extension MenuBarController {
         popover.contentViewController?.view.needsDisplay = true
     }
 
-    fileprivate func stylePopoverViewTree(_ view: NSView?) {
-        guard let view else {
+    fileprivate func stylePopoverViewTree(_ view: NSView?, excluding hostedContentView: NSView?) {
+        guard let view, view !== hostedContentView else {
             return
         }
 
         view.appearance = NSAppearance(named: .darkAqua)
-        view.wantsLayer = true
-        view.layer?.backgroundColor = NSColor.clear.cgColor
-        view.layer?.isOpaque = false
 
         if let visualEffectView = view as? NSVisualEffectView {
             visualEffectView.material = .hudWindow
             visualEffectView.blendingMode = .behindWindow
             visualEffectView.state = .active
             visualEffectView.isEmphasized = true
-            visualEffectView.alphaValue = PulseGlassStyle.popoverWindowMaterialAlpha(
-                for: preferences.popoverBackgroundOpacity,
-                blurRadius: preferences.popoverBackgroundBlurRadius
-            )
         }
 
         for subview in view.subviews {
-            stylePopoverViewTree(subview)
+            stylePopoverViewTree(subview, excluding: hostedContentView)
         }
     }
 }

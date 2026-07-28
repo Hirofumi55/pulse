@@ -24,15 +24,19 @@ struct TemperatureGaugeView: View {
         Group {
             if temperature == nil {
                 Label("温度データなし", systemImage: "questionmark.circle")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.secondary.opacity(0.14), in: RoundedRectangle(cornerRadius: 6))
+                    .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 6))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(.white.opacity(0.10), lineWidth: 0.5)
+                    }
             } else {
                 VStack(spacing: 7) {
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(.secondary.opacity(0.18))
+                            .fill(.white.opacity(0.10))
                         Capsule()
                             .fill(temperatureGradient)
                             .frame(maxWidth: .infinity)
@@ -103,7 +107,7 @@ struct NetworkActivityView: View {
             GeometryReader { proxy in
                 ZStack {
                     Rectangle()
-                        .fill(.secondary.opacity(0.18))
+                        .fill(.white.opacity(0.10))
                         .frame(height: 1)
 
                     HStack(alignment: .center, spacing: 2) {
@@ -194,7 +198,7 @@ struct IOMeterView: View {
                 .frame(width: 28, alignment: .leading)
             GeometryReader { proxy in
                 Capsule()
-                    .fill(.secondary.opacity(0.16))
+                    .fill(.white.opacity(0.10))
                     .overlay(alignment: .leading) {
                         Capsule()
                             .fill(color)
@@ -217,11 +221,11 @@ struct WidgetPill: View {
                 .font(.system(size: 9, weight: .semibold))
                 .accessibilityHidden(true)
             Text(text)
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(size: 10, weight: .medium))
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
         }
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.primary.opacity(0.70))
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .pulseGlassPanel(

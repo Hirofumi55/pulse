@@ -13,8 +13,8 @@ struct OverviewTab: View {
     let preferences: PreferencesStore
 
     private let columns = [
-        GridItem(.flexible(), spacing: 8),
-        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10),
     ]
 
     private var latestSnapshot: MetricsSnapshot? {
@@ -26,8 +26,8 @@ struct OverviewTab: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            LazyVGrid(columns: columns, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
+            LazyVGrid(columns: columns, spacing: 10) {
                 cpuCard
                 memoryCard
                 thermalCard
@@ -36,7 +36,7 @@ struct OverviewTab: View {
                 diskIOCard
             }
         }
-        .padding(12)
+        .padding(14)
     }
 
     private var cpuCard: some View {
@@ -294,28 +294,34 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 7) {
                 Image(systemName: systemImage)
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundStyle(tint)
+                    .frame(width: 21, height: 21)
+                    .background(tint.opacity(0.12), in: Circle())
+                    .overlay {
+                        Circle()
+                            .stroke(.white.opacity(0.14), lineWidth: 0.5)
+                    }
                     .accessibilityHidden(true)
                 Text(title)
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.primary.opacity(0.78))
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.primary.opacity(0.86))
                     .lineLimit(1)
                 Spacer(minLength: 0)
             }
 
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(value)
-                    .font(.system(size: 25, weight: .bold, design: .rounded))
+                    .font(.system(size: 27, weight: .semibold))
                     .foregroundStyle(.primary)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.68)
                 Text(subtitle)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
@@ -329,7 +335,7 @@ private struct MetricWidgetCard<Visual: View, Footer: View>: View {
                 footer
             }
         }
-        .padding(9)
+        .padding(10)
         .frame(height: 190, alignment: .topLeading)
         .pulseGlassPanel(
             tint: tint,
@@ -358,7 +364,7 @@ private struct CoreLoadBars: View {
                 ForEach(Array(displayValues.enumerated()), id: \.offset) { item in
                     VStack(spacing: 1) {
                         RoundedRectangle(cornerRadius: 2, style: .continuous)
-                            .fill(.blue.opacity(0.28))
+                            .fill(.white.opacity(0.09))
                         RoundedRectangle(cornerRadius: 2, style: .continuous)
                             .fill(barGradient)
                             .frame(height: barHeight(value: item.element, totalHeight: proxy.size.height))
@@ -371,7 +377,7 @@ private struct CoreLoadBars: View {
     }
 
     private var barGradient: LinearGradient {
-        LinearGradient(colors: [.cyan, .blue, .indigo], startPoint: .top, endPoint: .bottom)
+        LinearGradient(colors: [.cyan.opacity(0.9), .blue, .indigo], startPoint: .top, endPoint: .bottom)
     }
 
     private func barHeight(value: Double, totalHeight: CGFloat) -> CGFloat {
@@ -391,7 +397,7 @@ private struct DonutMetricView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(.secondary.opacity(0.16), lineWidth: 13)
+                .stroke(.white.opacity(0.10), lineWidth: 13)
 
             ForEach(Array(segments.enumerated()), id: \.offset) { item in
                 Circle()
@@ -405,7 +411,7 @@ private struct DonutMetricView: View {
 
             VStack(spacing: 0) {
                 Text(centerText)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .font(.system(size: 11, weight: .semibold))
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                 Text(centerCaption)

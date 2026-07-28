@@ -79,16 +79,16 @@ enum PulseGlassTone {
         case .adaptive:
             opacity
         case .clearBlack:
-            Swift.min(Swift.max(0.14 + opacity * 0.95, 0.20), 0.80)
+            Swift.min(Swift.max(0.08 + opacity * 0.72, 0.14), 0.73)
         }
     }
 
     func panelBaseOpacity(for materialOpacity: Double) -> Double {
         switch self {
         case .adaptive:
-            materialOpacity * 0.22
+            materialOpacity * 0.18
         case .clearBlack:
-            Swift.min(Swift.max(0.18 + materialOpacity * 0.50, 0.24), 0.52)
+            Swift.min(Swift.max(0.12 + materialOpacity * 0.36, 0.16), 0.38)
         }
     }
 
@@ -97,13 +97,15 @@ enum PulseGlassTone {
         case .adaptive:
             0.08
         case .clearBlack:
-            0.18
+            0.12
         }
     }
 }
 
 /// Pulse 全体で使うクリアなすりガラス背景。
 struct PulseGlassBackdrop: View {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     let opacity: Double
     let blurRadius: Double
     let tone: PulseGlassTone
@@ -125,35 +127,35 @@ struct PulseGlassBackdrop: View {
         )
 
         ZStack {
-            Rectangle()
-                .fill(.clear)
+            if reduceTransparency {
+                Rectangle()
+                    .fill(tone.baseColor.opacity(0.92))
+            } else {
+                backdropMaterial
+                    .opacity(materialOpacity)
 
-            backdropMaterial
-                .opacity(materialOpacity)
+                Rectangle()
+                    .fill(tone.baseColor.opacity(tone.backdropBaseOpacity(for: opacity)))
 
-            Rectangle()
-                .fill(tone.baseColor.opacity(tone.backdropBaseOpacity(for: opacity)))
-
+                LinearGradient(
+                    colors: [
+                        .white.opacity(highlightOpacity * 0.95),
+                        .clear,
+                        .black.opacity(highlightOpacity * 0.45),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
+        }
+        .overlay(alignment: .top) {
             LinearGradient(
-                colors: [
-                    .white.opacity(highlightOpacity),
-                    .clear,
-                    .accentColor.opacity(highlightOpacity * 0.65),
-                    .cyan.opacity(highlightOpacity * 0.40),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                colors: [.white.opacity(highlightOpacity * 2.1), .white.opacity(highlightOpacity * 0.15)],
+                startPoint: .leading,
+                endPoint: .trailing
             )
-
-            LinearGradient(
-                colors: [
-                    .white.opacity(highlightOpacity * 1.2),
-                    .clear,
-                    .white.opacity(highlightOpacity * 0.5),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            .frame(height: 1)
+            .allowsHitTesting(false)
         }
         .ignoresSafeArea()
     }
@@ -165,7 +167,7 @@ struct PulseGlassBackdrop: View {
             Rectangle()
                 .fill(.ultraThinMaterial)
         case .clearBlack:
-            ActiveGlassMaterial(material: .hudWindow)
+            ActiveGlassMaterial(material: .hudWindow, blendingMode: .behindWindow)
         }
     }
 }
@@ -200,6 +202,8 @@ extension View {
 }
 
 private struct PulseGlassPanelModifier: ViewModifier {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     let cornerRadius: CGFloat
     let tint: Color
     let materialOpacity: Double
@@ -211,14 +215,19 @@ private struct PulseGlassPanelModifier: ViewModifier {
         content
             .background {
                 ZStack {
-                    panelMaterial(shape: shape)
-                        .opacity(materialOpacity)
+                    if reduceTransparency {
+                        shape
+                            .fill(Color(nsColor: .windowBackgroundColor).opacity(0.96))
+                    } else {
+                        panelMaterial(shape: shape)
+                            .opacity(materialOpacity)
 
-                    shape
-                        .fill(tone.baseColor.opacity(tone.panelBaseOpacity(for: materialOpacity)))
+                        shape
+                            .fill(tone.baseColor.opacity(tone.panelBaseOpacity(for: materialOpacity)))
 
-                    shape
-                        .fill(tint.opacity(materialOpacity * 0.08))
+                        shape
+                            .fill(tint.opacity(materialOpacity * 0.035))
+                    }
                 }
             }
             .overlay(alignment: .topLeading) {
@@ -226,8 +235,8 @@ private struct PulseGlassPanelModifier: ViewModifier {
                     .fill(
                         LinearGradient(
                             colors: [
-                                .white.opacity(materialOpacity * 0.34),
-                                .white.opacity(materialOpacity * 0.08),
+                                .white.opacity(materialOpacity * 0.22),
+                                .white.opacity(materialOpacity * 0.04),
                                 .clear,
                             ],
                             startPoint: .topLeading,
@@ -239,14 +248,21 @@ private struct PulseGlassPanelModifier: ViewModifier {
             }
             .overlay {
                 shape
-                    .strokeBorder(.white.opacity(0.20), lineWidth: 0.8)
-            }
-            .overlay {
-                shape
-                    .strokeBorder(tint.opacity(materialOpacity * 0.35), lineWidth: 1)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                .white.opacity(0.34),
+                                .white.opacity(0.08),
+                                .white.opacity(0.15),
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.8
+                    )
             }
             .clipShape(shape)
-            .shadow(color: .black.opacity(tone.shadowOpacity), radius: 10, x: 0, y: 5)
+            .shadow(color: .black.opacity(tone.shadowOpacity), radius: 8, x: 0, y: 4)
     }
 
     @ViewBuilder
@@ -256,7 +272,7 @@ private struct PulseGlassPanelModifier: ViewModifier {
             shape
                 .fill(.ultraThinMaterial)
         case .clearBlack:
-            ActiveGlassMaterial(material: .hudWindow)
+            ActiveGlassMaterial(material: .contentBackground, blendingMode: .withinWindow)
                 .clipShape(shape)
         }
     }
@@ -264,6 +280,7 @@ private struct PulseGlassPanelModifier: ViewModifier {
 
 private struct ActiveGlassMaterial: NSViewRepresentable {
     let material: NSVisualEffectView.Material
+    let blendingMode: NSVisualEffectView.BlendingMode
 
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
@@ -277,7 +294,7 @@ private struct ActiveGlassMaterial: NSViewRepresentable {
 
     private func configure(_ view: NSVisualEffectView) {
         view.material = material
-        view.blendingMode = .behindWindow
+        view.blendingMode = blendingMode
         view.state = .active
         view.isEmphasized = true
     }

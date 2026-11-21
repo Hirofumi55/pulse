@@ -36,9 +36,9 @@ struct CPUTab: View {
                     title: "使用率の推移",
                     value: cpu.map { MetricFormatter.percentage($0.totalUsage) } ?? "--",
                     subtitle: cpu.map { "物理 \($0.physicalCoreCount) コア · 論理 \($0.logicalCoreCount) コア" } ?? "取得待ち",
-                    tint: .blue
+                    tint: InspectorTint.amber
                 ) {
-                    SparklineChart(snapshots: history, tint: .blue, yDomain: 0...100) { snapshot in
+                    SparklineChart(snapshots: history, tint: InspectorTint.amber, yDomain: 0...100) { snapshot in
                         snapshot.cpu.totalUsage * 100
                     }
                 }
@@ -53,18 +53,18 @@ struct CPUTab: View {
 
     private var summaryCard: some View {
         HStack(spacing: 14) {
-            GaugeView(value: cpu?.totalUsage ?? 0, title: "合計", tint: .blue)
+            GaugeView(value: cpu?.totalUsage ?? 0, title: "合計", tint: InspectorTint.amber)
 
             VStack(alignment: .leading, spacing: 10) {
-                usageRow("ユーザー", value: cpu?.userUsage ?? 0, color: .blue)
-                usageRow("システム", value: cpu?.systemUsage ?? 0, color: .indigo)
+                usageRow("ユーザー", value: cpu?.userUsage ?? 0, color: InspectorTint.amber)
+                usageRow("システム", value: cpu?.systemUsage ?? 0, color: InspectorTint.lavender)
                 usageRow("アイドル", value: cpu?.idleUsage ?? 0, color: .white.opacity(0.32))
             }
         }
         .padding(12)
         .pulseGlassPanel(
             cornerRadius: 16,
-            tint: .blue,
+            tint: InspectorTint.amber,
             materialOpacity: PulseGlassStyle.panelMaterialOpacity(
                 for: preferences.popoverBackgroundOpacity,
                 blurRadius: preferences.popoverBackgroundBlurRadius
@@ -88,7 +88,7 @@ struct CPUTab: View {
         .padding(12)
         .pulseGlassPanel(
             cornerRadius: 16,
-            tint: .blue,
+            tint: InspectorTint.amber,
             materialOpacity: PulseGlassStyle.panelMaterialOpacity(
                 for: preferences.popoverBackgroundOpacity,
                 blurRadius: preferences.popoverBackgroundBlurRadius
@@ -127,7 +127,7 @@ struct CPUTab: View {
 
     private func coreRow(index: Int, value: Double) -> some View {
         let clamped = Swift.min(Swift.max(value.isFinite ? value : 0, 0), 1)
-        let color: Color = clamped >= 0.85 ? .orange : .blue
+        let color: Color = clamped >= 0.85 ? .orange : InspectorTint.amber
         return VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text("コア \(index + 1)")

@@ -95,7 +95,7 @@ struct MemoryTab: View {
     }
 
     private var usedBytes: UInt64 {
-        appBytes + wiredBytes + compressedBytes
+        coordinator.latestSnapshot?.memory.usedBytes ?? 0
     }
 
     private func memoryText(_ title: String, bytes: UInt64) -> some View {

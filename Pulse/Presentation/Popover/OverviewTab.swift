@@ -73,6 +73,9 @@ struct OverviewTab: View {
             )
             WidgetPill(text: thermalStatusText(thermal), systemImage: "waveform.path.ecg")
         }
+        .accessibilityRepresentation {
+            Text("サーマル、\(thermalAccessibilityValue(thermal))")
+        }
     }
 
     private var memoryCard: some View {
@@ -162,7 +165,7 @@ struct OverviewTab: View {
             return "待機中"
         }
 
-        let used = memory.appBytes + memory.wiredBytes + memory.compressedBytes
+        let used = memory.usedBytes
         return "\(bytes(used)) / \(bytes(memory.totalBytes))"
     }
 
@@ -201,8 +204,9 @@ struct OverviewTab: View {
             return "--/s"
         }
 
+        let (total, overflow) = disk.readBytesPerSecond.addingReportingOverflow(disk.writeBytesPerSecond)
         return ByteFormatter.rateString(
-            from: disk.readBytesPerSecond + disk.writeBytesPerSecond,
+            from: overflow ? .max : total,
             dataUnit: preferences.dataUnit,
             unitStyle: .compact
         )
@@ -243,6 +247,13 @@ struct OverviewTab: View {
 
     private func cpuTemperatureSubtitle(_ thermal: ThermalMetrics?) -> String {
         thermal?.cpuTemperatureStatusMessage ?? "CPU温度待機中"
+    }
+
+    private func thermalAccessibilityValue(_ thermal: ThermalMetrics?) -> String {
+        guard let thermal else { return "取得待ち" }
+        let cpu = thermal.cpuTemperatureCelsius.map { temperatureText($0) + "、" } ?? ""
+        let battery = thermal.batteryTemperatureCelsius.map { temperatureText($0) } ?? "取得不可"
+        return "CPU \(cpu)\(thermalStatusText(thermal))、バッテリー \(battery)"
     }
 
     private func thermalStatusText(_ thermal: ThermalMetrics?) -> String {

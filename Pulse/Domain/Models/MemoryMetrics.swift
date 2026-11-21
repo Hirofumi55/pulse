@@ -33,11 +33,18 @@ struct MemoryMetrics: Sendable, Equatable {
     /// メモリプレッシャー(0.0 = 低 - 1.0 = 高)。
     let pressure: Double
 
+    /// 物理メモリの総量を上限に、使用中の内訳を合計する。
+    var usedBytes: UInt64 {
+        let app = min(appBytes, totalBytes)
+        let appAndWired = app + min(wiredBytes, totalBytes - app)
+        return appAndWired + min(compressedBytes, totalBytes - appAndWired)
+    }
+
     /// 使用率。Activity Monitor 準拠で app + wired + compressed を物理メモリで割る。
     var usageRatio: Double {
         guard totalBytes > 0 else {
             return 0
         }
-        return Double(appBytes + wiredBytes + compressedBytes) / Double(totalBytes)
+        return Double(usedBytes) / Double(totalBytes)
     }
 }

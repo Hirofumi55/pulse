@@ -25,7 +25,7 @@ actor DiskSampler: Sampler {
     func sample() async throws -> DiskMetrics {
         let volumes = try sampleVolumes()
         let ioSample = try sampleDiskIO()
-        let speed = calculateSpeed(current: ioSample)
+        let speed = calculateSpeed(counters: ioSample, uptime: ProcessInfo.processInfo.systemUptime)
 
         return DiskMetrics(
             volumes: volumes,
@@ -117,7 +117,7 @@ actor DiskSampler: Sampler {
         return fallbackID
     }
 
-    private func sampleDiskIO() throws -> DiskIOSample {
+    private func sampleDiskIO() throws -> [UInt64: DiskIOCounters] {
         guard let matching = IOServiceMatching("IOBlockStorageDriver") else {
             throw SamplerError.ioKitFailed
         }
@@ -133,8 +133,7 @@ actor DiskSampler: Sampler {
             IOObjectRelease(iterator)
         }
 
-        var totalRead: UInt64 = 0
-        var totalWrite: UInt64 = 0
+        var counters: [UInt64: DiskIOCounters] = [:]
 
         while true {
             let service = IOIteratorNext(iterator)
@@ -146,15 +145,21 @@ actor DiskSampler: Sampler {
                 IOObjectRelease(service)
             }
 
-            guard let statistics = statisticsDictionary(for: service) else {
+            var entryID: UInt64 = 0
+            guard
+                IORegistryEntryGetRegistryEntryID(service, &entryID) == KERN_SUCCESS,
+                let statistics = statisticsDictionary(for: service)
+            else {
                 continue
             }
 
-            totalRead += unsignedInteger(from: statistics["Bytes (Read)"]) ?? 0
-            totalWrite += unsignedInteger(from: statistics["Bytes (Write)"]) ?? 0
+            counters[entryID] = DiskIOCounters(
+                read: unsignedInteger(from: statistics["Bytes (Read)"]),
+                write: unsignedInteger(from: statistics["Bytes (Write)"])
+            )
         }
 
-        return DiskIOSample(readBytes: totalRead, writeBytes: totalWrite, timestamp: .now)
+        return counters
     }
 
     private func statisticsDictionary(for service: io_registry_entry_t) -> [String: Any]? {
@@ -172,23 +177,24 @@ actor DiskSampler: Sampler {
         return statistics
     }
 
-    private func calculateSpeed(current: DiskIOSample) -> (read: UInt64, write: UInt64) {
+    func calculateSpeed(counters: [UInt64: DiskIOCounters], uptime: TimeInterval) -> (read: UInt64, write: UInt64) {
         defer {
-            previousIOSample = current
+            previousIOSample = DiskIOSample(counters: counters, uptime: uptime)
         }
 
-        guard let previousIOSample else {
+        guard let previousIOSample, uptime > previousIOSample.uptime else {
             return (0, 0)
         }
 
-        let elapsedSeconds = current.timestamp.timeIntervalSince(previousIOSample.timestamp)
-        guard elapsedSeconds > 0 else {
-            return (0, 0)
+        var readDelta = 0.0
+        var writeDelta = 0.0
+        for (entryID, current) in counters {
+            guard let previous = previousIOSample.counters[entryID] else { continue }
+            readDelta += Double(difference(current: current.read, previous: previous.read))
+            writeDelta += Double(difference(current: current.write, previous: previous.write))
         }
 
-        let readDelta = difference(current: current.readBytes, previous: previousIOSample.readBytes)
-        let writeDelta = difference(current: current.writeBytes, previous: previousIOSample.writeBytes)
-
+        let elapsedSeconds = uptime - previousIOSample.uptime
         return (
             bytesPerSecond(readDelta, elapsedSeconds: elapsedSeconds),
             bytesPerSecond(writeDelta, elapsedSeconds: elapsedSeconds)
@@ -212,8 +218,8 @@ actor DiskSampler: Sampler {
         }
     }
 
-    private func bytesPerSecond(_ bytes: UInt64, elapsedSeconds: TimeInterval) -> UInt64 {
-        let value = Double(bytes) / elapsedSeconds
+    private func bytesPerSecond(_ bytes: Double, elapsedSeconds: TimeInterval) -> UInt64 {
+        let value = bytes / elapsedSeconds
 
         guard value.isFinite, value > 0 else {
             return 0
@@ -226,8 +232,8 @@ actor DiskSampler: Sampler {
         return UInt64(value)
     }
 
-    private func difference(current: UInt64, previous: UInt64) -> UInt64 {
-        if current >= previous {
+    private func difference(current: UInt64?, previous: UInt64?) -> UInt64 {
+        if let current, let previous, current >= previous {
             current - previous
         } else {
             0
@@ -235,8 +241,12 @@ actor DiskSampler: Sampler {
     }
 }
 
-private struct DiskIOSample: Sendable, Equatable {
-    let readBytes: UInt64
-    let writeBytes: UInt64
-    let timestamp: Date
+struct DiskIOCounters: Sendable {
+    let read: UInt64?
+    let write: UInt64?
+}
+
+private struct DiskIOSample: Sendable {
+    let counters: [UInt64: DiskIOCounters]
+    let uptime: TimeInterval
 }

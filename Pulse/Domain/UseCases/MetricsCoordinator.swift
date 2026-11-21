@@ -18,6 +18,9 @@ final class MetricsCoordinator {
     private(set) var latestSnapshot: MetricsSnapshot?
     private(set) var history: [MetricsSnapshot] = []
 
+    /// 現在サンプリングを実行しているかどうか。
+    var isSampling: Bool { samplingTask != nil }
+
     private let maxHistoryCount: Int
     private let cpuSampler = CPUSampler()
     private let memorySampler = MemorySampler()

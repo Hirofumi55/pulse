@@ -82,6 +82,41 @@ struct MenuBarRendererTests {
         #expect(image.size.height == 20)
     }
 
+    @Test("極端な通信速度とディスク速度でもバーとグラフを描画できる")
+    @MainActor
+    func rendersMaximumThroughput() {
+        let sample = makeSnapshot()
+        let snapshot = MetricsSnapshot(
+            timestamp: sample.timestamp, cpu: sample.cpu, memory: sample.memory,
+            disk: DiskMetrics(volumes: [], readBytesPerSecond: .max, writeBytesPerSecond: .max),
+            network: NetworkMetrics(interfaces: [
+                InterfaceInfo(
+                    id: "en0", displayName: "en0", downloadBytesPerSecond: .max,
+                    uploadBytesPerSecond: .max, isActive: true
+                )
+            ]),
+            thermal: sample.thermal
+        )
+        for style in [MenuBarDisplayStyle.bar, .graph] {
+            let image = MenuBarRenderer.image(
+                for: [.networkSpeed, .diskIO], snapshot: snapshot, history: [snapshot, snapshot],
+                style: style, options: barOptions
+            )
+            #expect(image.size.height == 20)
+        }
+    }
+
+    @Test("IEC の4桁の送受信速度がテキスト表示の固定幅に収まる")
+    @MainActor
+    func fitsFourDigitRates() {
+        for item in [DisplayItem.networkSpeed, .diskIO] {
+            let length = MenuBarRenderer.preferredLength(for: [item], showIcon: false)
+            let rate = ByteFormatter.string(from: 1023, dataUnit: .iec, unitStyle: .compact)
+            let title = MenuBarRenderer.attributedTitle(for: "↓ \(rate) ↑ \(rate)")
+            #expect(length >= title.size().width + 12)
+        }
+    }
+
     @Test("Renderer uses compact length for graphic styles")
     @MainActor
     func usesCompactLengthForGraphicStyles() {

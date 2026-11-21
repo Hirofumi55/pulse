@@ -23,6 +23,15 @@ struct PopoverHostView: View {
                     tone: .clearBlack
                 )
             }
+            .overlay(alignment: .topLeading) {
+                if !coordinator.isSampling {
+                    Text("一時停止中")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 14)
+                        .padding(.top, 4)
+                }
+            }
             .preferredColorScheme(preferences.appearance.colorScheme)
     }
 }

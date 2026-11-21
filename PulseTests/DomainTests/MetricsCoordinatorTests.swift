@@ -59,9 +59,12 @@ struct MetricsCoordinatorTests {
     func stopCancelsSamplingTask() async throws {
         let coordinator = MetricsCoordinator(maxHistoryCount: 20)
 
+        #expect(!coordinator.isSampling)
         coordinator.start(interval: .milliseconds(30))
+        #expect(coordinator.isSampling)
         try await Task.sleep(for: .milliseconds(120))
         coordinator.stop()
+        #expect(!coordinator.isSampling)
         let countAfterStop = coordinator.history.count
 
         try await Task.sleep(for: .milliseconds(120))

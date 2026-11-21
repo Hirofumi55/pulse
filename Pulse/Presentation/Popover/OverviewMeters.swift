@@ -81,7 +81,7 @@ struct NetworkActivityView: View {
     private let sampleCount = 22
 
     private var samples: [NetworkActivitySample] {
-        let snapshots = Array(history.suffix(sampleCount))
+        let snapshots = history.suffix(sampleCount)
         let missingCount = max(sampleCount - snapshots.count, 0)
         let emptySamples = Array(repeating: NetworkActivitySample.zero, count: missingCount)
         let liveSamples = snapshots.map { snapshot in
@@ -93,16 +93,12 @@ struct NetworkActivityView: View {
         return emptySamples + liveSamples
     }
 
-    private var maximum: Double {
-        max(
-            samples.map { sample in
-                Double(max(sample.download, sample.upload))
-            }.max() ?? 1,
-            1
-        )
-    }
-
     var body: some View {
+        let samples = self.samples
+        let peakBytes = samples.reduce(UInt64.zero) { currentPeak, sample in
+            max(currentPeak, max(sample.download, sample.upload))
+        }
+        let maximum = max(Double(peakBytes), 1)
         VStack(spacing: 4) {
             GeometryReader { proxy in
                 ZStack {
@@ -112,7 +108,7 @@ struct NetworkActivityView: View {
 
                     HStack(alignment: .center, spacing: 2) {
                         ForEach(Array(samples.enumerated()), id: \.offset) { entry in
-                            sampleColumn(entry.element, height: proxy.size.height)
+                            sampleColumn(entry.element, height: proxy.size.height, maximum: maximum)
                         }
                     }
                 }
@@ -123,7 +119,7 @@ struct NetworkActivityView: View {
                 legend("受信", color: .cyan)
                 legend("送信", color: .indigo)
                 Spacer(minLength: 0)
-                Text("ピーク \(peakText)")
+                Text("ピーク \(peakText(for: peakBytes))")
                     .monospacedDigit()
             }
             .font(.system(size: 9, weight: .semibold))
@@ -131,29 +127,33 @@ struct NetworkActivityView: View {
         }
     }
 
-    private var peakText: String {
-        ByteFormatter.rateString(from: UInt64(maximum), dataUnit: dataUnit, unitStyle: .compact)
+    private func peakText(for peakBytes: UInt64) -> String {
+        guard !history.isEmpty else {
+            return "--/s"
+        }
+
+        return ByteFormatter.rateString(from: peakBytes, dataUnit: dataUnit, unitStyle: .compact)
     }
 
-    private func sampleColumn(_ sample: NetworkActivitySample, height: CGFloat) -> some View {
+    private func sampleColumn(_ sample: NetworkActivitySample, height: CGFloat, maximum: Double) -> some View {
         let halfHeight = max((height - 1) / 2, 1)
         return VStack(spacing: 1) {
             Color.clear
                 .overlay(alignment: .bottom) {
-                    activityBar(value: sample.download, color: .cyan, maximumHeight: halfHeight)
+                    activityBar(ratio: Double(sample.download) / maximum, color: .cyan, maximumHeight: halfHeight)
                 }
             Color.clear
                 .overlay(alignment: .top) {
-                    activityBar(value: sample.upload, color: .indigo, maximumHeight: halfHeight)
+                    activityBar(ratio: Double(sample.upload) / maximum, color: .indigo, maximumHeight: halfHeight)
                 }
         }
         .frame(maxWidth: .infinity)
     }
 
-    private func activityBar(value: UInt64, color: Color, maximumHeight: CGFloat) -> some View {
+    private func activityBar(ratio: Double, color: Color, maximumHeight: CGFloat) -> some View {
         RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-            .fill(color.opacity(value == 0 ? 0.16 : 0.92))
-            .frame(height: max(1.5, maximumHeight * CGFloat(Double(value) / maximum)))
+            .fill(color.opacity(ratio == 0 ? 0.16 : 0.92))
+            .frame(height: max(1.5, maximumHeight * CGFloat(ratio)))
     }
 
     private func legend(_ text: String, color: Color) -> some View {

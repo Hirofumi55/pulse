@@ -65,4 +65,15 @@ struct PulseTests {
         #expect(highOpacity > 0.7)
         #expect(highOpacity - lowOpacity > 0.5)
     }
+
+    @Test("メモリの内訳が総量を超えても表示値が範囲内に収まる")
+    func boundsMemoryUsage() {
+        let memory = MemoryMetrics(
+            totalBytes: 100, appBytes: 95, wiredBytes: .max, compressedBytes: 20,
+            cachedBytes: 0, freeBytes: 0, swapUsedBytes: 0, pressure: 0
+        )
+        #expect(memory.usedBytes == 100)
+        #expect(memory.usageRatio == 1)
+        #expect(MetricFormatter.percentage(.greatestFiniteMagnitude) == "100%")
+    }
 }

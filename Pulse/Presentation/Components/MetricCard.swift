@@ -79,8 +79,12 @@ extension MetricCard where Content == EmptyView {
 /// ポップオーバー内で使う数値フォーマット。
 enum MetricFormatter {
     static func percentage(_ ratio: Double) -> String {
-        let percent = Int((ratio * 100).rounded())
-        return "\(clamp(percent, lowerBound: 0, upperBound: 100))%"
+        guard ratio.isFinite else {
+            return "--"
+        }
+
+        let percent = Int((min(max(ratio, 0), 1) * 100).rounded())
+        return "\(percent)%"
     }
 
     static func bytes(_ bytes: UInt64, dataUnit: DataUnit) -> String {
@@ -89,9 +93,5 @@ enum MetricFormatter {
 
     static func bytesPerSecond(_ bytes: UInt64, dataUnit: DataUnit) -> String {
         ByteFormatter.rateString(from: bytes, dataUnit: dataUnit)
-    }
-
-    private static func clamp(_ value: Int, lowerBound: Int, upperBound: Int) -> Int {
-        Swift.min(Swift.max(value, lowerBound), upperBound)
     }
 }

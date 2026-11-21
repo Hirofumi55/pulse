@@ -10,6 +10,8 @@ import SwiftUI
 
 /// ネットワークインターフェースと通信速度を表示するタブ。
 struct NetworkTab: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let coordinator: MetricsCoordinator
     let preferences: PreferencesStore
 
@@ -60,11 +62,11 @@ struct NetworkTab: View {
 
     private var speedChart: some View {
         Chart {
-            ForEach(Array(history.enumerated()), id: \.offset) { point in
+            ForEach(history, id: \.timestamp) { point in
                 AreaMark(
-                    x: .value("時刻", point.element.timestamp),
+                    x: .value("時刻", point.timestamp),
                     yStart: .value("下限", 0),
-                    yEnd: .value("受信", point.element.network.totalDownloadBytesPerSecond)
+                    yEnd: .value("受信", point.network.totalDownloadBytesPerSecond)
                 )
                 .foregroundStyle(
                     LinearGradient(
@@ -73,29 +75,33 @@ struct NetworkTab: View {
                         endPoint: .bottom
                     )
                 )
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
 
                 LineMark(
-                    x: .value("時刻", point.element.timestamp),
-                    y: .value("受信", point.element.network.totalDownloadBytesPerSecond)
+                    x: .value("時刻", point.timestamp),
+                    y: .value("受信", point.network.totalDownloadBytesPerSecond)
                 )
                 .foregroundStyle(by: .value("方向", "受信"))
                 .lineStyle(StrokeStyle(lineWidth: 1.6, lineCap: .round))
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
 
                 LineMark(
-                    x: .value("時刻", point.element.timestamp),
-                    y: .value("送信", point.element.network.totalUploadBytesPerSecond)
+                    x: .value("時刻", point.timestamp),
+                    y: .value("送信", point.network.totalUploadBytesPerSecond)
                 )
                 .foregroundStyle(by: .value("方向", "送信"))
                 .lineStyle(StrokeStyle(lineWidth: 1.6, lineCap: .round))
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
             }
         }
         .chartForegroundStyleScale(["受信": Color.cyan, "送信": Color.indigo])
         .chartLegend(position: .bottom, alignment: .leading, spacing: 8)
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
+        .animation(
+            PulseMotion.resolve(.easeInOut(duration: 0.35), reduceMotion: reduceMotion),
+            value: history.last?.timestamp
+        )
         .frame(height: 108)
     }
 

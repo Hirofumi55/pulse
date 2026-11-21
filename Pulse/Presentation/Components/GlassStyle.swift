@@ -171,7 +171,7 @@ struct PulseGlassBackdrop: View {
         ZStack {
             if reduceTransparency {
                 Rectangle()
-                    .fill(tone.baseColor.opacity(0.94))
+                    .fill(tone == .clearBlack ? Color(white: 0.14) : tone.baseColor)
             } else {
                 backdropMaterial
                     .opacity(materialOpacity)
@@ -232,9 +232,9 @@ struct PulseLiveIndicator: View {
         ZStack {
             if isActive, !reduceMotion {
                 Circle()
-                    .fill(Color.green.opacity(isExpanding ? 0 : 0.42))
+                    .fill(Color.green.opacity(isExpanding ? 0 : 0.26))
                     .frame(width: 7, height: 7)
-                    .scaleEffect(isExpanding ? 2.2 : 1.0)
+                    .scaleEffect(isExpanding ? 1.65 : 1.0)
             }
 
             Circle()

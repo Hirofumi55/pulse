@@ -43,6 +43,7 @@ struct PopoverHostView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var tabNamespace
 
+    @State private var entryOffset: CGFloat = 10
     @State private var selectedTab: PopoverTab = .overview
 
     var body: some View {
@@ -56,10 +57,11 @@ struct PopoverHostView: View {
                 .padding(.horizontal, 14)
                 .padding(.bottom, 10)
 
-            tabContent
+            ZStack(alignment: .top) { tabContent }
+                .clipped()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 420, height: 562)
+        .frame(width: Self.size.width, height: Self.size.height)
         .background {
             PulseGlassBackdrop(
                 opacity: preferences.popoverBackgroundOpacity,
@@ -70,6 +72,8 @@ struct PopoverHostView: View {
         .preferredColorScheme(.dark)
     }
 
+    static let size = CGSize(width: 420, height: 496)
+
     private var headerBar: some View {
         HStack(spacing: 7) {
             PulseLiveIndicator(
@@ -79,8 +83,14 @@ struct PopoverHostView: View {
             .accessibilityHidden(true)
 
             Text("Pulse")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.primary)
+
+            Rectangle().fill(.secondary.opacity(0.40)).frame(width: 1, height: 11)
+            Text(hardwareSummary)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
 
             if !coordinator.isSampling {
                 Text("一時停止中")
@@ -89,12 +99,6 @@ struct PopoverHostView: View {
             }
 
             Spacer(minLength: 8)
-
-            Text(hardwareSummary)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-                .lineLimit(1)
         }
     }
 
@@ -116,11 +120,11 @@ struct PopoverHostView: View {
             selectTab(tab)
         } label: {
             Text(tab.title)
-                .font(.system(size: 11, weight: isSelected ? .semibold : .medium))
+                .font(.system(size: 12, weight: isSelected ? .semibold : .medium))
                 .foregroundStyle(isSelected ? .primary : .secondary)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 5)
+                .padding(.vertical, 6)
                 .background {
                     if isSelected {
                         selectedTabPill
@@ -132,26 +136,15 @@ struct PopoverHostView: View {
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    @ViewBuilder
     private var selectedTabPill: some View {
         let shape = Capsule(style: .continuous)
-        #if compiler(>=6.2)
-            if #available(macOS 26.0, *) {
-                shape
-                    .fill(.white.opacity(0.16))
-                    .glassEffect(.clear.interactive(), in: shape)
-                    .matchedGeometryEffect(id: "selectedPopoverTab", in: tabNamespace)
-            } else {
-                fallbackSelectedTabPill(shape: shape)
-            }
-        #else
-            fallbackSelectedTabPill(shape: shape)
-        #endif
-    }
-
-    private func fallbackSelectedTabPill(shape: Capsule) -> some View {
-        shape
-            .fill(.white.opacity(0.18))
+        return
+            shape
+            .fill(
+                .linearGradient(
+                    colors: [.white.opacity(0.25), .white.opacity(0.12)],
+                    startPoint: .top, endPoint: .bottom)
+            )
             .overlay {
                 shape.strokeBorder(.white.opacity(0.24), lineWidth: 0.5)
             }
@@ -181,19 +174,14 @@ struct PopoverHostView: View {
         .id(selectedTab)
         .transition(
             reduceMotion
-                ? .opacity
-                : .opacity.combined(with: .scale(scale: 0.985, anchor: .top))
+                ? .identity
+                : .asymmetric(insertion: .opacity.combined(with: .offset(x: entryOffset)), removal: .opacity)
         )
     }
 
     private var hardwareSummary: String {
         let coreCount = coordinator.latestSnapshot?.cpu.logicalCoreCount ?? ProcessInfo.processInfo.activeProcessorCount
-        let totalMemory = ByteFormatter.string(
-            from: coordinator.latestSnapshot?.memory.totalBytes ?? ProcessInfo.processInfo.physicalMemory,
-            dataUnit: preferences.dataUnit,
-            unitStyle: .standard
-        )
-        return "\(coreCount)コア · \(totalMemory)"
+        return "\(coreCount)コア"
     }
 
     private func selectTab(_ tab: PopoverTab) {
@@ -202,6 +190,8 @@ struct PopoverHostView: View {
         }
 
         withAnimation(PulseMotion.resolve(PulseMotion.snappy, reduceMotion: reduceMotion)) {
+            let order = PopoverTab.allCases
+            entryOffset = order.prefix(while: { $0 != tab }).contains(selectedTab) ? 10 : -10
             selectedTab = tab
         }
     }

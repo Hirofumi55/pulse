@@ -64,11 +64,11 @@ struct StorageTab: View {
 
     private var ioChart: some View {
         Chart {
-            ForEach(Array(history.enumerated()), id: \.offset) { point in
+            ForEach(history, id: \.timestamp) { point in
                 AreaMark(
-                    x: .value("時刻", point.element.timestamp),
+                    x: .value("時刻", point.timestamp),
                     yStart: .value("下限", 0),
-                    yEnd: .value("読込", point.element.disk.readBytesPerSecond)
+                    yEnd: .value("読込", point.disk.readBytesPerSecond)
                 )
                 .foregroundStyle(
                     LinearGradient(
@@ -77,29 +77,33 @@ struct StorageTab: View {
                         endPoint: .bottom
                     )
                 )
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
 
                 LineMark(
-                    x: .value("時刻", point.element.timestamp),
-                    y: .value("読込", point.element.disk.readBytesPerSecond)
+                    x: .value("時刻", point.timestamp),
+                    y: .value("読込", point.disk.readBytesPerSecond)
                 )
                 .foregroundStyle(by: .value("種別", "読込"))
                 .lineStyle(StrokeStyle(lineWidth: 1.6, lineCap: .round))
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
 
                 LineMark(
-                    x: .value("時刻", point.element.timestamp),
-                    y: .value("書込", point.element.disk.writeBytesPerSecond)
+                    x: .value("時刻", point.timestamp),
+                    y: .value("書込", point.disk.writeBytesPerSecond)
                 )
                 .foregroundStyle(by: .value("種別", "書込"))
                 .lineStyle(StrokeStyle(lineWidth: 1.6, lineCap: .round))
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
             }
         }
         .chartForegroundStyleScale(["読込": Color.teal, "書込": Color.purple])
         .chartLegend(position: .bottom, alignment: .leading, spacing: 8)
         .chartXAxis(.hidden)
         .chartYAxis(.hidden)
+        .animation(
+            PulseMotion.resolve(.easeInOut(duration: 0.35), reduceMotion: reduceMotion),
+            value: history.last?.timestamp
+        )
         .frame(height: 92)
     }
 

@@ -5,12 +5,30 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
+import SwiftUI
 import Testing
 
 @testable import Pulse
 
 @Suite("Pulse 初期テスト")
 struct PulseTests {
+    @Test("履歴は実測時間に合わせて進み、休止中は線を結ばない")
+    func traceUsesElapsedTimeAndPreservesGaps() {
+        let points = [CGPoint(x: 100, y: 0.2), CGPoint(x: 103, y: 0.4), CGPoint(x: 130, y: 0.6)]
+        var trace = TracePath(points: points, endTime: 130, ceiling: 1)
+        let bounds = CGRect(x: 0, y: 0, width: 60, height: 100)
+        var starts: [CGPoint] = []
+        func recordStart(_ element: Path.Element) {
+            if case .move(let position) = element { starts.append(position) }
+        }
+
+        trace.path(in: bounds).forEach(recordStart)
+        #expect(starts == [CGPoint(x: 30, y: 80), CGPoint(x: 60, y: 40)])
+        // 次のサンプルへの遷移途中では、時間軸だけが連続的に移動する。
+        trace.animatableData = AnimatablePair(131.5, 1)
+        #expect(trace.path(in: bounds).currentPoint == CGPoint(x: 58.5, y: 40))
+    }
+
     @Test("ログカテゴリ名が保持される")
     func logCategoryRawValue() {
         #expect(LogCategory.app.rawValue == "App")

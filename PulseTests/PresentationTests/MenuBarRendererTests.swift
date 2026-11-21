@@ -29,28 +29,6 @@ struct MenuBarRendererTests {
         #expect(title(for: .diskUsage, snapshot: snapshot, dataUnit: .iec) == "DSK 75%")
         #expect(title(for: .networkSpeed, snapshot: snapshot, dataUnit: .si) == "↓ 2.5M ↑ 154K")
         #expect(title(for: .diskIO, snapshot: snapshot, dataUnit: .iec) == "↓ 1.0M ↑ 512K")
-        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 46℃")
-    }
-
-    @Test("Temperature title does not fall back to battery temperature")
-    func temperatureTitleDoesNotFallBackToBatteryTemperature() {
-        let snapshot = makeSnapshot(cpuTemperature: nil, batteryTemperature: 30.6)
-
-        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 --℃")
-    }
-
-    @Test("Temperature title respects selected unit")
-    func temperatureTitleRespectsSelectedUnit() {
-        let snapshot = makeSnapshot(cpuTemperature: 45.8)
-        let title = MenuBarRenderer.title(
-            for: .cpuTemperature,
-            snapshot: snapshot,
-            showIcon: true,
-            dataUnit: .iec,
-            temperatureUnit: .fahrenheit
-        )
-
-        #expect(title == "温度 114℉")
     }
 
     @Test("Renderer handles non-finite values without crashing")
@@ -77,12 +55,10 @@ struct MenuBarRendererTests {
                 pressure: 0
             ),
             disk: DiskMetrics(volumes: [], readBytesPerSecond: 0, writeBytesPerSecond: 0),
-            network: NetworkMetrics(interfaces: []),
-            thermal: ThermalMetrics(cpuTemperatureCelsius: .nan, batteryTemperatureCelsius: nil)
+            network: NetworkMetrics(interfaces: [])
         )
 
         #expect(title(for: .cpuUsage, snapshot: snapshot, dataUnit: .iec) == "CPU --%")
-        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 --℃")
     }
 
     @Test("Renderer creates combined title")
@@ -126,8 +102,7 @@ struct MenuBarRendererTests {
                     id: "en0", displayName: "en0", downloadBytesPerSecond: .max,
                     uploadBytesPerSecond: .max, isActive: true
                 )
-            ]),
-            thermal: sample.thermal
+            ])
         )
         for style in [MenuBarDisplayStyle.bar, .graph] {
             let image = MenuBarRenderer.image(
@@ -359,7 +334,7 @@ extension MenuBarRendererTests {
         return count
     }
 
-    private func makeSnapshot(cpuTemperature: Double? = 45.8, batteryTemperature: Double? = 30.6) -> MetricsSnapshot {
+    private func makeSnapshot() -> MetricsSnapshot {
         MetricsSnapshot(
             timestamp: Date(timeIntervalSince1970: 0),
             cpu: CPUMetrics(
@@ -404,10 +379,6 @@ extension MenuBarRendererTests {
                         isActive: true
                     )
                 ]
-            ),
-            thermal: ThermalMetrics(
-                cpuTemperatureCelsius: cpuTemperature,
-                batteryTemperatureCelsius: batteryTemperature
             )
         )
     }

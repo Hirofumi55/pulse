@@ -13,16 +13,6 @@ struct UnitSettingsView: View {
 
     var body: some View {
         Form {
-            Section("温度") {
-                Picker("単位", selection: temperatureBinding) {
-                    ForEach(TemperatureUnit.allCases) { unit in
-                        Text(unit.displayName)
-                            .tag(unit)
-                    }
-                }
-                .pickerStyle(.segmented)
-            }
-
             Section("データ") {
                 Picker("単位系", selection: dataUnitBinding) {
                     ForEach(DataUnit.allCases) { unit in
@@ -44,14 +34,6 @@ struct UnitSettingsView: View {
             }
         }
         .pulseGlassForm()
-    }
-
-    private var temperatureBinding: Binding<TemperatureUnit> {
-        Binding {
-            preferences.temperatureUnit
-        } set: { newValue in
-            preferences.temperatureUnit = newValue
-        }
     }
 
     private var dataUnitBinding: Binding<DataUnit> {

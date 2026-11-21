@@ -27,7 +27,6 @@ struct PreferencesStoreTests {
         #expect(store.menuBarDisplayStyle == .bar)
         #expect(store.menuBarBarLayout == .horizontal)
         #expect(!store.showMenuBarBarPercentage)
-        #expect(store.temperatureUnit == .celsius)
         #expect(store.dataUnit == .iec)
         #expect(store.showMenuBarIcons)
         #expect(store.automaticallyChecksForUpdates)
@@ -50,7 +49,6 @@ struct PreferencesStoreTests {
         store.menuBarDisplayStyle = .graph
         store.menuBarBarLayout = .horizontal
         store.showMenuBarBarPercentage = false
-        store.temperatureUnit = .fahrenheit
         store.dataUnit = .si
         store.showMenuBarIcons = false
         store.automaticallyChecksForUpdates = false
@@ -65,13 +63,25 @@ struct PreferencesStoreTests {
         #expect(reloadedStore.menuBarDisplayStyle == .graph)
         #expect(reloadedStore.menuBarBarLayout == .horizontal)
         #expect(!reloadedStore.showMenuBarBarPercentage)
-        #expect(reloadedStore.temperatureUnit == .fahrenheit)
         #expect(reloadedStore.dataUnit == .si)
         #expect(!reloadedStore.showMenuBarIcons)
         #expect(!reloadedStore.automaticallyChecksForUpdates)
         #expect(reloadedStore.appearance == .dark)
         #expect(reloadedStore.popoverBackgroundOpacity == 0.55)
         #expect(reloadedStore.popoverBackgroundBlurRadius == 22.0)
+    }
+
+    @Test("旧版の温度項目を除いて表示順を維持し、空になる場合は既定値に戻す")
+    func loadsLegacyDisplayedItems() throws {
+        let defaults = try makeUserDefaults()
+        defer { defaults.cleanup() }
+
+        defaults.userDefaults.set(["diskIO", "cpuTemperature", "cpuUsage"], forKey: "displayedItems")
+        #expect(PreferencesStore(userDefaults: defaults.userDefaults).displayedItems == [.diskIO, .cpuUsage])
+
+        defaults.userDefaults.set(["cpuTemperature"], forKey: "displayedItems")
+        let restored = PreferencesStore(userDefaults: defaults.userDefaults)
+        #expect(restored.displayedItems == [.cpuUsage, .memoryUsage, .networkSpeed])
     }
 
     @Test("Store sanitizes displayed items and interval")
@@ -154,7 +164,6 @@ struct PreferencesStoreTests {
         store.menuBarDisplayStyle = .text
         store.menuBarBarLayout = .horizontal
         store.showMenuBarBarPercentage = false
-        store.temperatureUnit = .fahrenheit
         store.dataUnit = .si
         store.showMenuBarIcons = false
         store.automaticallyChecksForUpdates = false
@@ -169,7 +178,6 @@ struct PreferencesStoreTests {
         #expect(store.menuBarDisplayStyle == .bar)
         #expect(store.menuBarBarLayout == .horizontal)
         #expect(!store.showMenuBarBarPercentage)
-        #expect(store.temperatureUnit == .celsius)
         #expect(store.dataUnit == .iec)
         #expect(store.showMenuBarIcons)
         #expect(store.automaticallyChecksForUpdates)

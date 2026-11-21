@@ -24,9 +24,6 @@ enum DisplayItem: String, CaseIterable, Codable, Sendable, Identifiable {
     /// ディスク I/O。
     case diskIO
 
-    /// CPU 温度。
-    case cpuTemperature
-
     /// GPU 使用率。Phase 2 で有効化する。
     case gpuUsage
 
@@ -48,8 +45,6 @@ enum DisplayItem: String, CaseIterable, Codable, Sendable, Identifiable {
             "ディスク使用率"
         case .diskIO:
             "ディスクI/O"
-        case .cpuTemperature:
-            "CPU温度"
         case .gpuUsage:
             "GPU使用率"
         }
@@ -58,7 +53,7 @@ enum DisplayItem: String, CaseIterable, Codable, Sendable, Identifiable {
     /// Phase 1 で利用可能な項目かどうか。
     var isAvailableInPhase1: Bool {
         switch self {
-        case .cpuUsage, .memoryUsage, .networkSpeed, .diskUsage, .diskIO, .cpuTemperature:
+        case .cpuUsage, .memoryUsage, .networkSpeed, .diskUsage, .diskIO:
             true
         case .gpuUsage:
             false

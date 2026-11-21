@@ -89,16 +89,14 @@ enum MenuBarRenderer {
         for item: DisplayItem,
         snapshot: MetricsSnapshot?,
         showIcon: Bool,
-        dataUnit: DataUnit,
-        temperatureUnit: TemperatureUnit = .celsius
+        dataUnit: DataUnit
     ) -> NSAttributedString {
         attributedTitle(
             for: title(
                 for: item,
                 snapshot: snapshot,
                 showIcon: showIcon,
-                dataUnit: dataUnit,
-                temperatureUnit: temperatureUnit
+                dataUnit: dataUnit
             )
         )
     }
@@ -108,16 +106,14 @@ enum MenuBarRenderer {
         for items: [DisplayItem],
         snapshot: MetricsSnapshot?,
         showIcon: Bool,
-        dataUnit: DataUnit,
-        temperatureUnit: TemperatureUnit = .celsius
+        dataUnit: DataUnit
     ) -> String {
         items.map { item in
             title(
                 for: item,
                 snapshot: snapshot,
                 showIcon: showIcon,
-                dataUnit: dataUnit,
-                temperatureUnit: temperatureUnit
+                dataUnit: dataUnit
             )
         }.joined(separator: "  ")
     }
@@ -127,11 +123,10 @@ enum MenuBarRenderer {
         for item: DisplayItem,
         snapshot: MetricsSnapshot?,
         showIcon: Bool,
-        dataUnit: DataUnit,
-        temperatureUnit: TemperatureUnit = .celsius
+        dataUnit: DataUnit
     ) -> String {
         guard let snapshot else {
-            return placeholderTitle(for: item, showIcon: showIcon, temperatureUnit: temperatureUnit)
+            return placeholderTitle(for: item, showIcon: showIcon)
         }
 
         switch item {
@@ -174,21 +169,14 @@ enum MenuBarRenderer {
                 unitStyle: .compact
             )
             return "↓ \(read) ↑ \(write)"
-        case .cpuTemperature:
-            return temperatureTitle(
-                prefix: showIcon ? "温度 " : "",
-                value: snapshot.thermal.cpuTemperatureCelsius,
-                unit: temperatureUnit
-            )
         case .gpuUsage:
-            return placeholderTitle(for: item, showIcon: showIcon, temperatureUnit: temperatureUnit)
+            return placeholderTitle(for: item, showIcon: showIcon)
         }
     }
 
     private static func placeholderTitle(
         for item: DisplayItem,
-        showIcon: Bool,
-        temperatureUnit: TemperatureUnit = .celsius
+        showIcon: Bool
     ) -> String {
         switch item {
         case .cpuUsage:
@@ -201,8 +189,6 @@ enum MenuBarRenderer {
             showIcon ? "DSK --%" : "--%"
         case .diskIO:
             "↓ -- ↑ --"
-        case .cpuTemperature:
-            temperaturePlaceholderTitle(showIcon: showIcon, unit: temperatureUnit)
         case .gpuUsage:
             showIcon ? "GPU --%" : "--%"
         }
@@ -215,38 +201,6 @@ enum MenuBarRenderer {
 
         let percent = Int((min(max(value, 0), 1) * 100).rounded())
         return "\(prefix)\(percent)%"
-    }
-
-    private static func temperatureTitle(prefix: String, value: Double?, unit: TemperatureUnit) -> String {
-        guard let value, value.isFinite else {
-            return "\(prefix)--\(temperatureSuffix(for: unit))"
-        }
-
-        let convertedValue =
-            switch unit {
-            case .celsius:
-                value
-            case .fahrenheit:
-                value * 9 / 5 + 32
-            }
-        return "\(prefix)\(Int(convertedValue.rounded()))\(temperatureSuffix(for: unit))"
-    }
-
-    private static func temperaturePlaceholderTitle(showIcon: Bool, unit: TemperatureUnit) -> String {
-        let suffix = temperatureSuffix(for: unit)
-        if showIcon {
-            return "温度 --\(suffix)"
-        }
-        return "--\(suffix)"
-    }
-
-    private static func temperatureSuffix(for unit: TemperatureUnit) -> String {
-        switch unit {
-        case .celsius:
-            "℃"
-        case .fahrenheit:
-            "℉"
-        }
     }
 
     private static func primaryVolume(from volumes: [VolumeInfo]) -> VolumeInfo? {
@@ -267,8 +221,6 @@ enum MenuBarRenderer {
             showIcon ? "DSK 100%" : "100%"
         case .diskIO:
             "↓ 1023M ↑ 1023M"
-        case .cpuTemperature:
-            showIcon ? "温度 212℉" : "212℉"
         case .gpuUsage:
             showIcon ? "GPU 100%" : "100%"
         }

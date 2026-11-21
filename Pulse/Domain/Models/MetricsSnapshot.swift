@@ -23,7 +23,4 @@ struct MetricsSnapshot: Sendable, Equatable {
 
     /// ネットワークの現在値。
     let network: NetworkMetrics
-
-    /// 温度の現在値。
-    let thermal: ThermalMetrics
 }

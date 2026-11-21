@@ -59,7 +59,7 @@ struct PopoverHostView: View {
             tabContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 420, height: 650)
+        .frame(width: 420, height: 562)
         .background {
             PulseGlassBackdrop(
                 opacity: preferences.popoverBackgroundOpacity,

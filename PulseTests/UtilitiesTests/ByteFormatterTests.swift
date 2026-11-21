@@ -38,4 +38,10 @@ struct ByteFormatterTests {
             ByteFormatter.rateString(from: 524_288, dataUnit: .iec, unitStyle: .compact) == "512K/s"
         )
     }
+
+    @Test("Rounded values promote to next unit at boundary")
+    func roundedValuesPromoteToNextUnit() {
+        #expect(ByteFormatter.string(from: 999_600, dataUnit: .si) == "1.0MB")
+        #expect(ByteFormatter.string(from: 1_048_100, dataUnit: .iec) == "1.0MB")
+    }
 }

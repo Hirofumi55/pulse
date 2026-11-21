@@ -358,13 +358,11 @@ extension MenuBarRenderer {
         case .memoryUsage:
             snapshot.memory.usageRatio
         case .networkSpeed:
-            Double(
-                snapshot.network.totalDownloadBytesPerSecond + snapshot.network.totalUploadBytesPerSecond
-            )
+            Double(snapshot.network.totalDownloadBytesPerSecond) + Double(snapshot.network.totalUploadBytesPerSecond)
         case .diskUsage:
             primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0
         case .diskIO:
-            Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond)
+            Double(snapshot.disk.readBytesPerSecond) + Double(snapshot.disk.writeBytesPerSecond)
         case .cpuTemperature:
             temperatureRatio(snapshot.thermal.cpuTemperatureCelsius)
         case .gpuUsage:
@@ -383,14 +381,11 @@ extension MenuBarRenderer {
         case .memoryUsage:
             snapshot.memory.usageRatio.clamped(to: 0...1)
         case .networkSpeed:
-            (Double(
-                snapshot.network.totalDownloadBytesPerSecond + snapshot.network.totalUploadBytesPerSecond
-            ) / 10_000_000).clamped(to: 0...1)
+            (metricValue(for: item, snapshot: snapshot) / 10_000_000).clamped(to: 0...1)
         case .diskUsage:
             (primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0).clamped(to: 0...1)
         case .diskIO:
-            (Double(snapshot.disk.readBytesPerSecond + snapshot.disk.writeBytesPerSecond) / 40_000_000)
-                .clamped(to: 0...1)
+            (metricValue(for: item, snapshot: snapshot) / 40_000_000).clamped(to: 0...1)
         case .cpuTemperature:
             temperatureRatio(snapshot.thermal.cpuTemperatureCelsius)
         case .gpuUsage:
@@ -472,6 +467,7 @@ extension MenuBarRenderer {
 
 extension Double {
     fileprivate func clamped(to range: ClosedRange<Double>) -> Double {
-        Swift.min(Swift.max(self, range.lowerBound), range.upperBound)
+        guard isFinite else { return range.lowerBound }
+        return Swift.min(Swift.max(self, range.lowerBound), range.upperBound)
     }
 }

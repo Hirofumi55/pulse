@@ -209,12 +209,16 @@ enum MenuBarRenderer {
     }
 
     private static func percentageTitle(prefix: String, value: Double) -> String {
-        let percent = Int((value * 100).rounded()).clamped(to: 0...100)
+        guard value.isFinite else {
+            return "\(prefix)--%"
+        }
+
+        let percent = Int((min(max(value, 0), 1) * 100).rounded())
         return "\(prefix)\(percent)%"
     }
 
     private static func temperatureTitle(prefix: String, value: Double?, unit: TemperatureUnit) -> String {
-        guard let value else {
+        guard let value, value.isFinite else {
             return "\(prefix)--\(temperatureSuffix(for: unit))"
         }
 
@@ -258,21 +262,15 @@ enum MenuBarRenderer {
         case .memoryUsage:
             showIcon ? "MEM 100%" : "100%"
         case .networkSpeed:
-            "↓ 999M ↑ 999M"
+            "↓ 1023M ↑ 1023M"
         case .diskUsage:
             showIcon ? "DSK 100%" : "100%"
         case .diskIO:
-            "↓ 999M ↑ 999M"
+            "↓ 1023M ↑ 1023M"
         case .cpuTemperature:
             showIcon ? "温度 212℉" : "212℉"
         case .gpuUsage:
             showIcon ? "GPU 100%" : "100%"
         }
-    }
-}
-
-extension Int {
-    fileprivate func clamped(to range: ClosedRange<Int>) -> Int {
-        Swift.min(Swift.max(self, range.lowerBound), range.upperBound)
     }
 }

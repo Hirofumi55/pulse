@@ -214,7 +214,7 @@ final class MenuBarController: NSObject {
         }
 
         let elapsedSeconds = snapshotDate.timeIntervalSince(lastStatusItemRenderDate)
-        return elapsedSeconds >= preferences.samplingIntervalSeconds - 0.05
+        return elapsedSeconds < 0 || elapsedSeconds >= preferences.samplingIntervalSeconds - 0.05
     }
 
     private func updateStatusItemLength() {
@@ -321,6 +321,10 @@ final class MenuBarController: NSObject {
     }
 
     private func showContextMenu(for sender: NSStatusBarButton) {
+        if let popover, popover.isShown {
+            popover.close()
+        }
+
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "設定...", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem(title: isPaused ? "再開" : "一時停止", action: #selector(togglePause), keyEquivalent: ""))

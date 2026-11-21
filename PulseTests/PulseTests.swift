@@ -65,4 +65,50 @@ struct PulseTests {
         #expect(highOpacity > 0.7)
         #expect(highOpacity - lowOpacity > 0.5)
     }
+
+    @Test("VolumeInfo と NetworkMetrics は境界値で安全に計算される")
+    func domainMetricsHandleBoundaryValuesSafely() {
+        let volume = VolumeInfo(id: "/Volumes/Test", name: "Test", totalBytes: 100, freeBytes: 150, isInternal: false)
+        #expect(volume.usedBytes == 0)
+        #expect(volume.usageRatio == 0)
+
+        let network = NetworkMetrics(interfaces: [
+            InterfaceInfo(
+                id: "en0",
+                displayName: "en0",
+                downloadBytesPerSecond: .max,
+                uploadBytesPerSecond: .max,
+                isActive: true
+            ),
+            InterfaceInfo(
+                id: "en1",
+                displayName: "en1",
+                downloadBytesPerSecond: 10,
+                uploadBytesPerSecond: 10,
+                isActive: true
+            ),
+        ])
+        #expect(network.totalDownloadBytesPerSecond == .max)
+        #expect(network.totalUploadBytesPerSecond == .max)
+        #expect(MetricFormatter.percentage(.nan) == "--")
+        #expect(MetricFormatter.percentage(.infinity) == "--")
+    }
+
+    @Test("メモリの内訳が総量を超えても表示値が範囲内に収まる")
+    func boundsMemoryUsage() {
+        let memory = MemoryMetrics(
+            totalBytes: 100, appBytes: 95, wiredBytes: .max, compressedBytes: 20,
+            cachedBytes: 0, freeBytes: 0, swapUsedBytes: 0, pressure: 0
+        )
+        #expect(memory.usedBytes == 100)
+        #expect(memory.usageRatio == 1)
+        #expect(MetricFormatter.percentage(.greatestFiniteMagnitude) == "100%")
+    }
+
+    @Test("ポップオーバータブ構成と Reduce Motion 設定が正しく機能する")
+    func popoverTabsAndMotionRespectAccessibility() {
+        #expect(PopoverTab.allCases.map(\.title) == ["概要", "CPU", "メモリ", "ストレージ", "ネットワーク"])
+        #expect(PulseMotion.resolve(PulseMotion.snappy, reduceMotion: true) == nil)
+        #expect(PulseMotion.resolve(PulseMotion.smooth, reduceMotion: false) != nil)
+    }
 }

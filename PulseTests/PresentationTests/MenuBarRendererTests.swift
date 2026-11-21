@@ -53,6 +53,38 @@ struct MenuBarRendererTests {
         #expect(title == "温度 114℉")
     }
 
+    @Test("Renderer handles non-finite values without crashing")
+    func handlesNonFiniteValuesWithoutCrashing() {
+        let snapshot = MetricsSnapshot(
+            timestamp: Date(timeIntervalSince1970: 0),
+            cpu: CPUMetrics(
+                totalUsage: .nan,
+                userUsage: .nan,
+                systemUsage: .infinity,
+                idleUsage: 0,
+                perCoreUsage: [.nan],
+                physicalCoreCount: 1,
+                logicalCoreCount: 1
+            ),
+            memory: MemoryMetrics(
+                totalBytes: 100,
+                appBytes: 0,
+                wiredBytes: 0,
+                compressedBytes: 0,
+                cachedBytes: 0,
+                freeBytes: 100,
+                swapUsedBytes: 0,
+                pressure: 0
+            ),
+            disk: DiskMetrics(volumes: [], readBytesPerSecond: 0, writeBytesPerSecond: 0),
+            network: NetworkMetrics(interfaces: []),
+            thermal: ThermalMetrics(cpuTemperatureCelsius: .nan, batteryTemperatureCelsius: nil)
+        )
+
+        #expect(title(for: .cpuUsage, snapshot: snapshot, dataUnit: .iec) == "CPU --%")
+        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 --℃")
+    }
+
     @Test("Renderer creates combined title")
     func createsCombinedTitle() {
         let snapshot = makeSnapshot()
@@ -80,6 +112,41 @@ struct MenuBarRendererTests {
 
         #expect(image.size.width > 0)
         #expect(image.size.height == 20)
+    }
+
+    @Test("極端な通信速度とディスク速度でもバーとグラフを描画できる")
+    @MainActor
+    func rendersMaximumThroughput() {
+        let sample = makeSnapshot()
+        let snapshot = MetricsSnapshot(
+            timestamp: sample.timestamp, cpu: sample.cpu, memory: sample.memory,
+            disk: DiskMetrics(volumes: [], readBytesPerSecond: .max, writeBytesPerSecond: .max),
+            network: NetworkMetrics(interfaces: [
+                InterfaceInfo(
+                    id: "en0", displayName: "en0", downloadBytesPerSecond: .max,
+                    uploadBytesPerSecond: .max, isActive: true
+                )
+            ]),
+            thermal: sample.thermal
+        )
+        for style in [MenuBarDisplayStyle.bar, .graph] {
+            let image = MenuBarRenderer.image(
+                for: [.networkSpeed, .diskIO], snapshot: snapshot, history: [snapshot, snapshot],
+                style: style, options: barOptions
+            )
+            #expect(image.size.height == 20)
+        }
+    }
+
+    @Test("IEC の4桁の送受信速度がテキスト表示の固定幅に収まる")
+    @MainActor
+    func fitsFourDigitRates() {
+        for item in [DisplayItem.networkSpeed, .diskIO] {
+            let length = MenuBarRenderer.preferredLength(for: [item], showIcon: false)
+            let rate = ByteFormatter.string(from: 1023, dataUnit: .iec, unitStyle: .compact)
+            let title = MenuBarRenderer.attributedTitle(for: "↓ \(rate) ↑ \(rate)")
+            #expect(length >= title.size().width + 12)
+        }
     }
 
     @Test("Renderer uses compact length for graphic styles")

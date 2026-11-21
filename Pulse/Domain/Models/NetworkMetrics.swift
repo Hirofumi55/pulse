@@ -14,12 +14,18 @@ struct NetworkMetrics: Sendable, Equatable {
 
     /// 全インターフェース合計の受信速度(bytes/sec)。
     var totalDownloadBytesPerSecond: UInt64 {
-        interfaces.reduce(0) { $0 + $1.downloadBytesPerSecond }
+        interfaces.reduce(0) { total, interface in
+            let (sum, overflow) = total.addingReportingOverflow(interface.downloadBytesPerSecond)
+            return overflow ? .max : sum
+        }
     }
 
     /// 全インターフェース合計の送信速度(bytes/sec)。
     var totalUploadBytesPerSecond: UInt64 {
-        interfaces.reduce(0) { $0 + $1.uploadBytesPerSecond }
+        interfaces.reduce(0) { total, interface in
+            let (sum, overflow) = total.addingReportingOverflow(interface.uploadBytesPerSecond)
+            return overflow ? .max : sum
+        }
     }
 }
 

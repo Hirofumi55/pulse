@@ -18,6 +18,9 @@ final class MetricsCoordinator {
     private(set) var latestSnapshot: MetricsSnapshot?
     private(set) var history: [MetricsSnapshot] = []
 
+    /// 現在サンプリングを実行しているかどうか。
+    var isSampling: Bool { samplingTask != nil }
+
     private let maxHistoryCount: Int
     private let cpuSampler = CPUSampler()
     private let memorySampler = MemorySampler()
@@ -63,12 +66,12 @@ final class MetricsCoordinator {
             return
         }
 
-        let shouldRestart = samplingTask != nil
-        samplingInterval = interval
         logger.debug("Sampling interval updated")
 
-        if shouldRestart {
+        if samplingTask != nil {
             start(interval: interval)
+        } else {
+            samplingInterval = interval
         }
     }
 

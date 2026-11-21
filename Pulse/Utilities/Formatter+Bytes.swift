@@ -38,7 +38,11 @@ enum ByteFormatter {
         }
 
         if value >= 10 {
-            return "\(Int(value.rounded()))\(units[unitIndex])"
+            let roundedValue = value.rounded()
+            if roundedValue >= base, unitIndex < units.count - 1 {
+                return String(format: "%.1f%@", roundedValue / base, units[unitIndex + 1])
+            }
+            return "\(Int(roundedValue))\(units[unitIndex])"
         }
 
         return String(format: "%.1f%@", value, units[unitIndex])

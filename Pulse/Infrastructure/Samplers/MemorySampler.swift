@@ -5,7 +5,7 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
-import Darwin
+@preconcurrency import Darwin
 import Foundation
 
 /// Mach API と sysctl からメモリ使用量を取得する Sampler。
@@ -16,10 +16,16 @@ actor MemorySampler: Sampler {
         let pageSize = try samplePageSize()
         let stats = try sampleVMStatistics()
         let total = ProcessInfo.processInfo.physicalMemory
-        let app = bytes(from: stats.internal_page_count, pageSize: pageSize)
+        let appPages =
+            stats.internal_page_count >= stats.purgeable_count
+            ? stats.internal_page_count - stats.purgeable_count
+            : 0
+        let app = bytes(from: appPages, pageSize: pageSize)
         let wired = bytes(from: stats.wire_count, pageSize: pageSize)
         let compressed = bytes(from: stats.compressor_page_count, pageSize: pageSize)
-        let cached = bytes(from: stats.external_page_count, pageSize: pageSize)
+        let cached =
+            bytes(from: stats.external_page_count, pageSize: pageSize)
+            + bytes(from: stats.purgeable_count, pageSize: pageSize)
         let free = bytes(from: stats.free_count, pageSize: pageSize)
         let swapUsed = try sampleSwapUsage()
         let pressureInput = MemoryPressureInput(
@@ -47,8 +53,13 @@ actor MemorySampler: Sampler {
     }
 
     private func samplePageSize() throws -> UInt64 {
+        let hostPort = mach_host_self()
+        defer {
+            mach_port_deallocate(mach_task_self_, hostPort)
+        }
+
         var pageSize = vm_size_t()
-        let result = host_page_size(mach_host_self(), &pageSize)
+        let result = host_page_size(hostPort, &pageSize)
 
         guard result == KERN_SUCCESS else {
             throw SamplerError.kernelCallFailed(name: "host_page_size", code: result)
@@ -58,6 +69,11 @@ actor MemorySampler: Sampler {
     }
 
     private func sampleVMStatistics() throws -> vm_statistics64_data_t {
+        let hostPort = mach_host_self()
+        defer {
+            mach_port_deallocate(mach_task_self_, hostPort)
+        }
+
         var stats = vm_statistics64_data_t()
         var count = mach_msg_type_number_t(
             MemoryLayout<vm_statistics64_data_t>.stride / MemoryLayout<integer_t>.stride
@@ -65,7 +81,7 @@ actor MemorySampler: Sampler {
 
         let result = withUnsafeMutablePointer(to: &stats) { pointer in
             pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { reboundPointer in
-                host_statistics64(mach_host_self(), HOST_VM_INFO64, reboundPointer, &count)
+                host_statistics64(hostPort, HOST_VM_INFO64, reboundPointer, &count)
             }
         }
 
@@ -130,7 +146,7 @@ actor MemorySampler: Sampler {
         }
 
         let pageoutDelta = difference(current: currentPageouts, previous: previousPageouts.pageouts)
-        let bytesPerSecond = Double(pageoutDelta * pageSize) / elapsedSeconds
+        let bytesPerSecond = (Double(pageoutDelta) * Double(pageSize)) / elapsedSeconds
         let severePageoutRate = 64.0 * 1024.0 * 1024.0
         return (bytesPerSecond / severePageoutRate).clamped(to: 0...1)
     }

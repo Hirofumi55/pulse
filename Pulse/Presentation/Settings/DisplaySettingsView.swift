@@ -192,7 +192,11 @@ struct DisplaySettingsView: View {
     private var popoverOpacityPreview: some View {
         ZStack {
             LinearGradient(
-                colors: [.blue.opacity(0.35), .purple.opacity(0.3), .cyan.opacity(0.25)],
+                colors: [
+                    Color(red: 0.17, green: 0.28, blue: 0.42),
+                    Color(red: 0.24, green: 0.34, blue: 0.38),
+                    Color(red: 0.14, green: 0.18, blue: 0.26),
+                ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -202,26 +206,45 @@ struct DisplaySettingsView: View {
                 blurRadius: preferences.popoverBackgroundBlurRadius,
                 tone: .clearBlack
             )
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(.white.opacity(0.18), lineWidth: 0.8)
-            }
-            .overlay {
-                HStack(spacing: 8) {
-                    Image(systemName: "sparkles")
-                        .symbolRenderingMode(.hierarchical)
-                        .accessibilityHidden(true)
-                    Text("背景越しに内容が自然に透けます")
-                        .lineLimit(1)
+                HStack(spacing: 10) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("CPU負荷")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                        Text("34%")
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.primary)
+                            .monospacedDigit()
+                    }
+                    Spacer()
+                    HStack(alignment: .bottom, spacing: 3) {
+                        ForEach([0.32, 0.58, 0.44, 0.72, 0.38, 0.52], id: \.self) { ratio in
+                            RoundedRectangle(cornerRadius: 1.5, style: .continuous)
+                                .fill(Color.blue.opacity(0.85))
+                                .frame(width: 4, height: 22 * ratio)
+                        }
+                    }
                 }
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .pulseGlassPanel(
+                    cornerRadius: 10,
+                    tint: .blue,
+                    materialOpacity: PulseGlassStyle.panelMaterialOpacity(
+                        for: preferences.popoverBackgroundOpacity,
+                        blurRadius: preferences.popoverBackgroundBlurRadius
+                    ),
+                    tone: .clearBlack
+                )
+                .padding(8)
             }
-            .padding(8)
+            .environment(\.colorScheme, .dark)
+            .padding(6)
         }
-        .frame(height: 54)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .frame(height: 70)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private func intervalTitle(_ interval: Double) -> String {

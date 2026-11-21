@@ -11,68 +11,146 @@ import SwiftUI
 struct CPUTab: View {
     let coordinator: MetricsCoordinator
 
+    @Environment(PreferencesStore.self) private var preferences
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private let coreColumns = [
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10),
+    ]
+
     private var history: [MetricsSnapshot] {
         Array(coordinator.history.suffix(120))
     }
 
+    private var cpu: CPUMetrics? {
+        coordinator.latestSnapshot?.cpu
+    }
+
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 16) {
-                    GaugeView(value: coordinator.latestSnapshot?.cpu.totalUsage ?? 0, title: "CPU", tint: .blue)
-                    VStack(alignment: .leading, spacing: 10) {
-                        usageRow("User", value: coordinator.latestSnapshot?.cpu.userUsage ?? 0, color: .blue)
-                        usageRow("System", value: coordinator.latestSnapshot?.cpu.systemUsage ?? 0, color: .purple)
-                        usageRow("Idle", value: coordinator.latestSnapshot?.cpu.idleUsage ?? 0, color: .secondary)
-                    }
-                }
+            VStack(alignment: .leading, spacing: 10) {
+                summaryCard
 
-                MetricCard(title: "使用率", value: "", tint: .blue) {
+                MetricCard(
+                    title: "使用率の推移",
+                    value: cpu.map { MetricFormatter.percentage($0.totalUsage) } ?? "--",
+                    subtitle: cpu.map { "物理 \($0.physicalCoreCount) コア · 論理 \($0.logicalCoreCount) コア" } ?? "取得待ち",
+                    tint: .blue
+                ) {
                     SparklineChart(snapshots: history, tint: .blue, yDomain: 0...100) { snapshot in
                         snapshot.cpu.totalUsage * 100
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("コア")
-                        .font(.system(size: 13, weight: .semibold))
-                    ForEach(
-                        Array((coordinator.latestSnapshot?.cpu.perCoreUsage ?? []).enumerated()),
-                        id: \.offset
-                    ) { item in
-                        coreRow(index: item.offset, value: item.element)
-                    }
+                coresCard
+            }
+            .padding(.horizontal, 14)
+            .padding(.bottom, 14)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private var summaryCard: some View {
+        HStack(spacing: 14) {
+            GaugeView(value: cpu?.totalUsage ?? 0, title: "合計", tint: .blue)
+
+            VStack(alignment: .leading, spacing: 10) {
+                usageRow("ユーザー", value: cpu?.userUsage ?? 0, color: .blue)
+                usageRow("システム", value: cpu?.systemUsage ?? 0, color: .indigo)
+                usageRow("アイドル", value: cpu?.idleUsage ?? 0, color: .white.opacity(0.32))
+            }
+        }
+        .padding(12)
+        .pulseGlassPanel(
+            cornerRadius: 16,
+            tint: .blue,
+            materialOpacity: PulseGlassStyle.panelMaterialOpacity(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            ),
+            tone: .clearBlack
+        )
+    }
+
+    private var coresCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("コア別使用率")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.primary.opacity(0.86))
+
+            LazyVGrid(columns: coreColumns, spacing: 8) {
+                ForEach(Array((cpu?.perCoreUsage ?? []).enumerated()), id: \.offset) { item in
+                    coreRow(index: item.offset, value: item.element)
                 }
             }
-            .padding(14)
         }
+        .padding(12)
+        .pulseGlassPanel(
+            cornerRadius: 16,
+            tint: .blue,
+            materialOpacity: PulseGlassStyle.panelMaterialOpacity(
+                for: preferences.popoverBackgroundOpacity,
+                blurRadius: preferences.popoverBackgroundBlurRadius
+            ),
+            tone: .clearBlack
+        )
     }
 
     private func usageRow(_ title: String, value: Double, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        let clamped = Swift.min(Swift.max(value.isFinite ? value : 0, 0), 1)
+        return VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(title)
+                    .foregroundStyle(.secondary)
                 Spacer()
-                Text(MetricFormatter.percentage(value))
+                Text(MetricFormatter.percentage(clamped))
+                    .foregroundStyle(.primary)
                     .monospacedDigit()
+                    .contentTransition(.numericText())
             }
-            .font(.system(size: 12, weight: .medium))
+            .font(.system(size: 11, weight: .medium))
 
-            ProgressView(value: Swift.min(Swift.max(value, 0), 1))
-                .tint(color)
+            GeometryReader { proxy in
+                Capsule(style: .continuous)
+                    .fill(.white.opacity(0.09))
+                    .overlay(alignment: .leading) {
+                        Capsule(style: .continuous)
+                            .fill(color)
+                            .frame(width: max(3, proxy.size.width * CGFloat(clamped)))
+                    }
+            }
+            .frame(height: 5)
+            .animation(PulseMotion.resolve(PulseMotion.smooth, reduceMotion: reduceMotion), value: clamped)
         }
     }
 
     private func coreRow(index: Int, value: Double) -> some View {
-        HStack(spacing: 8) {
-            Text("Core \(index + 1)")
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .frame(width: 54, alignment: .leading)
-            ProgressView(value: Swift.min(Swift.max(value, 0), 1))
-                .tint(.blue)
-            Text(MetricFormatter.percentage(value))
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
-                .frame(width: 34, alignment: .trailing)
+        let clamped = Swift.min(Swift.max(value.isFinite ? value : 0, 0), 1)
+        let color: Color = clamped >= 0.85 ? .orange : .blue
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("コア \(index + 1)")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(MetricFormatter.percentage(clamped))
+                    .foregroundStyle(.primary.opacity(0.9))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            .font(.system(size: 10, weight: .medium))
+
+            GeometryReader { proxy in
+                Capsule(style: .continuous)
+                    .fill(.white.opacity(0.09))
+                    .overlay(alignment: .leading) {
+                        Capsule(style: .continuous)
+                            .fill(color)
+                            .frame(width: max(3, proxy.size.width * CGFloat(clamped)))
+                    }
+            }
+            .frame(height: 5)
+            .animation(PulseMotion.resolve(PulseMotion.smooth, reduceMotion: reduceMotion), value: clamped)
         }
     }
 }

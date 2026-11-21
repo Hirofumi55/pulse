@@ -218,7 +218,7 @@ enum MenuBarRenderer {
     }
 
     private static func temperatureTitle(prefix: String, value: Double?, unit: TemperatureUnit) -> String {
-        guard let value else {
+        guard let value, value.isFinite else {
             return "\(prefix)--\(temperatureSuffix(for: unit))"
         }
 

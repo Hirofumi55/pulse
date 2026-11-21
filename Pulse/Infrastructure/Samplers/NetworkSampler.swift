@@ -25,8 +25,13 @@ actor NetworkSampler: Sampler {
 
     func sample() async throws -> NetworkMetrics {
         let rawStats = try sampleRawStats()
+        return makeMetrics(from: rawStats)
+    }
+
+    func makeMetrics(from rawStats: [NetworkRawStats]) -> NetworkMetrics {
+        let deduplicatedStats = deduplicateRawStats(rawStats)
         let currentSamples = Dictionary(
-            rawStats.map { rawStat in
+            deduplicatedStats.map { rawStat in
                 (
                     rawStat.name,
                     NetworkCounterSample(
@@ -38,12 +43,23 @@ actor NetworkSampler: Sampler {
             },
             uniquingKeysWith: { _, latest in latest }
         )
-        let interfaces = rawStats.compactMap { rawStat in
+        let interfaces = deduplicatedStats.compactMap { rawStat in
             makeInterfaceInfo(from: rawStat)
         }
 
         previousSamples = currentSamples
         return NetworkMetrics(interfaces: interfaces)
+    }
+
+    private func deduplicateRawStats(_ rawStats: [NetworkRawStats]) -> [NetworkRawStats] {
+        var latestByName: [String: NetworkRawStats] = [:]
+        for rawStat in rawStats where shouldIncludeInterface(named: rawStat.name) {
+            latestByName[rawStat.name] = rawStat
+        }
+
+        return latestByName.values.sorted { left, right in
+            left.name.localizedStandardCompare(right.name) == .orderedAscending
+        }
     }
 
     private func sampleRawStats() throws -> [NetworkRawStats] {
@@ -82,16 +98,18 @@ actor NetworkSampler: Sampler {
     ) throws -> [NetworkRawStats] {
         var stats: [NetworkRawStats] = []
         var offset = 0
+        let headerSize = 4
         let messageSize = MemoryLayout<if_msghdr2>.stride
         let limit = min(validLength, buffer.count)
 
-        while offset + messageSize <= limit {
-            let message = buffer.withUnsafeBytes { rawBuffer in
-                rawBuffer.loadUnaligned(fromByteOffset: offset, as: if_msghdr2.self)
+        while offset + headerSize <= limit {
+            let (messageLength, messageType) = buffer.withUnsafeBytes { rawBuffer -> (Int, UInt8) in
+                let length = Int(rawBuffer.loadUnaligned(fromByteOffset: offset, as: UInt16.self))
+                let type = rawBuffer.loadUnaligned(fromByteOffset: offset + 3, as: UInt8.self)
+                return (length, type)
             }
-            let messageLength = Int(message.ifm_msglen)
 
-            guard messageLength > 0, offset + messageLength <= limit else {
+            guard messageLength >= headerSize, offset + messageLength <= limit else {
                 throw SamplerError.unexpectedFormat
             }
 
@@ -100,7 +118,17 @@ actor NetworkSampler: Sampler {
             }
 
             guard
-                message.ifm_type == UInt8(RTM_IFINFO2),
+                messageType == UInt8(RTM_IFINFO2),
+                messageLength >= messageSize
+            else {
+                continue
+            }
+
+            let message = buffer.withUnsafeBytes { rawBuffer in
+                rawBuffer.loadUnaligned(fromByteOffset: offset, as: if_msghdr2.self)
+            }
+
+            guard
                 let name = interfaceName(
                     from: buffer,
                     messageOffset: offset,
@@ -167,24 +195,28 @@ actor NetworkSampler: Sampler {
         messageOffset: Int,
         messageLength: Int
     ) -> String? {
+        guard
+            let nameLengthOffset = MemoryLayout<sockaddr_dl>.offset(of: \.sdl_nlen),
+            let dataOffset = MemoryLayout<sockaddr_dl>.offset(of: \.sdl_data)
+        else {
+            return nil
+        }
+
         let addressOffset = messageOffset + MemoryLayout<if_msghdr2>.stride
         let addressLimit = min(messageOffset + messageLength, buffer.count)
-        guard addressOffset + MemoryLayout<sockaddr_dl>.stride <= addressLimit else {
+        guard addressOffset + dataOffset <= addressLimit else {
             return nil
         }
 
-        let address = buffer.withUnsafeBytes { rawBuffer in
-            rawBuffer.loadUnaligned(fromByteOffset: addressOffset, as: sockaddr_dl.self)
-        }
-        let nameLength = min(Int(address.sdl_nlen), MemoryLayout.size(ofValue: address.sdl_data))
-        guard nameLength > 0 else {
+        let nameLength = Int(buffer[addressOffset + nameLengthOffset])
+        let nameStart = addressOffset + dataOffset
+        let availableLength = min(nameLength, addressLimit - nameStart)
+        guard availableLength > 0 else {
             return nil
         }
 
-        let nameBytes = withUnsafeBytes(of: address.sdl_data) { rawBuffer in
-            Array(rawBuffer.prefix(nameLength)).filter { byte in
-                byte != 0
-            }
+        let nameBytes = buffer[nameStart..<(nameStart + availableLength)].filter { byte in
+            byte != 0
         }
 
         guard !nameBytes.isEmpty else {
@@ -230,7 +262,7 @@ actor NetworkSampler: Sampler {
     }
 }
 
-private struct NetworkRawStats: Sendable, Equatable {
+struct NetworkRawStats: Sendable, Equatable {
     let name: String
     let downloadBytes: UInt64
     let uploadBytes: UInt64

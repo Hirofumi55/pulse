@@ -31,6 +31,11 @@ actor CPUSampler: Sampler {
     }
 
     private func sampleTotal() throws -> CPUUsageBreakdown {
+        let hostPort = mach_host_self()
+        defer {
+            mach_port_deallocate(mach_task_self_, hostPort)
+        }
+
         var cpuLoadInfo = host_cpu_load_info_data_t()
         var count = mach_msg_type_number_t(
             MemoryLayout<host_cpu_load_info_data_t>.stride / MemoryLayout<integer_t>.stride
@@ -38,7 +43,7 @@ actor CPUSampler: Sampler {
 
         let result = withUnsafeMutablePointer(to: &cpuLoadInfo) { pointer in
             pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { reboundPointer in
-                host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, reboundPointer, &count)
+                host_statistics(hostPort, HOST_CPU_LOAD_INFO, reboundPointer, &count)
             }
         }
 
@@ -57,12 +62,17 @@ actor CPUSampler: Sampler {
     }
 
     private func samplePerCore() throws -> [Double] {
+        let hostPort = mach_host_self()
+        defer {
+            mach_port_deallocate(mach_task_self_, hostPort)
+        }
+
         var processorCount: natural_t = 0
         var processorInfo: processor_info_array_t?
         var infoCount: mach_msg_type_number_t = 0
 
         let result = host_processor_info(
-            mach_host_self(),
+            hostPort,
             PROCESSOR_CPU_LOAD_INFO,
             &processorCount,
             &processorInfo,

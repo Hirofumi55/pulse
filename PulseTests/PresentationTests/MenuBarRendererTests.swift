@@ -53,6 +53,38 @@ struct MenuBarRendererTests {
         #expect(title == "温度 114℉")
     }
 
+    @Test("Renderer handles non-finite values without crashing")
+    func handlesNonFiniteValuesWithoutCrashing() {
+        let snapshot = MetricsSnapshot(
+            timestamp: Date(timeIntervalSince1970: 0),
+            cpu: CPUMetrics(
+                totalUsage: .nan,
+                userUsage: .nan,
+                systemUsage: .infinity,
+                idleUsage: 0,
+                perCoreUsage: [.nan],
+                physicalCoreCount: 1,
+                logicalCoreCount: 1
+            ),
+            memory: MemoryMetrics(
+                totalBytes: 100,
+                appBytes: 0,
+                wiredBytes: 0,
+                compressedBytes: 0,
+                cachedBytes: 0,
+                freeBytes: 100,
+                swapUsedBytes: 0,
+                pressure: 0
+            ),
+            disk: DiskMetrics(volumes: [], readBytesPerSecond: 0, writeBytesPerSecond: 0),
+            network: NetworkMetrics(interfaces: []),
+            thermal: ThermalMetrics(cpuTemperatureCelsius: .nan, batteryTemperatureCelsius: nil)
+        )
+
+        #expect(title(for: .cpuUsage, snapshot: snapshot, dataUnit: .iec) == "CPU --%")
+        #expect(title(for: .cpuTemperature, snapshot: snapshot, dataUnit: .iec) == "温度 --℃")
+    }
+
     @Test("Renderer creates combined title")
     func createsCombinedTitle() {
         let snapshot = makeSnapshot()

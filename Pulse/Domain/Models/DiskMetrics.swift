@@ -38,7 +38,7 @@ struct VolumeInfo: Sendable, Equatable, Identifiable {
 
     /// 使用済み容量(bytes)。
     var usedBytes: UInt64 {
-        totalBytes - freeBytes
+        totalBytes >= freeBytes ? totalBytes - freeBytes : 0
     }
 
     /// 使用率(0.0 - 1.0)。

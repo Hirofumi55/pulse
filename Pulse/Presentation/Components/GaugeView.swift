@@ -9,39 +9,50 @@ import SwiftUI
 
 /// 0.0 から 1.0 の値をリング状に表示するゲージ。
 struct GaugeView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let value: Double
     let title: String
     let tint: Color
 
     private var clampedValue: Double {
-        Swift.min(Swift.max(value, 0), 1)
+        guard value.isFinite else {
+            return 0
+        }
+        return Swift.min(Swift.max(value, 0), 1)
     }
 
     var body: some View {
         ZStack {
             Circle()
-                .stroke(.secondary.opacity(0.16), lineWidth: 12)
+                .stroke(.white.opacity(0.11), lineWidth: 10)
             Circle()
                 .trim(from: 0, to: clampedValue)
                 .stroke(
-                    AngularGradient(
-                        colors: [tint.opacity(0.45), tint, tint.opacity(0.82)],
-                        center: .center
-                    ),
-                    style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                    tint,
+                    style: StrokeStyle(lineWidth: 10, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
-                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: clampedValue)
+                .animation(PulseMotion.resolve(PulseMotion.smooth, reduceMotion: reduceMotion), value: clampedValue)
+
             VStack(spacing: 2) {
                 Text(MetricFormatter.percentage(clampedValue))
                     .font(.system(size: 22, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(
+                        PulseMotion.resolve(PulseMotion.numeric, reduceMotion: reduceMotion),
+                        value: clampedValue
+                    )
                 Text(title)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(6)
-        .pulseGlassPanel(tint: tint)
-        .frame(width: 118, height: 118)
+        .padding(8)
+        .frame(width: 112, height: 112)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(MetricFormatter.percentage(clampedValue))
     }
 }

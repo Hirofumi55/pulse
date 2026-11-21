@@ -66,12 +66,12 @@ final class MetricsCoordinator {
             return
         }
 
-        let shouldRestart = samplingTask != nil
-        samplingInterval = interval
         logger.debug("Sampling interval updated")
 
-        if shouldRestart {
+        if samplingTask != nil {
             start(interval: interval)
+        } else {
+            samplingInterval = interval
         }
     }
 

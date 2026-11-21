@@ -41,13 +41,17 @@ struct MetricsCoordinatorTests {
     func updateIntervalRestartsSampling() async throws {
         let coordinator = MetricsCoordinator(maxHistoryCount: 20)
 
-        coordinator.start(interval: .milliseconds(250))
-        try await Task.sleep(for: .milliseconds(100))
+        coordinator.start(interval: .seconds(10))
+        let initialDeadline = Date().addingTimeInterval(1)
+        while coordinator.history.isEmpty && Date() < initialDeadline {
+            try await Task.sleep(for: .milliseconds(20))
+        }
         let countBeforeUpdate = coordinator.history.count
+        #expect(countBeforeUpdate >= 1)
 
         coordinator.updateInterval(.milliseconds(20))
-        let deadline = Date().addingTimeInterval(1)
-        while coordinator.history.count <= countBeforeUpdate && Date() < deadline {
+        let updateDeadline = Date().addingTimeInterval(0.6)
+        while coordinator.history.count <= countBeforeUpdate && Date() < updateDeadline {
             try await Task.sleep(for: .milliseconds(20))
         }
         coordinator.stop()

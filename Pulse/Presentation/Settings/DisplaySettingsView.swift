@@ -420,8 +420,7 @@ private struct MenuBarPreviewView: View {
             for: preferences.displayedItems,
             snapshot: nil,
             showIcon: preferences.showMenuBarIcons,
-            dataUnit: preferences.dataUnit,
-            temperatureUnit: preferences.temperatureUnit
+            dataUnit: preferences.dataUnit
         )
     }
 

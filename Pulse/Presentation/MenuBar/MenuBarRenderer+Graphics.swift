@@ -323,8 +323,6 @@ extension MenuBarRenderer {
                 throughputRatio(snapshot.disk.readBytesPerSecond, scale: 20_000_000),
                 throughputRatio(snapshot.disk.writeBytesPerSecond, scale: 20_000_000),
             ]
-        case .cpuTemperature:
-            return [CGFloat(temperatureRatio(snapshot.thermal.cpuTemperatureCelsius))]
         case .gpuUsage:
             return [0.18]
         }
@@ -363,8 +361,6 @@ extension MenuBarRenderer {
             primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0
         case .diskIO:
             Double(snapshot.disk.readBytesPerSecond) + Double(snapshot.disk.writeBytesPerSecond)
-        case .cpuTemperature:
-            temperatureRatio(snapshot.thermal.cpuTemperatureCelsius)
         case .gpuUsage:
             0
         }
@@ -386,8 +382,6 @@ extension MenuBarRenderer {
             (primaryVolume(from: snapshot.disk.volumes)?.usageRatio ?? 0).clamped(to: 0...1)
         case .diskIO:
             (metricValue(for: item, snapshot: snapshot) / 40_000_000).clamped(to: 0...1)
-        case .cpuTemperature:
-            temperatureRatio(snapshot.thermal.cpuTemperatureCelsius)
         case .gpuUsage:
             0
         }
@@ -395,14 +389,6 @@ extension MenuBarRenderer {
 
     private static func throughputRatio(_ value: UInt64, scale: Double) -> CGFloat {
         CGFloat((Double(value) / scale).clamped(to: 0.05...1))
-    }
-
-    private static func temperatureRatio(_ value: Double?) -> Double {
-        guard let value else {
-            return 0.05
-        }
-
-        return ((value - 20) / 70).clamped(to: 0.05...1)
     }
 
     private static func primaryVolume(from volumes: [VolumeInfo]) -> VolumeInfo? {
@@ -423,8 +409,6 @@ extension MenuBarRenderer {
             "DSK"
         case .diskIO:
             "I/O"
-        case .cpuTemperature:
-            "TMP"
         case .gpuUsage:
             "GPU"
         }
@@ -457,7 +441,7 @@ extension MenuBarRenderer {
                 NSColor.white.withAlphaComponent(0.72),
                 NSColor.white.withAlphaComponent(0.48),
             ]
-        case .cpuUsage, .memoryUsage, .diskUsage, .cpuTemperature:
+        case .cpuUsage, .memoryUsage, .diskUsage:
             [NSColor.white.withAlphaComponent(0.68)]
         case .gpuUsage:
             [NSColor.white.withAlphaComponent(0.46)]

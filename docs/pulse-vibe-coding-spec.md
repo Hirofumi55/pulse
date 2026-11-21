@@ -348,7 +348,7 @@ Sampler エラー時は該当メトリクスのみ前回値を維持し、アプ
 - `MetricsCoordinator.stop()` でタスクが完全停止すること
 - `PreferencesStore` の値が再起動後も保持されること
 - `Formatter+Bytes` が 0、1KB、1MB、1GB、1TB で正しいこと
-- `DisplayItem.isAvailableInPhase1` が温度/GPU に対して false であること
+- `DisplayItem.isAvailableInPhase1` が GPU に対して false であること
 
 カバレッジ目標はドメインロジック 70% 以上です。
 

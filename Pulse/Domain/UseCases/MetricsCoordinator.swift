@@ -26,7 +26,6 @@ final class MetricsCoordinator {
     private let memorySampler = MemorySampler()
     private let diskSampler = DiskSampler()
     private let networkSampler = NetworkSampler()
-    private let thermalSampler = ThermalSampler()
 
     private var samplingTask: Task<Void, Never>?
     private var samplingInterval: Duration
@@ -98,15 +97,13 @@ final class MetricsCoordinator {
         async let memory = sampleMemory(previous: previousSnapshot?.memory)
         async let disk = sampleDisk(previous: previousSnapshot?.disk)
         async let network = sampleNetwork(previous: previousSnapshot?.network)
-        async let thermal = sampleThermal(previous: previousSnapshot?.thermal)
 
         return MetricsSnapshot(
             timestamp: .now,
             cpu: await cpu,
             memory: await memory,
             disk: await disk,
-            network: await network,
-            thermal: await thermal
+            network: await network
         )
     }
 
@@ -143,15 +140,6 @@ final class MetricsCoordinator {
         } catch {
             logger.error("Network sampling failed: \(String(describing: error), privacy: .public)")
             return previous ?? NetworkMetrics(interfaces: [])
-        }
-    }
-
-    private func sampleThermal(previous: ThermalMetrics?) async -> ThermalMetrics {
-        do {
-            return try await thermalSampler.sample()
-        } catch {
-            logger.error("Thermal sampling failed: \(String(describing: error), privacy: .public)")
-            return previous ?? ThermalMetrics(cpuTemperatureCelsius: nil, batteryTemperatureCelsius: nil)
         }
     }
 

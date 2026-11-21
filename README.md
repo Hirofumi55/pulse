@@ -148,7 +148,7 @@ rm -rf ~/Library/Logs/Pulse
 - **一般**: ログイン項目への追加方法など
 - **表示**: メニューバーに表示する項目の選択と並び順
 - **更新**: サンプリング間隔、自動アップデート確認の有無
-- **単位**: 温度単位(℃/℉)、データ単位(SI/IEC)
+- **単位**: データ単位(SI/IEC)、外観テーマ
 - **情報**: バージョン、GitHub リンク
 
 ### ログイン時に自動起動する
@@ -237,7 +237,6 @@ xcodebuild test -scheme Pulse -destination 'platform=macOS,arch=arm64'
 
 ### Phase 2(予定)
 
-- ⏳ CPU 温度センサー対応
 - ⏳ GPU・ANE 使用率の表示
 - ⏳ パッケージ電力モニタリング
 - ⏳ P-core / E-core 別の使用率

@@ -47,9 +47,6 @@ struct OverviewTab: View {
                 diskIOCard
             }
             .pulseStaggeredEntrance(appeared: hasAppeared, delay: 0.08, reduceMotion: reduceMotion)
-
-            thermalStripCard
-                .pulseStaggeredEntrance(appeared: hasAppeared, delay: 0.12, reduceMotion: reduceMotion)
         }
         .padding(.horizontal, 14)
         .padding(.bottom, 14)
@@ -283,36 +280,6 @@ struct OverviewTab: View {
         .accessibilityLabel("ディスクI/O")
         .accessibilityValue(diskIOValue(disk))
     }
-
-    private var thermalStripCard: some View {
-        let thermal = latestSnapshot?.thermal
-        let cpuTemperature = thermal?.cpuTemperatureCelsius
-        return BentoTileCard(
-            title: "サーマル",
-            systemImage: "thermometer.medium",
-            tint: thermalTint(cpuTemperature),
-            height: 78
-        ) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(temperatureText(cpuTemperature))
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
-                    MetricInlineStat(
-                        label: "電池",
-                        value: temperatureText(thermal?.batteryTemperatureCelsius)
-                    )
-                }
-                .frame(width: 82, alignment: .leading)
-
-                TemperatureGaugeView(temperature: cpuTemperature, unit: preferences.temperatureUnit)
-            }
-        }
-        .accessibilityRepresentation {
-            Text("サーマル、\(thermalAccessibilityValue(thermal))")
-        }
-    }
 }
 
 extension OverviewTab {
@@ -405,52 +372,5 @@ extension OverviewTab {
         }
 
         return bytes(value)
-    }
-
-    private func temperatureText(_ celsius: Double?) -> String {
-        guard let celsius, celsius.isFinite else {
-            return "--"
-        }
-
-        switch preferences.temperatureUnit {
-        case .celsius:
-            return "\(Int(celsius.rounded()))℃"
-        case .fahrenheit:
-            return "\(Int((celsius * 9 / 5 + 32).rounded()))℉"
-        }
-    }
-
-    private func thermalTint(_ celsius: Double?) -> Color {
-        guard let celsius, celsius.isFinite else {
-            return .secondary
-        }
-        if celsius >= 80 {
-            return .red
-        }
-        if celsius >= 60 {
-            return .orange
-        }
-        return .teal
-    }
-
-    private func thermalAccessibilityValue(_ thermal: ThermalMetrics?) -> String {
-        guard let thermal else { return "取得待ち" }
-        let cpu = thermal.cpuTemperatureCelsius.map { temperatureText($0) + "、" } ?? ""
-        let battery = thermal.batteryTemperatureCelsius.map { temperatureText($0) } ?? "取得不可"
-        return "CPU \(cpu)\(thermalStatusText(thermal))、バッテリー \(battery)"
-    }
-
-    private func thermalStatusText(_ thermal: ThermalMetrics) -> String {
-        guard let temperature = thermal.cpuTemperatureCelsius else {
-            return "取得不可"
-        }
-
-        if temperature >= 80 {
-            return "高温"
-        }
-        if temperature >= 60 {
-            return "注意"
-        }
-        return "安定"
     }
 }

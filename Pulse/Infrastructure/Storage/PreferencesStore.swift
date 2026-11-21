@@ -8,30 +8,6 @@
 import Foundation
 import Observation
 
-/// 温度表示の単位。
-enum TemperatureUnit: String, CaseIterable, Codable, Identifiable, Sendable {
-    /// セルシウス。
-    case celsius
-
-    /// 華氏。
-    case fahrenheit
-
-    /// 識別子。
-    var id: String {
-        rawValue
-    }
-
-    /// UI に表示する日本語名。
-    var displayName: String {
-        switch self {
-        case .celsius:
-            "摂氏"
-        case .fahrenheit:
-            "華氏"
-        }
-    }
-}
-
 /// データ量表示の単位系。
 enum DataUnit: String, CaseIterable, Codable, Identifiable, Sendable {
     /// SI 単位系(1000)。
@@ -108,7 +84,6 @@ final class PreferencesStore {
     private var menuBarDisplayStyleStorage: MenuBarDisplayStyle
     private var menuBarBarLayoutStorage: MenuBarBarLayout
     private var showMenuBarBarPercentageStorage: Bool
-    private var temperatureUnitStorage: TemperatureUnit
     private var dataUnitStorage: DataUnit
     private var showMenuBarIconsStorage: Bool
     private var automaticallyChecksForUpdatesStorage: Bool
@@ -193,21 +168,6 @@ final class PreferencesStore {
 
             showMenuBarBarPercentageStorage = newValue
             userDefaults.set(newValue, forKey: Key.showMenuBarBarPercentage)
-        }
-    }
-
-    /// 温度単位。
-    var temperatureUnit: TemperatureUnit {
-        get {
-            temperatureUnitStorage
-        }
-        set {
-            guard temperatureUnitStorage != newValue else {
-                return
-            }
-
-            temperatureUnitStorage = newValue
-            userDefaults.set(newValue.rawValue, forKey: Key.temperatureUnit)
         }
     }
 
@@ -327,12 +287,6 @@ final class PreferencesStore {
             from: userDefaults,
             fallback: false
         )
-        self.temperatureUnitStorage = Self.loadEnum(
-            TemperatureUnit.self,
-            forKey: Key.temperatureUnit,
-            from: userDefaults,
-            fallback: .celsius
-        )
         self.dataUnitStorage = Self.loadEnum(
             DataUnit.self,
             forKey: Key.dataUnit,
@@ -370,7 +324,6 @@ final class PreferencesStore {
         menuBarDisplayStyle = .bar
         menuBarBarLayout = .horizontal
         showMenuBarBarPercentage = false
-        temperatureUnit = .celsius
         dataUnit = .iec
         showMenuBarIcons = true
         automaticallyChecksForUpdates = true
@@ -470,7 +423,6 @@ private enum Key {
     static let menuBarDisplayStyle = "menuBarDisplayStyle"
     static let menuBarBarLayout = "menuBarBarLayout"
     static let showMenuBarBarPercentage = "showMenuBarBarPercentage"
-    static let temperatureUnit = "temperatureUnit"
     static let dataUnit = "dataUnit"
     static let showMenuBarIcons = "showMenuBarIcons"
     static let automaticallyChecksForUpdates = "automaticallyChecksForUpdates"

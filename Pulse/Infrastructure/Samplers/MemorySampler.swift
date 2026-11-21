@@ -5,7 +5,7 @@
 //  Created by Pulse Project. Licensed under MIT.
 //
 
-import Darwin
+@preconcurrency import Darwin
 import Foundation
 
 /// Mach API と sysctl からメモリ使用量を取得する Sampler。

@@ -24,6 +24,10 @@ final class UpdateManager {
 
     /// Sparkle updater を開始する。
     func start() {
+        guard updaterController == nil else {
+            return
+        }
+
         guard Bundle.main.isSparkleUpdateConfigured else {
             logger.warning(
                 "Sparkle updater disabled: \(Bundle.main.sparkleUpdateConfigurationStatus, privacy: .public)"
@@ -32,12 +36,13 @@ final class UpdateManager {
         }
 
         let updaterController = SPUStandardUpdaterController(
-            startingUpdater: true,
+            startingUpdater: false,
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
         self.updaterController = updaterController
         applyPreferences()
+        updaterController.startUpdater()
         logger.debug("Sparkle updater started")
     }
 

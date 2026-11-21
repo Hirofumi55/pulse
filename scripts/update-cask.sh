@@ -62,6 +62,7 @@ cask "${CASK_NAME}" do
   homepage "https://github.com/${APP_REPO}"
 
   depends_on macos: ">= :sonoma"
+  depends_on arch: :arm64
 
   app "Pulse.app"
 
